@@ -93,8 +93,8 @@ HomeScreen sağ üstte ☀/☽ toggle butonu var.
 | id | kategori | title | emoji | level | people | premium |
 |----|----------|-------|-------|-------|--------|---------|
 | `ciftler_hafif` | ciftler | Hafif Sohbet | 🥂 | Hafif | 2 kişi | ✗ |
-| `ciftler_eglenceli` | ciftler | Eğlenceli | 😄 | Eğlenceli | 2 kişi | ✗ |
 | `ciftler_derin` | ciftler | Derin Sohbet | 💫 | Derin | 2 kişi | ✓ |
+| `ciftler_eglenceli` | ciftler | Eğlenceli | 😄 | Eğlenceli | 2 kişi | ✗ |
 | `ciftler_romantik` | ciftler | Romantik | 💕 | Romantik | 2 kişi | ✓ |
 | `bulusma_rahat` | bulusma | Rahat Başlangıç | 🦋 | Hafif | 2 kişi | ✗ |
 | `bulusma_sessizlik` | bulusma | Sessizlik Kurtarıcı | ✨ | Hafif | 2 kişi | ✗ |
@@ -109,12 +109,12 @@ HomeScreen sağ üstte ☀/☽ toggle butonu var.
 | `aile_anilar` | aile | Anılar | 📷 | Derin | Aile | ✓ |
 | `grup_tanisma` | grup | Tanışma Masası | 🤝 | Hafif | 4+ kişi | ✗ |
 | `grup_buz` | grup | Buz Kırıcı | ❄️ | Hafif | 3+ kişi | ✗ |
-| `grup_is` | grup | İş Arkadaşı | 💼 | Profesyonel | 4+ kişi | ✓ |
+| `grup_is` | grup | İş Arkadaşı Ortamı | 💼 | Profesyonel | 4+ kişi | ✓ |
 | `grup_eglenceli` | grup | Eğlenceli Akşam | 🎭 | Cesur | 4+ kişi | ✓ |
 | `grup_derin` | grup | Derin Masa | 🌌 | Derin | 4+ kişi | ✓ |
 
-**Kart sayısı:** 12 per deste, toplam 240 soru  
-**Her kategoride:** 2 ücretsiz + 2-3 premium deste  
+**Kart sayısı:** 12 per deste, toplam 240 soru
+**Her kategoride:** 2 ücretsiz + 2-3 premium deste
 `deck.people` → DeckScreen'de `.replace(/\s*kişi$/i, '')` ile "kişi" strip edilir
 
 ## Türkçe Büyük Harf
