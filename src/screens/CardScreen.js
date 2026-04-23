@@ -1,35 +1,49 @@
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 import {
   View, Text, StyleSheet, SafeAreaView, ScrollView,
-  Animated, PanResponder, Dimensions, TouchableOpacity,
+  Animated, PanResponder, Dimensions, TouchableOpacity, Share,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Feather } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import { cards, categories } from '../data';
 import { useTheme } from '../ThemeContext';
+import { useFavorites } from '../context/FavoritesContext';
 
 const { width, height } = Dimensions.get('window');
 const SWIPE_THRESHOLD = 100;
 const LEFT_EDGE_ZONE = 22;
 
-// JS'in toUpperCase() fonksiyonu Türkçe'de i → I yapıyor, İ yapmıyor
 const upperTR = (str) => str.replace(/i/g, 'İ').toUpperCase();
 
 export default function CardScreen({ navigate, deck }) {
   const { theme } = useTheme();
   const s = useMemo(() => makeStyles(theme), [theme]);
+  const { addFavorite } = useFavorites();
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [favorites, setFavorites] = useState([]);
+  const [sessionFavorites, setSessionFavorites] = useState([]);
   const [finished, setFinished] = useState(false);
   const position = useRef(new Animated.ValueXY()).current;
 
-  // Ref to always hold the latest currentIndex — avoids stale closures in PanResponder
   const currentIndexRef = useRef(0);
+  const cardRef = useRef(null);
 
   const deckCards = cards[deck.id] || [];
   const category = categories.find(c => c.id === deck.categoryId);
   const catColor = category?.color || theme.colors.primary;
   const totalCards = deckCards.length;
 
-  // Keep ref updated so PanResponder always calls the latest swipeCard
+  // Entrance animation
+  const cardAnim = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    Animated.spring(cardAnim, {
+      toValue: 1,
+      friction: 8,
+      tension: 60,
+      useNativeDriver: true,
+    }).start();
+  }, []);
+
   const swipeCardRef = useRef(null);
 
   const swipeCard = (direction) => {
@@ -37,7 +51,11 @@ export default function CardScreen({ navigate, deck }) {
     const toX = direction === 'right' ? width * 1.5 : -width * 1.5;
 
     if (direction === 'right') {
-      setFavorites(prev => [...prev, deckCards[idx]]);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      setSessionFavorites(prev => [...prev, deckCards[idx]]);
+      addFavorite(deckCards[idx], deck, catColor);
+    } else {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
 
     Animated.timing(position, {
@@ -60,7 +78,6 @@ export default function CardScreen({ navigate, deck }) {
 
   const panResponder = useRef(PanResponder.create({
     onStartShouldSetPanResponder: (evt) => {
-      // Allow iOS native back gesture from left edge
       return evt.nativeEvent.pageX > LEFT_EDGE_ZONE;
     },
     onPanResponderMove: (_, gesture) => {
@@ -88,21 +105,46 @@ export default function CardScreen({ navigate, deck }) {
   });
 
   const skipOpacity = position.x.interpolate({
-    inputRange: [-SWIPE_THRESHOLD, 0],
+    inputRange: [-SWIPE_THRESHOLD, -30],
     outputRange: [1, 0],
     extrapolate: 'clamp',
   });
 
   const favoriteOpacity = position.x.interpolate({
-    inputRange: [0, SWIPE_THRESHOLD],
+    inputRange: [30, SWIPE_THRESHOLD],
     outputRange: [0, 1],
     extrapolate: 'clamp',
   });
 
+  const skipBgOpacity = position.x.interpolate({
+    inputRange: [-SWIPE_THRESHOLD, 0],
+    outputRange: [0.12, 0],
+    extrapolate: 'clamp',
+  });
+
+  const favBgOpacity = position.x.interpolate({
+    inputRange: [0, SWIPE_THRESHOLD],
+    outputRange: [0, 0.12],
+    extrapolate: 'clamp',
+  });
+
+  const handleShare = async () => {
+    const idx = currentIndexRef.current;
+    const question = deckCards[idx];
+    try {
+      await Share.share({
+        message: `"${question}"\n\n— KartOyunu ile oynuyoruz 🎴`,
+        title: 'KartOyunu',
+      });
+    } catch {
+      // user cancelled
+    }
+  };
+
   const restartGame = () => {
     currentIndexRef.current = 0;
     setCurrentIndex(0);
-    setFavorites([]);
+    setSessionFavorites([]);
     setFinished(false);
     position.setValue({ x: 0, y: 0 });
   };
@@ -114,29 +156,31 @@ export default function CardScreen({ navigate, deck }) {
           contentContainerStyle={s.finishedScroll}
           showsVerticalScrollIndicator={false}
         >
-          {/* Header */}
           <View style={s.finishedTop}>
-            <View style={[s.finishedBadge, { backgroundColor: catColor + '20', borderColor: catColor + '40' }]}>
+            <View style={[s.finishedBadge, { borderColor: catColor + '50' }]}>
+              <LinearGradient
+                colors={[catColor + '30', catColor + '15']}
+                style={StyleSheet.absoluteFill}
+              />
               <Text style={s.finishedBadgeEmoji}>🎉</Text>
             </View>
             <Text style={s.finishedTitle}>Deste Tamamlandı</Text>
             <Text style={s.finishedSub}>
-              {favorites.length > 0
-                ? `${favorites.length} soruyu favorilediniz`
+              {sessionFavorites.length > 0
+                ? `${sessionFavorites.length} soruyu favorilediniz`
                 : 'Tüm kartları tamamladınız'}
             </Text>
           </View>
 
-          {/* Favorites List */}
-          {favorites.length > 0 && (
+          {sessionFavorites.length > 0 && (
             <View style={s.favSection}>
               <View style={s.favSectionHeader}>
                 <Text style={s.favSectionTitle}>Favorilenen Sorular</Text>
-                <View style={[s.favCount, { backgroundColor: catColor + '20', borderColor: catColor + '40' }]}>
-                  <Text style={[s.favCountText, { color: catColor }]}>{favorites.length}</Text>
+                <View style={[s.favCount, { backgroundColor: catColor + '22', borderColor: catColor + '44' }]}>
+                  <Text style={[s.favCountText, { color: catColor }]}>{sessionFavorites.length}</Text>
                 </View>
               </View>
-              {favorites.map((question, i) => (
+              {sessionFavorites.map((question, i) => (
                 <View key={i} style={[s.favItem, { borderLeftColor: catColor }]}>
                   <Text style={s.favItemNumber}>{i + 1}</Text>
                   <Text style={s.favItemQuestion}>{question}</Text>
@@ -145,17 +189,21 @@ export default function CardScreen({ navigate, deck }) {
             </View>
           )}
 
-          {/* Actions */}
           <View style={s.finishedActions}>
-            <TouchableOpacity
-              style={[s.finishedBtn, { backgroundColor: catColor }]}
-              onPress={restartGame}
-            >
-              <Text style={s.finishedBtnText}>Tekrar Oyna</Text>
+            <TouchableOpacity onPress={restartGame} activeOpacity={0.84}>
+              <LinearGradient
+                colors={[catColor, catColor + 'CC']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={s.finishedBtn}
+              >
+                <Text style={s.finishedBtnText}>Tekrar Oyna</Text>
+              </LinearGradient>
             </TouchableOpacity>
             <TouchableOpacity
               style={[s.finishedBtn, s.finishedBtnSecondary]}
               onPress={() => navigate('home')}
+              activeOpacity={0.75}
             >
               <Text style={[s.finishedBtnText, { color: theme.colors.text }]}>Ana Sayfa</Text>
             </TouchableOpacity>
@@ -174,13 +222,13 @@ export default function CardScreen({ navigate, deck }) {
       {/* Header */}
       <View style={s.header}>
         <TouchableOpacity style={s.closeBtn} onPress={() => navigate('deck', { deck })}>
-          <Text style={s.closeBtnText}>✕</Text>
+          <Feather name="x" size={18} color={theme.colors.textSecondary} />
         </TouchableOpacity>
         <View style={s.headerCenter}>
-          <Text style={s.deckName}>{deck.title}</Text>
-          <Text style={s.cardCounter}>{currentIndex + 1} / {totalCards}</Text>
+          <Text style={s.categoryName}>{category?.icon} {category?.name}</Text>
+          <Text style={s.deckSubtitle}>{deck.level} · {currentIndex + 1}/{totalCards}</Text>
         </View>
-        <View style={{ width: 40 }} />
+        <View style={{ width: 44 }} />
       </View>
 
       {/* Progress Bar */}
@@ -193,18 +241,19 @@ export default function CardScreen({ navigate, deck }) {
       {/* Cards Area */}
       <View style={s.cardArea}>
         {nextCard && (
-          <View style={[s.card, s.cardBack]}>
-            <View style={[s.cardTopStripe, { backgroundColor: catColor }]} />
-            <View style={s.cardInner}>
-              <Text style={s.cardQuestion}>{nextCard}</Text>
-            </View>
+          <View style={[s.card, s.cardBack, { backgroundColor: theme.colors.surface }]}>
+            <View style={[s.cardTopStripe, { backgroundColor: catColor, opacity: 0.5 }]} />
           </View>
         )}
 
         <Animated.View
+          ref={cardRef}
+          collapsable={false}
           style={[
             s.card,
             {
+              shadowColor: theme.isDark ? catColor : '#000',
+              shadowOpacity: theme.isDark ? 0.45 : 0.28,
               transform: [
                 { translateX: position.x },
                 { translateY: position.y },
@@ -214,13 +263,22 @@ export default function CardScreen({ navigate, deck }) {
           ]}
           {...panResponder.panHandlers}
         >
+          <LinearGradient
+            colors={['#FFFFFF', '#FAFAFE']}
+            style={StyleSheet.absoluteFill}
+          />
+          <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: '#E74C3C', opacity: skipBgOpacity }]} />
+          <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: '#27AE60', opacity: favBgOpacity }]} />
+
           <View style={[s.cardTopStripe, { backgroundColor: catColor }]} />
 
           <Animated.View style={[s.swipeLabel, s.skipLabel, { opacity: skipOpacity }]}>
+            <View style={[s.swipeLabelBg, { backgroundColor: '#E74C3C18', borderColor: '#E74C3C' }]} />
             <Text style={[s.swipeLabelText, { color: '#E74C3C' }]}>GEÇ</Text>
           </Animated.View>
 
           <Animated.View style={[s.swipeLabel, s.favLabel, { opacity: favoriteOpacity }]}>
+            <View style={[s.swipeLabelBg, { backgroundColor: '#27AE6018', borderColor: '#27AE60' }]} />
             <Text style={[s.swipeLabelText, { color: '#27AE60' }]}>FAVORİ</Text>
           </Animated.View>
 
@@ -229,29 +287,43 @@ export default function CardScreen({ navigate, deck }) {
               {deck.emoji}  {upperTR(deck.title)}
             </Text>
             <Text style={s.cardQuestion}>{currentCard}</Text>
-            <Text style={s.swipeHint}>← geç   ·   favorile →</Text>
+            <View style={s.hintRow}>
+              <View style={s.hintPill}>
+                <Feather name="arrow-left" size={12} color="#E74C3C" />
+                <Text style={[s.hintPillText, { color: '#E74C3C' }]}>Geç</Text>
+              </View>
+              <View style={s.hintDot} />
+              <View style={s.hintPill}>
+                <Text style={[s.hintPillText, { color: '#27AE60' }]}>Favorile</Text>
+                <Feather name="arrow-right" size={12} color="#27AE60" />
+              </View>
+            </View>
           </View>
         </Animated.View>
       </View>
 
       {/* Action Buttons */}
-      <View style={s.actions}>
-        <TouchableOpacity
-          style={[s.roundBtn, { borderColor: '#E74C3C30' }]}
-          onPress={() => swipeCard('left')}
-        >
-          <Text style={[s.roundBtnIcon, { color: '#E74C3C' }]}>✕</Text>
+      <View style={[s.actions, { backgroundColor: theme.colors.background }]}>
+        <TouchableOpacity onPress={() => swipeCard('left')} activeOpacity={0.82}>
+          <LinearGradient colors={['#FF4757', '#C0392B']} style={s.actionBtn}>
+            <Feather name="x" size={26} color="#FFFFFF" />
+          </LinearGradient>
         </TouchableOpacity>
 
-        <View style={[s.progressBadge, { backgroundColor: catColor + '1A', borderColor: catColor + '40' }]}>
-          <Text style={[s.progressBadgeText, { color: catColor }]}>{currentIndex + 1}/{totalCards}</Text>
+        <View style={s.centerActions}>
+          <View style={[s.progressBadge, { backgroundColor: catColor + '1A', borderColor: catColor + '44' }]}>
+            <Text style={[s.progressBadgeText, { color: catColor }]}>{currentIndex + 1}/{totalCards}</Text>
+          </View>
+          <TouchableOpacity style={s.shareBtn} onPress={handleShare} activeOpacity={0.75}>
+            <Feather name="share-2" size={15} color={theme.colors.textSecondary} />
+            <Text style={s.shareBtnText}>Paylaş</Text>
+          </TouchableOpacity>
         </View>
 
-        <TouchableOpacity
-          style={[s.roundBtn, { borderColor: '#27AE6030' }]}
-          onPress={() => swipeCard('right')}
-        >
-          <Text style={[s.roundBtnIcon, { color: '#27AE60' }]}>♥</Text>
+        <TouchableOpacity onPress={() => swipeCard('right')} activeOpacity={0.82}>
+          <LinearGradient colors={['#2ECC71', '#27AE60']} style={s.actionBtn}>
+            <Feather name="heart" size={24} color="#FFFFFF" />
+          </LinearGradient>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -271,12 +343,12 @@ const makeStyles = (theme) => StyleSheet.create({
     paddingBottom: 10,
   },
   closeBtn: {
-    width: 40,
-    height: 40,
+    width: 44,
+    height: 44,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: theme.colors.surface,
-    borderRadius: 20,
+    borderRadius: 22,
     borderWidth: 1,
     borderColor: theme.colors.border,
   },
@@ -289,18 +361,19 @@ const makeStyles = (theme) => StyleSheet.create({
     flex: 1,
     alignItems: 'center',
   },
-  deckName: {
+  categoryName: {
     fontSize: 15,
     fontWeight: '700',
     color: theme.colors.text,
+    letterSpacing: -0.1,
   },
-  cardCounter: {
-    fontSize: 12,
+  deckSubtitle: {
+    fontSize: 11,
     color: theme.colors.textSecondary,
     marginTop: 2,
   },
   progressTrack: {
-    height: 3,
+    height: 4,
     backgroundColor: theme.colors.surface,
     marginHorizontal: 20,
     borderRadius: 2,
@@ -322,71 +395,91 @@ const makeStyles = (theme) => StyleSheet.create({
     width: width - 40,
     minHeight: height * 0.44,
     backgroundColor: '#FFFFFF',
-    borderRadius: 26,
+    borderRadius: 28,
     overflow: 'hidden',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.22,
-    shadowRadius: 22,
-    elevation: 16,
+    shadowOffset: { width: 0, height: 16 },
+    shadowOpacity: 0.28,
+    shadowRadius: 28,
+    elevation: 20,
   },
   cardBack: {
-    transform: [{ scale: 0.94 }, { translateY: 14 }],
-    opacity: 0.45,
+    transform: [{ scale: 0.94 }, { translateY: 16 }],
+    opacity: 0.4,
   },
   cardTopStripe: {
-    height: 6,
+    height: 7,
     width: '100%',
   },
   cardInner: {
     flex: 1,
-    padding: 28,
+    padding: 30,
     justifyContent: 'center',
   },
   swipeLabel: {
     position: 'absolute',
-    top: 24,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
-    borderWidth: 2.5,
+    top: 28,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 12,
     zIndex: 10,
+    overflow: 'hidden',
+  },
+  swipeLabelBg: {
+    ...StyleSheet.absoluteFillObject,
+    borderWidth: 2.5,
+    borderRadius: 12,
   },
   skipLabel: {
     left: 20,
-    borderColor: '#E74C3C',
-    transform: [{ rotate: '-12deg' }],
+    transform: [{ rotate: '-14deg' }],
   },
   favLabel: {
     right: 20,
-    borderColor: '#27AE60',
-    transform: [{ rotate: '12deg' }],
+    transform: [{ rotate: '14deg' }],
   },
   swipeLabelText: {
-    fontSize: 15,
-    fontWeight: '800',
-    letterSpacing: 1.8,
+    fontSize: 17,
+    fontWeight: '900',
+    letterSpacing: 2.5,
   },
   cardCategory: {
     fontSize: 11,
     fontWeight: '700',
     letterSpacing: 1.5,
-    marginBottom: 20,
+    marginBottom: 22,
     textTransform: 'uppercase',
+    textAlign: 'center',
   },
   cardQuestion: {
     fontSize: 22,
     fontWeight: '600',
     color: '#1A1545',
-    lineHeight: 33,
+    lineHeight: 34,
     textAlign: 'center',
   },
-  swipeHint: {
-    fontSize: 11,
-    color: '#B8B4CC',
-    textAlign: 'center',
-    marginTop: 24,
-    letterSpacing: 0.5,
+  hintRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 28,
+    gap: 12,
+  },
+  hintPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+  },
+  hintPillText: {
+    fontSize: 12,
+    fontWeight: '600',
+    letterSpacing: 0.2,
+  },
+  hintDot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: '#C0BBDB',
   },
   actions: {
     flexDirection: 'row',
@@ -394,35 +487,81 @@ const makeStyles = (theme) => StyleSheet.create({
     alignItems: 'center',
     gap: 20,
     paddingBottom: 36,
-    paddingTop: 12,
+    paddingTop: 14,
   },
-  roundBtn: {
-    width: 62,
-    height: 62,
-    borderRadius: 31,
+  actionBtn: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: theme.colors.surface,
-    borderWidth: 1,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 8,
-    elevation: 6,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 8,
   },
-  roundBtnIcon: {
+  actionBtnIcon: {
     fontSize: 24,
-    fontWeight: '600',
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  centerActions: {
+    alignItems: 'center',
+    gap: 8,
   },
   progressBadge: {
-    paddingHorizontal: 16,
-    paddingVertical: 9,
-    borderRadius: 20,
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderRadius: 22,
     borderWidth: 1,
   },
   progressBadgeText: {
     fontSize: 13,
     fontWeight: '700',
+  },
+  shareBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 18,
+    backgroundColor: theme.colors.surface,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: theme.isDark ? 0.25 : 0.06,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  shareBtnText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: theme.colors.textSecondary,
+  },
+  shareFooter: {
+    marginTop: 22,
+    alignItems: 'center',
+    gap: 6,
+  },
+  shareFooterDivider: {
+    width: 40,
+    height: 1,
+    backgroundColor: '#DDD8F0',
+    marginBottom: 4,
+  },
+  shareFooterText: {
+    fontSize: 12,
+    color: '#7C78A0',
+    fontWeight: '500',
+  },
+  shareFooterUrl: {
+    fontSize: 12,
+    color: '#A67C2E',
+    fontWeight: '700',
+    letterSpacing: 0.3,
   },
   // Finished screen
   finishedScroll: {
@@ -435,16 +574,17 @@ const makeStyles = (theme) => StyleSheet.create({
     marginBottom: 32,
   },
   finishedBadge: {
-    width: 96,
-    height: 96,
-    borderRadius: 48,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
     borderWidth: 2,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 20,
+    overflow: 'hidden',
   },
   finishedBadgeEmoji: {
-    fontSize: 46,
+    fontSize: 48,
   },
   finishedTitle: {
     fontSize: 26,
@@ -514,7 +654,7 @@ const makeStyles = (theme) => StyleSheet.create({
   },
   finishedBtn: {
     width: '100%',
-    padding: 17,
+    padding: 18,
     borderRadius: 18,
     alignItems: 'center',
   },

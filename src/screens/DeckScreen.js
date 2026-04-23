@@ -1,8 +1,10 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo, useRef, useEffect } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
-  SafeAreaView, PanResponder,
+  SafeAreaView, PanResponder, Animated,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Feather } from '@expo/vector-icons';
 import { categories } from '../data';
 import { useTheme } from '../ThemeContext';
 
@@ -12,7 +14,25 @@ export default function DeckScreen({ navigate, deck }) {
   const category = categories.find(c => c.id === deck.categoryId);
   const catColor = category?.color || theme.colors.primary;
 
-  // Left-edge swipe → navigate back
+  const headerAnim = useRef(new Animated.Value(0)).current;
+  const sheetAnim = useRef(new Animated.Value(40)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(headerAnim, {
+        toValue: 1,
+        duration: 360,
+        useNativeDriver: true,
+      }),
+      Animated.spring(sheetAnim, {
+        toValue: 0,
+        friction: 10,
+        tension: 80,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
+
   const panResponder = useRef(PanResponder.create({
     onMoveShouldSetPanResponderCapture: (evt, gestureState) => {
       return (
@@ -31,7 +51,6 @@ export default function DeckScreen({ navigate, deck }) {
     navigate('cards', { deck });
   };
 
-  // Show only the count/short form — strip trailing "kişi"
   const peopleVal = deck.people.replace(/\s*kişi$/i, '');
 
   const stats = [
@@ -42,84 +61,105 @@ export default function DeckScreen({ navigate, deck }) {
   ];
 
   return (
-    <SafeAreaView style={s.container} {...panResponder.panHandlers}>
-      {/* Colored Header — no overlay */}
-      <View style={[s.header, { backgroundColor: catColor }]}>
-        <TouchableOpacity style={s.backBtn} onPress={() => navigate('home')}>
-          <Text style={s.backBtnText}>← Geri</Text>
+    <SafeAreaView style={[s.container, { backgroundColor: catColor }]} {...panResponder.panHandlers}>
+
+      {/* Header — solid catColor, no gradient */}
+      <Animated.View style={[s.header, { opacity: headerAnim }]}>
+        <TouchableOpacity style={s.backBtn} onPress={() => navigate('home')} activeOpacity={0.8}>
+          <Feather name="arrow-left" size={16} color="rgba(255,255,255,0.9)" />
+          <Text style={s.backBtnText}>Geri</Text>
         </TouchableOpacity>
         <Text style={s.headerEmoji}>{deck.emoji}</Text>
         <Text style={s.headerTitle}>{deck.title}</Text>
-        <TouchableOpacity style={s.categoryPill} onPress={() => navigate('category', { category })}>
+        <TouchableOpacity
+          style={s.categoryPill}
+          onPress={() => navigate('category', { category })}
+          activeOpacity={0.8}
+        >
           <Text style={s.categoryPillText}>{category?.icon}  {category?.name}</Text>
         </TouchableOpacity>
-      </View>
+      </Animated.View>
 
-      <ScrollView style={s.content} showsVerticalScrollIndicator={false}>
+      {/* Content Sheet — slides up from below, rounded top */}
+      <Animated.View style={[s.sheet, { transform: [{ translateY: sheetAnim }] }]}>
+        <View style={s.sheetHandle} />
 
-        {/* Stats Row */}
-        <View style={s.statsRow}>
-          {stats.map((stat, i) => (
-            <React.Fragment key={i}>
-              <View style={s.statItem}>
-                <Text style={[s.statValue, { color: catColor }]}>{stat.value}</Text>
-                <Text style={s.statLabel}>{stat.label}</Text>
-              </View>
-              {i < stats.length - 1 && <View style={s.statDivider} />}
-            </React.Fragment>
-          ))}
-        </View>
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scrollContent}>
 
-        {/* Description */}
-        <View style={s.section}>
-          <Text style={s.sectionLabel}>HAKKINDA</Text>
-          <Text style={s.description}>{deck.description}</Text>
-        </View>
-
-        {/* Quote Preview */}
-        <View style={s.section}>
-          <Text style={s.sectionLabel}>NE BEKLEMELİ?</Text>
-          <View style={[s.quoteCard, { borderLeftColor: catColor }]}>
-            <Text style={[s.quoteChar, { color: catColor }]}>"</Text>
-            <Text style={s.quoteText}>
-              Bu deste sizi gerçekten konuşturacak. Her soru bir sonrakini açar, sessizlik yok.
-            </Text>
+          {/* Stats Row */}
+          <View style={s.statsRow}>
+            {stats.map((stat, i) => (
+              <React.Fragment key={i}>
+                <View style={s.statItem}>
+                  <Text style={[s.statValue, { color: catColor }]}>{stat.value}</Text>
+                  <Text style={s.statLabel}>{stat.label}</Text>
+                </View>
+                {i < stats.length - 1 && <View style={s.statDivider} />}
+              </React.Fragment>
+            ))}
           </View>
-        </View>
 
-        {/* Premium Notice */}
-        {deck.isPremium && (
+          {/* Description */}
           <View style={s.section}>
-            <View style={s.premiumBox}>
-              <View style={s.premiumIconWrap}>
-                <Text style={s.premiumIconEmoji}>🔒</Text>
-              </View>
-              <Text style={s.premiumTitle}>Premium Deste</Text>
-              <Text style={s.premiumDesc}>
-                Bu desteye erişmek için Premium'a geç. Tüm premium destelere sınırsız erişim.
+            <Text style={s.sectionLabel}>HAKKINDA</Text>
+            <Text style={s.description}>{deck.description}</Text>
+          </View>
+
+          {/* Quote Preview */}
+          <View style={s.section}>
+            <Text style={s.sectionLabel}>NE BEKLEMELİ?</Text>
+            <View style={[s.quoteCard, { borderLeftColor: catColor }]}>
+              <Text style={[s.quoteChar, { color: catColor }]}>"</Text>
+              <Text style={s.quoteText}>
+                Bu deste sizi gerçekten konuşturacak. Her soru bir sonrakini açar, sessizlik yok.
               </Text>
             </View>
           </View>
-        )}
 
-        <View style={{ height: 100 }} />
-      </ScrollView>
+          {/* Premium Notice */}
+          {deck.isPremium && (
+            <View style={s.section}>
+              <View style={s.premiumBox}>
+                <LinearGradient
+                  colors={['#2A1C00', '#1A1000']}
+                  style={StyleSheet.absoluteFill}
+                />
+                <View style={s.premiumIconWrap}>
+                  <Feather name="lock" size={26} color="#D4A843" />
+                </View>
+                <Text style={s.premiumTitle}>Premium Deste</Text>
+                <Text style={s.premiumDesc}>
+                  Bu desteye erişmek için Premium'a geç. Tüm premium destelere sınırsız erişim.
+                </Text>
+              </View>
+            </View>
+          )}
 
-      {/* Footer CTA */}
-      <View style={s.footer}>
-        <TouchableOpacity
-          style={[
-            s.startButton,
-            deck.isPremium ? s.startButtonLocked : { backgroundColor: catColor },
-          ]}
-          onPress={handleStart}
-          activeOpacity={deck.isPremium ? 1 : 0.86}
-        >
-          <Text style={deck.isPremium ? s.startButtonTextLocked : s.startButtonText}>
-            {deck.isPremium ? '🔒   Premium Gerekli' : 'Başlat  →'}
-          </Text>
-        </TouchableOpacity>
-      </View>
+          <View style={{ height: 20 }} />
+        </ScrollView>
+
+        {/* Footer CTA */}
+        <View style={s.footer}>
+          <TouchableOpacity onPress={handleStart} activeOpacity={deck.isPremium ? 1 : 0.84}>
+            {deck.isPremium ? (
+              <View style={[s.startButton, s.startButtonLocked]}>
+                <Feather name="lock" size={17} color={theme.colors.textMuted} />
+                <Text style={s.startButtonTextLocked}>Premium Gerekli</Text>
+              </View>
+            ) : (
+              <LinearGradient
+                colors={[catColor, catColor + 'CC']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={s.startButton}
+              >
+                <Text style={s.startButtonText}>Başlat  →</Text>
+              </LinearGradient>
+            )}
+          </TouchableOpacity>
+        </View>
+      </Animated.View>
+
     </SafeAreaView>
   );
 }
@@ -127,76 +167,114 @@ export default function DeckScreen({ navigate, deck }) {
 const makeStyles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.background,
   },
   header: {
-    paddingBottom: 28,
     paddingHorizontal: 20,
+    paddingTop: 6,
+    paddingBottom: 24,
   },
   backBtn: {
+    flexDirection: 'row',
     alignSelf: 'flex-start',
-    marginTop: 14,
-    marginBottom: 18,
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 22,
     backgroundColor: 'rgba(255,255,255,0.22)',
     borderRadius: 20,
-    paddingHorizontal: 16,
+    paddingHorizontal: 14,
     paddingVertical: 9,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.3)',
+    borderColor: 'rgba(255,255,255,0.38)',
   },
   backBtnText: {
-    color: '#FFFFFF',
-    fontSize: 15,
+    color: 'rgba(255,255,255,0.92)',
+    fontSize: 14,
     fontWeight: '600',
   },
   headerEmoji: {
-    fontSize: 48,
+    fontSize: 52,
     marginBottom: 10,
   },
   headerTitle: {
-    fontSize: 30,
+    fontSize: 32,
     fontWeight: '800',
     color: '#FFFFFF',
-    letterSpacing: -0.6,
-    marginBottom: 12,
+    letterSpacing: -0.8,
+    marginBottom: 14,
+    textShadowColor: 'rgba(0,0,0,0.15)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 6,
   },
   categoryPill: {
     alignSelf: 'flex-start',
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    paddingHorizontal: 13,
-    paddingVertical: 6,
-    borderRadius: 12,
+    backgroundColor: 'rgba(255,255,255,0.25)',
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.45)',
   },
   categoryPillText: {
     fontSize: 13,
-    color: 'rgba(255,255,255,0.95)',
-    fontWeight: '600',
+    color: '#FFFFFF',
+    fontWeight: '700',
+    letterSpacing: 0.1,
   },
-  content: {
+
+  /* Sheet */
+  sheet: {
     flex: 1,
+    backgroundColor: theme.colors.background,
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -6 },
+    shadowOpacity: 0.14,
+    shadowRadius: 20,
+    elevation: 24,
   },
+  sheetHandle: {
+    width: 40,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: theme.isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.1)',
+    alignSelf: 'center',
+    marginTop: 12,
+    marginBottom: 4,
+  },
+  scrollContent: {
+    paddingTop: 8,
+  },
+
+  /* Stats */
   statsRow: {
     flexDirection: 'row',
     backgroundColor: theme.colors.surface,
     marginHorizontal: 20,
-    marginTop: 20,
-    borderRadius: 18,
+    marginTop: 16,
+    borderRadius: 20,
     padding: 18,
     borderWidth: 1,
     borderColor: theme.colors.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: theme.isDark ? 0.4 : 0.06,
+    shadowRadius: 12,
+    elevation: 5,
   },
   statItem: {
     flex: 1,
     alignItems: 'center',
   },
   statValue: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '800',
     marginBottom: 4,
   },
   statLabel: {
     fontSize: 10,
-    color: theme.colors.textSecondary,
+    color: theme.colors.textMuted,
     fontWeight: '700',
     letterSpacing: 0.8,
   },
@@ -205,6 +283,8 @@ const makeStyles = (theme) => StyleSheet.create({
     backgroundColor: theme.colors.border,
     marginVertical: 4,
   },
+
+  /* Sections */
   section: {
     paddingHorizontal: 20,
     marginTop: 24,
@@ -223,11 +303,16 @@ const makeStyles = (theme) => StyleSheet.create({
   },
   quoteCard: {
     backgroundColor: theme.colors.surface,
-    borderRadius: 16,
+    borderRadius: 18,
     padding: 18,
     borderLeftWidth: 3,
     borderWidth: 1,
     borderColor: theme.colors.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: theme.isDark ? 0.3 : 0.05,
+    shadowRadius: 8,
+    elevation: 3,
   },
   quoteChar: {
     fontSize: 40,
@@ -241,25 +326,24 @@ const makeStyles = (theme) => StyleSheet.create({
     lineHeight: 24,
     fontStyle: 'italic',
   },
+
+  /* Premium */
   premiumBox: {
-    backgroundColor: theme.isDark ? '#181000' : '#FFFBEB',
-    borderRadius: 18,
+    borderRadius: 20,
     padding: 24,
     borderWidth: 1,
     borderColor: '#D4A84340',
     alignItems: 'center',
+    overflow: 'hidden',
   },
   premiumIconWrap: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: theme.isDark ? '#2A1C00' : '#FEF3C7',
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: 'rgba(212,168,67,0.18)',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 14,
-  },
-  premiumIconEmoji: {
-    fontSize: 28,
   },
   premiumTitle: {
     fontSize: 18,
@@ -274,6 +358,8 @@ const makeStyles = (theme) => StyleSheet.create({
     textAlign: 'center',
     lineHeight: 21,
   },
+
+  /* Footer */
   footer: {
     padding: 20,
     paddingBottom: 32,
@@ -285,6 +371,14 @@ const makeStyles = (theme) => StyleSheet.create({
     borderRadius: 18,
     padding: 18,
     alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    gap: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    elevation: 6,
   },
   startButtonLocked: {
     backgroundColor: theme.colors.surface,

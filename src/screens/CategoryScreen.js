@@ -1,8 +1,9 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo, useRef, useEffect } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
-  SafeAreaView, PanResponder,
+  SafeAreaView, PanResponder, Animated,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { decks } from '../data';
 import { useTheme } from '../ThemeContext';
 
@@ -12,6 +13,19 @@ export default function CategoryScreen({ navigate, category }) {
   const catColor = category.color;
   const categoryDecks = decks.filter(d => d.categoryId === category.id);
   const freeCount = categoryDecks.filter(d => !d.isPremium).length;
+
+  const fadeAnims = useRef(categoryDecks.map(() => new Animated.Value(0))).current;
+  const slideAnims = useRef(categoryDecks.map(() => new Animated.Value(14))).current;
+
+  useEffect(() => {
+    const anims = categoryDecks.map((_, i) =>
+      Animated.parallel([
+        Animated.timing(fadeAnims[i], { toValue: 1, duration: 360, useNativeDriver: true }),
+        Animated.spring(slideAnims[i], { toValue: 0, friction: 9, tension: 70, useNativeDriver: true }),
+      ])
+    );
+    Animated.stagger(60, anims).start();
+  }, []);
 
   const panResponder = useRef(PanResponder.create({
     onMoveShouldSetPanResponderCapture: (evt, gestureState) => {
@@ -28,8 +42,11 @@ export default function CategoryScreen({ navigate, category }) {
 
   return (
     <SafeAreaView style={s.container} {...panResponder.panHandlers}>
-      {/* Header */}
-      <View style={[s.header, { backgroundColor: catColor }]}>
+      <LinearGradient
+        colors={[catColor, catColor + 'EE', catColor + 'BB', catColor + '66', catColor + '00']}
+        locations={[0, 0.25, 0.5, 0.75, 1]}
+        style={s.header}
+      >
         <TouchableOpacity style={s.backBtn} onPress={() => navigate('home')}>
           <Text style={s.backBtnText}>← Geri</Text>
         </TouchableOpacity>
@@ -38,41 +55,45 @@ export default function CategoryScreen({ navigate, category }) {
         <Text style={s.headerSub}>
           {categoryDecks.length} deste  ·  {freeCount} ücretsiz
         </Text>
-      </View>
+      </LinearGradient>
 
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={s.deckList}>
-          {categoryDecks.map(deck => (
-            <TouchableOpacity
+          {categoryDecks.map((deck, i) => (
+            <Animated.View
               key={deck.id}
-              style={s.deckItem}
-              onPress={() => navigate('deck', { deck })}
-              activeOpacity={0.72}
+              style={{ opacity: fadeAnims[i], transform: [{ translateY: slideAnims[i] }] }}
             >
-              <View style={[s.deckAccentBar, { backgroundColor: catColor }]} />
-              <View style={[s.deckItemIcon, { backgroundColor: catColor + '20' }]}>
-                <Text style={s.deckItemEmoji}>{deck.emoji}</Text>
-              </View>
-              <View style={s.deckItemContent}>
-                <View style={s.deckItemRow}>
-                  <Text style={s.deckItemTitle}>{deck.title}</Text>
-                  {deck.isPremium && (
-                    <View style={s.proBadge}>
-                      <Text style={s.proText}>PRO</Text>
-                    </View>
-                  )}
+              <TouchableOpacity
+                style={s.deckItem}
+                onPress={() => navigate('deck', { deck })}
+                activeOpacity={0.75}
+              >
+                <View style={[s.deckAccentBar, { backgroundColor: catColor }]} />
+                <View style={[s.deckItemIcon, { backgroundColor: catColor + '22' }]}>
+                  <Text style={s.deckItemEmoji}>{deck.emoji}</Text>
                 </View>
-                <Text style={s.deckItemDesc} numberOfLines={2}>{deck.description}</Text>
-                <View style={s.deckItemStats}>
-                  <Text style={s.deckItemStat}>{deck.cardCount} kart</Text>
-                  <Text style={s.deckItemStatDot}>·</Text>
-                  <Text style={s.deckItemStat}>{deck.duration}</Text>
-                  <Text style={s.deckItemStatDot}>·</Text>
-                  <Text style={s.deckItemStat}>{deck.level}</Text>
+                <View style={s.deckItemContent}>
+                  <View style={s.deckItemRow}>
+                    <Text style={s.deckItemTitle}>{deck.title}</Text>
+                    {deck.isPremium && (
+                      <View style={s.proBadge}>
+                        <Text style={s.proText}>PRO</Text>
+                      </View>
+                    )}
+                  </View>
+                  <Text style={s.deckItemDesc} numberOfLines={2}>{deck.description}</Text>
+                  <View style={s.deckItemStats}>
+                    <Text style={s.deckItemStat}>{deck.cardCount} kart</Text>
+                    <Text style={s.deckItemStatDot}>·</Text>
+                    <Text style={s.deckItemStat}>{deck.duration}</Text>
+                    <Text style={s.deckItemStatDot}>·</Text>
+                    <Text style={s.deckItemStat}>{deck.level}</Text>
+                  </View>
                 </View>
-              </View>
-              <Text style={s.chevron}>›</Text>
-            </TouchableOpacity>
+                <Text style={s.chevron}>›</Text>
+              </TouchableOpacity>
+            </Animated.View>
           ))}
         </View>
         <View style={{ height: 40 }} />
@@ -87,7 +108,7 @@ const makeStyles = (theme) => StyleSheet.create({
     backgroundColor: theme.colors.background,
   },
   header: {
-    paddingBottom: 28,
+    paddingBottom: 32,
     paddingHorizontal: 20,
   },
   backBtn: {
@@ -107,7 +128,7 @@ const makeStyles = (theme) => StyleSheet.create({
     fontWeight: '600',
   },
   headerIcon: {
-    fontSize: 44,
+    fontSize: 46,
     marginBottom: 8,
   },
   headerTitle: {
@@ -116,10 +137,13 @@ const makeStyles = (theme) => StyleSheet.create({
     color: '#FFFFFF',
     letterSpacing: -0.6,
     marginBottom: 8,
+    textShadowColor: 'rgba(0,0,0,0.2)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 4,
   },
   headerSub: {
     fontSize: 14,
-    color: 'rgba(255,255,255,0.75)',
+    color: 'rgba(255,255,255,0.78)',
     fontWeight: '500',
   },
   deckList: {
@@ -131,7 +155,7 @@ const makeStyles = (theme) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: theme.colors.surface,
-    borderRadius: 16,
+    borderRadius: 18,
     padding: 14,
     paddingLeft: 20,
     gap: 12,
@@ -139,6 +163,11 @@ const makeStyles = (theme) => StyleSheet.create({
     borderColor: theme.colors.border,
     overflow: 'hidden',
     position: 'relative',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: theme.isDark ? 0.35 : 0.07,
+    shadowRadius: 10,
+    elevation: 4,
   },
   deckAccentBar: {
     position: 'absolute',
@@ -146,18 +175,18 @@ const makeStyles = (theme) => StyleSheet.create({
     top: 0,
     bottom: 0,
     width: 4,
-    borderTopLeftRadius: 16,
-    borderBottomLeftRadius: 16,
+    borderTopLeftRadius: 18,
+    borderBottomLeftRadius: 18,
   },
   deckItemIcon: {
-    width: 50,
-    height: 50,
-    borderRadius: 14,
+    width: 52,
+    height: 52,
+    borderRadius: 15,
     alignItems: 'center',
     justifyContent: 'center',
   },
   deckItemEmoji: {
-    fontSize: 24,
+    fontSize: 26,
   },
   deckItemContent: {
     flex: 1,

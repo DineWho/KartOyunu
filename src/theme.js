@@ -1,9 +1,9 @@
 export const darkTheme = {
   colors: {
-    background: '#0A0A18',
-    surface: '#0F0F25',
-    surfaceElevated: '#16162E',
-    surfaceHigh: '#1E1E3F',
+    background: '#07071A',
+    surface: '#0D0D28',
+    surfaceElevated: '#131340',
+    surfaceHigh: '#1A1A52',
 
     primary: '#D4A843',
     primaryLight: '#E8C97A',
@@ -11,12 +11,12 @@ export const darkTheme = {
 
     secondary: '#7C5EBB',
 
-    text: '#EDE9FF',
+    text: '#F0ECFF',
     textSecondary: '#9490B8',
     textMuted: '#5C5880',
 
-    border: '#2A2750',
-    borderLight: '#3D3A6A',
+    border: '#1C1A3E',
+    borderLight: '#2A2758',
 
     card: '#FFFFFF',
     cardText: '#1A1545',
@@ -40,11 +40,11 @@ export const lightTheme = {
 
     secondary: '#D4A843',
 
-    text: '#1A1545',
+    text: '#12103A',
     textSecondary: '#4A4675',
     textMuted: '#8B87A8',
 
-    border: '#D8D3EE',
+    border: '#E0DAF0',
     borderLight: '#EDE9FF',
 
     card: '#FFFFFF',
