@@ -30,13 +30,31 @@ Türkçe sohbet kartı oyunu. React Native / Expo ile yapılmış mobil uygulama
 
 ## Claude ↔ Codex Geçiş Notu
 
-Codex tarafından yapılan commit'ler şu formatla atılır:
+### Codex commit formatı
 
 ```text
 codex: YYYY-MM-DD HH:mm +03 <kısa açıklama>
 ```
 
-Commit mesajı gövdesinde `Codex-assisted change.` notu, değişiklik özeti ve çalıştırılan kontroller bulunur. Claude tarafında devam ederken Codex'in yaptığı işleri görmek için `git log` geçmişinde `codex:` ile başlayan commit'lere bak.
+Commit mesajı gövdesinde `Codex-assisted change.` notu, değişiklik özeti ve çalıştırılan kontroller bulunur.
+
+### Claude commit formatı
+
+**Claude, kullanıcı commit istediğinde her zaman şu formatı kullanır:**
+
+```text
+claude: YYYY-MM-DD HH:mm +03 <kısa açıklama>
+
+Claude-assisted change.
+
+<değişiklik özeti — ne yapıldı ve neden>
+```
+
+- Tarih/saat: commit anının yerel saati (`+03` timezone)
+- Özet satırı kısa ve açıklayıcı olmalı
+- Gövde: yapılan işin kısa açıklaması
+
+Claude tarafında devam ederken Codex'in yaptığı işleri görmek için `git log` geçmişinde `codex:` ile başlayan commit'lere bak. Codex tarafında ise `claude:` ile başlayanlara.
 
 ---
 
