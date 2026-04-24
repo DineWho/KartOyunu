@@ -1,6 +1,6 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useRef, useEffect } from 'react';
 import {
-  View, Text, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView, Modal,
+  View, Text, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView, Modal, Animated,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
@@ -12,7 +12,21 @@ export default function ProfileScreen() {
   const s = useMemo(() => makeStyles(theme), [theme]);
   const { getTotalStats, clearStats } = useStats();
   const [confirmVisible, setConfirmVisible] = useState(false);
+  const scaleAnim = useRef(new Animated.Value(0.88)).current;
+  const fadeAnim = useRef(new Animated.Value(0)).current;
   const stats = getTotalStats();
+
+  useEffect(() => {
+    if (confirmVisible) {
+      Animated.parallel([
+        Animated.spring(scaleAnim, { toValue: 1, friction: 14, tension: 90, useNativeDriver: true }),
+        Animated.timing(fadeAnim, { toValue: 1, duration: 180, useNativeDriver: true }),
+      ]).start();
+    } else {
+      scaleAnim.setValue(0.88);
+      fadeAnim.setValue(0);
+    }
+  }, [confirmVisible]);
 
   const statItems = [
     { value: stats.totalGames, label: 'Oyun Oynanmış' },
@@ -34,42 +48,52 @@ export default function ProfileScreen() {
       <Modal
         visible={confirmVisible}
         transparent
-        animationType="fade"
+        animationType="none"
         onRequestClose={() => setConfirmVisible(false)}
       >
-        <View style={s.confirmOverlay}>
+        <Animated.View style={[s.confirmOverlay, { opacity: fadeAnim }]}>
           <TouchableOpacity
             style={StyleSheet.absoluteFill}
             activeOpacity={1}
             onPress={() => setConfirmVisible(false)}
           />
-          <View style={s.confirmPanel}>
-            <View style={s.confirmIconWrap}>
-              <Feather name="alert-triangle" size={22} color={theme.colors.danger} />
+          <Animated.View style={[s.confirmPanel, { transform: [{ scale: scaleAnim }] }]}>
+            {/* Danger top strip */}
+            <View style={[s.confirmTopStrip, { backgroundColor: theme.colors.danger }]} />
+
+            {/* Icon */}
+            <View style={[s.confirmIconWrap, {
+              backgroundColor: theme.colors.danger + '14',
+              borderColor: theme.colors.danger + '38',
+            }]}>
+              <Feather name="trash-2" size={26} color={theme.colors.danger} />
             </View>
-            <Text style={s.confirmTitle}>İstatistikler sıfırlansın mı?</Text>
+
+            <Text style={s.confirmTitle}>İstatistikleri Sıfırla</Text>
             <Text style={s.confirmDesc}>
-              Bu işlem oyun, favori ve paylaşım istatistiklerini temizler. Geri alınamaz.
+              Oyun, favori ve paylaşım istatistiklerinin tamamı silinir.{'\n'}Bu işlem geri alınamaz.
             </Text>
-            <View style={s.confirmActions}>
-              <TouchableOpacity
-                style={[s.confirmBtn, s.cancelBtn]}
-                onPress={() => setConfirmVisible(false)}
-                activeOpacity={0.75}
-              >
-                <Text style={s.cancelBtnText}>Vazgeç</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[s.confirmBtn, s.dangerBtn]}
-                onPress={handleConfirmClear}
-                activeOpacity={0.82}
-              >
-                <Feather name="trash-2" size={16} color="#FFFFFF" />
-                <Text style={s.dangerBtnText}>Sıfırla</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
+
+            {/* Danger action — on top */}
+            <TouchableOpacity
+              style={[s.confirmBtn, s.dangerBtn]}
+              onPress={handleConfirmClear}
+              activeOpacity={0.82}
+            >
+              <Feather name="trash-2" size={16} color="#FFFFFF" />
+              <Text style={s.dangerBtnText}>Evet, Sıfırla</Text>
+            </TouchableOpacity>
+
+            {/* Cancel — below */}
+            <TouchableOpacity
+              style={[s.confirmBtn, s.cancelBtn, { borderColor: theme.colors.borderLight }]}
+              onPress={() => setConfirmVisible(false)}
+              activeOpacity={0.72}
+            >
+              <Text style={[s.cancelBtnText, { color: theme.colors.textSecondary }]}>Vazgeç</Text>
+            </TouchableOpacity>
+          </Animated.View>
+        </Animated.View>
       </Modal>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
@@ -214,74 +238,76 @@ const makeStyles = (theme) => StyleSheet.create({
   },
   confirmOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(7,7,26,0.72)',
+    backgroundColor: 'rgba(7,7,26,0.78)',
     justifyContent: 'center',
-    paddingHorizontal: 24,
+    paddingHorizontal: 28,
   },
   confirmPanel: {
     backgroundColor: theme.colors.surface,
-    borderRadius: 22,
-    padding: 22,
+    borderRadius: 24,
+    paddingHorizontal: 22,
+    paddingBottom: 22,
     borderWidth: 1,
     borderColor: theme.colors.border,
+    overflow: 'hidden',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 18 },
-    shadowOpacity: theme.isDark ? 0.38 : 0.16,
-    shadowRadius: 28,
-    elevation: 18,
+    shadowOffset: { width: 0, height: 24 },
+    shadowOpacity: theme.isDark ? 0.45 : 0.18,
+    shadowRadius: 36,
+    elevation: 22,
+  },
+  confirmTopStrip: {
+    height: 4,
+    marginHorizontal: -22,
+    marginBottom: 24,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
   },
   confirmIconWrap: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: theme.colors.danger + '18',
-    borderWidth: 1,
-    borderColor: theme.colors.danger + '33',
-    marginBottom: 16,
+    borderWidth: 1.5,
+    marginBottom: 18,
   },
   confirmTitle: {
-    fontSize: 20,
+    fontSize: 21,
     fontWeight: '800',
     color: theme.colors.text,
-    letterSpacing: -0.2,
-    marginBottom: 8,
+    letterSpacing: -0.4,
+    marginBottom: 10,
   },
   confirmDesc: {
     fontSize: 14,
     color: theme.colors.textSecondary,
-    lineHeight: 21,
-    marginBottom: 20,
-  },
-  confirmActions: {
-    flexDirection: 'row',
-    gap: 10,
+    lineHeight: 22,
+    marginBottom: 24,
   },
   confirmBtn: {
-    flex: 1,
-    minHeight: 48,
+    minHeight: 52,
     borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
-    gap: 7,
+    gap: 8,
+    marginBottom: 10,
   },
   cancelBtn: {
-    backgroundColor: theme.colors.surfaceElevated,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
+    backgroundColor: 'transparent',
+    borderWidth: 1.5,
+    marginBottom: 0,
   },
   cancelBtnText: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: theme.colors.text,
+    fontSize: 15,
+    fontWeight: '600',
   },
   dangerBtn: {
     backgroundColor: theme.colors.danger,
   },
   dangerBtnText: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '800',
     color: '#FFFFFF',
   },

@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useRef } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
-  SafeAreaView, Modal, Animated, Dimensions, TouchableWithoutFeedback, Alert,
+  SafeAreaView, Modal, Animated, Dimensions, TouchableWithoutFeedback,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
@@ -21,6 +21,8 @@ function CardModal({ visible, fav, onClose, onRemove, theme }) {
   const backdropAnim = useRef(new Animated.Value(0)).current;
   const cardRef = useRef(null);
   const { addStat } = useStats();
+  const [confirmRemove, setConfirmRemove] = useState(false);
+  const confirmAnim = useRef(new Animated.Value(0)).current;
 
   React.useEffect(() => {
     if (visible) {
@@ -38,6 +40,8 @@ function CardModal({ visible, fav, onClose, onRemove, theme }) {
         }),
       ]).start();
     } else {
+      setConfirmRemove(false);
+      confirmAnim.setValue(0);
       Animated.parallel([
         Animated.timing(slideAnim, {
           toValue: height,
@@ -69,21 +73,24 @@ function CardModal({ visible, fav, onClose, onRemove, theme }) {
   };
 
   const handleRemove = () => {
-    Alert.alert(
-      'Favoriden Kaldır',
-      'Bu soruyu favorilerinden kaldırmak istediğine emin misin?',
-      [
-        { text: 'Vazgeç', style: 'cancel' },
-        {
-          text: 'Kaldır',
-          style: 'destructive',
-          onPress: () => {
-            onRemove(fav.question, fav.modId);
-            onClose();
-          },
-        },
-      ]
-    );
+    setConfirmRemove(true);
+    Animated.spring(confirmAnim, {
+      toValue: 1,
+      friction: 14,
+      tension: 90,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handleCancelRemove = () => {
+    Animated.timing(confirmAnim, { toValue: 0, duration: 180, useNativeDriver: true }).start(() => {
+      setConfirmRemove(false);
+    });
+  };
+
+  const handleConfirmRemove = () => {
+    onRemove(fav.question, fav.modId);
+    onClose();
   };
 
   if (!fav) return null;
@@ -147,36 +154,91 @@ function CardModal({ visible, fav, onClose, onRemove, theme }) {
           />
         </View>
 
-        {/* Actions */}
-        <View style={styles.actions}>
-          <TouchableOpacity
-            style={[styles.actionBtn, {
-              backgroundColor: theme.colors.surface,
-              borderColor: theme.colors.border,
-            }]}
-            onPress={handleRemove}
-            activeOpacity={0.75}
-          >
-            <Feather name="trash-2" size={18} color={theme.colors.danger} />
-            <Text style={[styles.actionBtnText, { color: theme.colors.danger }]}>Kaldır</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={handleShare}
-            activeOpacity={0.84}
-            style={styles.shareBtn}
-          >
-            <LinearGradient
-              colors={[fav.catColor, fav.catColor + 'CC']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.shareBtnGradient}
+        {/* Actions — normal or confirm state */}
+        {!confirmRemove ? (
+          <View style={styles.actions}>
+            <TouchableOpacity
+              style={[styles.actionBtn, {
+                backgroundColor: theme.colors.surface,
+                borderColor: theme.colors.border,
+              }]}
+              onPress={handleRemove}
+              activeOpacity={0.75}
             >
-              <Feather name="share-2" size={18} color="#FFFFFF" />
-              <Text style={styles.shareBtnText}>Paylaş</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-        </View>
+              <Feather name="trash-2" size={18} color={theme.colors.danger} />
+              <Text style={[styles.actionBtnText, { color: theme.colors.danger }]}>Kaldır</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={handleShare}
+              activeOpacity={0.84}
+              style={styles.shareBtn}
+            >
+              <LinearGradient
+                colors={[fav.catColor, fav.catColor + 'CC']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.shareBtnGradient}
+              >
+                <Feather name="share-2" size={18} color="#FFFFFF" />
+                <Text style={styles.shareBtnText}>Paylaş</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <Animated.View style={[styles.confirmRemovePanel, {
+            opacity: confirmAnim,
+            transform: [{ scale: confirmAnim.interpolate({ inputRange: [0, 1], outputRange: [0.96, 1] }) }],
+            backgroundColor: theme.colors.surface,
+            borderColor: theme.colors.danger + '30',
+          }]}>
+            {/* Danger indicator strip */}
+            <View style={[styles.confirmRemoveStrip, { backgroundColor: theme.colors.danger }]} />
+
+            <View style={styles.confirmRemoveHeader}>
+              <View style={[styles.confirmRemoveIconWrap, {
+                backgroundColor: theme.colors.danger + '14',
+                borderColor: theme.colors.danger + '38',
+              }]}>
+                <Feather name="heart-off" size={16} color={theme.colors.danger} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.confirmRemoveTitle, { color: theme.colors.text }]}>
+                  Favoriden kaldır?
+                </Text>
+                <Text style={[styles.confirmRemoveQuestion, { color: theme.colors.textMuted }]} numberOfLines={1}>
+                  {fav.question}
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.confirmRemoveActions}>
+              <TouchableOpacity
+                style={[styles.confirmRemoveBtn, {
+                  backgroundColor: theme.colors.surfaceElevated,
+                  borderColor: theme.colors.borderLight,
+                }]}
+                onPress={handleCancelRemove}
+                activeOpacity={0.72}
+              >
+                <Text style={[styles.confirmRemoveBtnText, { color: theme.colors.textSecondary }]}>
+                  Vazgeç
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.confirmRemoveBtn, styles.confirmRemoveDangerBtn, {
+                  backgroundColor: theme.colors.danger,
+                }]}
+                onPress={handleConfirmRemove}
+                activeOpacity={0.82}
+              >
+                <Feather name="trash-2" size={14} color="#FFFFFF" />
+                <Text style={[styles.confirmRemoveBtnText, { color: '#FFFFFF' }]}>Kaldır</Text>
+              </TouchableOpacity>
+            </View>
+          </Animated.View>
+        )}
       </Animated.View>
     </Modal>
   );
@@ -292,6 +354,69 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '700',
     color: '#FFFFFF',
+  },
+  confirmRemovePanel: {
+    borderRadius: 18,
+    borderWidth: 1,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  confirmRemoveStrip: {
+    height: 3,
+  },
+  confirmRemoveHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingHorizontal: 16,
+    paddingTop: 14,
+    paddingBottom: 12,
+  },
+  confirmRemoveIconWrap: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    flexShrink: 0,
+  },
+  confirmRemoveTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    letterSpacing: -0.1,
+    marginBottom: 2,
+  },
+  confirmRemoveQuestion: {
+    fontSize: 12,
+    lineHeight: 17,
+  },
+  confirmRemoveActions: {
+    flexDirection: 'row',
+    gap: 10,
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+  },
+  confirmRemoveBtn: {
+    flex: 1,
+    minHeight: 44,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    flexDirection: 'row',
+    gap: 6,
+  },
+  confirmRemoveDangerBtn: {
+    borderWidth: 0,
+  },
+  confirmRemoveBtnText: {
+    fontSize: 14,
+    fontWeight: '700',
   },
 });
 
