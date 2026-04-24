@@ -1,206 +1,279 @@
-# Design System Master File
+# Design System — KartOyunu (React Native)
 
-> **LOGIC:** When building a specific page, first check `design-system/pages/[page-name].md`.
-> If that file exists, its rules **override** this Master file.
-> If not, strictly follow the rules below.
+> **Kural:** Belirli bir ekran için `design-system/pages/[ekran-adi].md` varsa, o dosya bu Master'ı override eder.
 
----
-
-**Project:** KartOyunu
-**Generated:** 2026-04-22 13:14:49
-**Category:** Luxury/Premium Brand
+**Platform:** React Native / Expo (mobil uygulama — iOS & Android)
+**Stil yaklaşımı:** `StyleSheet.create()` + inline style nesneleri. CSS class, selector veya CSS variable KULLANILMAZ.
 
 ---
 
-## Global Rules
+## Renkler
 
-### Color Palette
+Renkler `src/theme.js` içindeki `darkTheme` ve `lightTheme` nesnelerinden gelir. Hardcode renk yazma — her zaman `theme.colors.*` kullan.
 
-| Role | Hex | CSS Variable |
-|------|-----|--------------|
-| Primary | `#1C1917` | `--color-primary` |
-| Secondary | `#44403C` | `--color-secondary` |
-| CTA/Accent | `#CA8A04` | `--color-cta` |
-| Background | `#FAFAF9` | `--color-background` |
-| Text | `#0C0A09` | `--color-text` |
+### Dark Theme
 
-**Color Notes:** Premium dark + gold accent
+| Token | Hex | Kullanım |
+|-------|-----|---------|
+| `background` | `#0A0A18` | Ana ekran arkaplanı |
+| `surface` | `#0F0F25` | Kart, modal yüzeyleri |
+| `surfaceElevated` | `#16162E` | Yükseltilmiş yüzeyler |
+| `surfaceHigh` | `#1E1E3F` | En üst katman yüzeyler |
+| `primary` | `#D4A843` | CTA buton, vurgu, PRO badge |
+| `primaryLight` | `#E8C97A` | Hover/pressed primary |
+| `primaryDark` | `#A67C2E` | Primary gölge tonu |
+| `secondary` | `#7C5EBB` | İkincil vurgu |
+| `text` | `#EDE9FF` | Ana metin |
+| `textSecondary` | `#9490B8` | İkincil metin |
+| `textMuted` | `#5C5880` | Soluk metin, placeholder |
+| `border` | `#2A2750` | Kenarlık |
+| `borderLight` | `#3D3A6A` | Hafif kenarlık |
+| `card` | `#FFFFFF` | Oyun kartı yüzeyi |
+| `cardText` | `#1A1545` | Oyun kartı metni |
+| `success` | `#27AE60` | FAVORİ swipe, onay |
+| `danger` | `#E74C3C` | GEÇ swipe, hata |
 
-### Typography
+### Light Theme
 
-- **Heading Font:** Playfair Display
-- **Body Font:** Inter
-- **Mood:** elegant, luxury, sophisticated, timeless, premium, editorial
-- **Google Fonts:** [Playfair Display + Inter](https://fonts.google.com/share?selection.family=Inter:wght@300;400;500;600;700|Playfair+Display:wght@400;500;600;700)
-
-**CSS Import:**
-```css
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
-```
-
-### Spacing Variables
-
-| Token | Value | Usage |
-|-------|-------|-------|
-| `--space-xs` | `4px` / `0.25rem` | Tight gaps |
-| `--space-sm` | `8px` / `0.5rem` | Icon gaps, inline spacing |
-| `--space-md` | `16px` / `1rem` | Standard padding |
-| `--space-lg` | `24px` / `1.5rem` | Section padding |
-| `--space-xl` | `32px` / `2rem` | Large gaps |
-| `--space-2xl` | `48px` / `3rem` | Section margins |
-| `--space-3xl` | `64px` / `4rem` | Hero padding |
-
-### Shadow Depths
-
-| Level | Value | Usage |
-|-------|-------|-------|
-| `--shadow-sm` | `0 1px 2px rgba(0,0,0,0.05)` | Subtle lift |
-| `--shadow-md` | `0 4px 6px rgba(0,0,0,0.1)` | Cards, buttons |
-| `--shadow-lg` | `0 10px 15px rgba(0,0,0,0.1)` | Modals, dropdowns |
-| `--shadow-xl` | `0 20px 25px rgba(0,0,0,0.15)` | Hero images, featured cards |
+| Token | Hex | Kullanım |
+|-------|-----|---------|
+| `background` | `#F5F3FF` | Ana ekran arkaplanı |
+| `surface` | `#FFFFFF` | Kart, modal yüzeyleri |
+| `surfaceElevated` | `#EDE9FF` | Yükseltilmiş yüzeyler |
+| `surfaceHigh` | `#E4E0F5` | En üst katman yüzeyler |
+| `primary` | `#6B4FA8` | CTA buton, vurgu |
+| `primaryLight` | `#8B70C8` | Pressed primary |
+| `primaryDark` | `#4A3280` | Primary gölge tonu |
+| `secondary` | `#D4A843` | İkincil vurgu |
+| `text` | `#1A1545` | Ana metin |
+| `textSecondary` | `#4A4675` | İkincil metin |
+| `textMuted` | `#8B87A8` | Soluk metin |
+| `border` | `#D8D3EE` | Kenarlık |
+| `borderLight` | `#EDE9FF` | Hafif kenarlık |
+| `card` | `#FFFFFF` | Oyun kartı yüzeyi |
+| `cardText` | `#1A1545` | Oyun kartı metni |
+| `success` | `#27AE60` | Onay |
+| `danger` | `#E74C3C` | Hata |
 
 ---
 
-## Component Specs
+## Tipografi
 
-### Buttons
+React Native'de Google Fonts CSS import çalışmaz. Font yükleme Expo font API'siyle yapılır.
 
-```css
-/* Primary Button */
-.btn-primary {
-  background: #CA8A04;
-  color: white;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 600;
-  transition: all 200ms ease;
-  cursor: pointer;
-}
+Şu an sistem fontları kullanılıyor:
 
-.btn-primary:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-}
+```javascript
+// Başlık
+fontFamily: Platform.OS === 'ios' ? 'System' : 'Roboto',
+fontWeight: '700',
+fontSize: 24,
 
-/* Secondary Button */
-.btn-secondary {
-  background: transparent;
-  color: #1C1917;
-  border: 2px solid #1C1917;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 600;
-  transition: all 200ms ease;
-  cursor: pointer;
-}
+// Gövde
+fontFamily: Platform.OS === 'ios' ? 'System' : 'Roboto',
+fontWeight: '400',
+fontSize: 16,
 ```
 
-### Cards
-
-```css
-.card {
-  background: #FAFAF9;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: var(--shadow-md);
-  transition: all 200ms ease;
-  cursor: pointer;
-}
-
-.card:hover {
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-2px);
-}
-```
-
-### Inputs
-
-```css
-.input {
-  padding: 12px 16px;
-  border: 1px solid #E2E8F0;
-  border-radius: 8px;
-  font-size: 16px;
-  transition: border-color 200ms ease;
-}
-
-.input:focus {
-  border-color: #1C1917;
-  outline: none;
-  box-shadow: 0 0 0 3px #1C191720;
-}
-```
-
-### Modals
-
-```css
-.modal-overlay {
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-}
-
-.modal {
-  background: white;
-  border-radius: 16px;
-  padding: 32px;
-  box-shadow: var(--shadow-xl);
-  max-width: 500px;
-  width: 90%;
-}
+Türkçe büyük harf: `textTransform: 'uppercase'` KULLANMA — `i→I` yapar, `İ` yapmaz.
+`upperTR(str)` helper'ı kullan (CardScreen'de tanımlı):
+```javascript
+const upperTR = (str) => str.replace(/i/g, 'İ').toUpperCase();
 ```
 
 ---
 
-## Style Guidelines
+## Boşluk ve Boyutlar
 
-**Style:** Liquid Glass
+Sabit spacing token kullanılmıyor; her bileşende tutarlı sayılar kullan:
 
-**Keywords:** Flowing glass, morphing, smooth transitions, fluid effects, translucent, animated blur, iridescent, chromatic aberration
-
-**Best For:** Premium SaaS, high-end e-commerce, creative platforms, branding experiences, luxury portfolios
-
-**Key Effects:** Morphing elements (SVG/CSS), fluid animations (400-600ms curves), dynamic blur (backdrop-filter), color transitions
-
-### Page Pattern
-
-**Pattern Name:** Horizontal Scroll Journey
-
-- **Conversion Strategy:** Immersive product discovery. High engagement. Keep navigation visible.
-28,Bento Grid Showcase,bento,  grid,  features,  modular,  apple-style,  showcase", 1. Hero, 2. Bento Grid (Key Features), 3. Detail Cards, 4. Tech Specs, 5. CTA, Floating Action Button or Bottom of Grid, Card backgrounds: #F5F5F7 or Glass. Icons: Vibrant brand colors. Text: Dark., Hover card scale (1.02), video inside cards, tilt effect, staggered reveal, Scannable value props. High information density without clutter. Mobile stack.
-29,Interactive 3D Configurator,3d,  configurator,  customizer,  interactive,  product", 1. Hero (Configurator), 2. Feature Highlight (synced), 3. Price/Specs, 4. Purchase, Inside Configurator UI + Sticky Bottom Bar, Neutral studio background. Product: Realistic materials. UI: Minimal overlay., Real-time rendering, material swap animation, camera rotate/zoom, light reflection, Increases ownership feeling. 360 view reduces return rates. Direct add-to-cart.
-30,AI-Driven Dynamic Landing,ai,  dynamic,  personalized,  adaptive,  generative", 1. Prompt/Input Hero, 2. Generated Result Preview, 3. How it Works, 4. Value Prop, Input Field (Hero) + 'Try it' Buttons, Adaptive to user input. Dark mode for compute feel. Neon accents., Typing text effects, shimmering generation loaders, morphing layouts, Immediate value demonstration. 'Show, don't tell'. Low friction start.
-- **CTA Placement:** Floating Sticky CTA or End of Horizontal Track
-- **Section Order:** 1. Intro (Vertical), 2. The Journey (Horizontal Track), 3. Detail Reveal, 4. Vertical Footer
+| Kullanım | Değer |
+|----------|-------|
+| Tight gap (ikon, inline) | `4–8` |
+| Standart padding | `16` |
+| Bölüm padding | `20–24` |
+| Büyük boşluk | `32` |
+| Kart border radius | `26` |
+| Buton border radius | `12–14` |
+| Pill border radius | `999` |
 
 ---
 
-## Anti-Patterns (Do NOT Use)
+## Bileşen Kalıpları
 
-- ❌ Cheap visuals
-- ❌ Fast animations
+### Dokunulabilir Alan
 
-### Additional Forbidden Patterns
+```javascript
+// Tüm tıklanabilir öğeler TouchableOpacity veya Pressable kullanır
+// cursor:pointer KULLANILMAZ — mobilde anlamsız
+// :hover KULLANILMAZ — temel etkileşim pattern'i değil
+<TouchableOpacity
+  onPress={handler}
+  activeOpacity={0.75}
+>
+  {/* içerik */}
+</TouchableOpacity>
+```
 
-- ❌ **Emojis as icons** — Use SVG icons (Heroicons, Lucide, Simple Icons)
-- ❌ **Missing cursor:pointer** — All clickable elements must have cursor:pointer
-- ❌ **Layout-shifting hovers** — Avoid scale transforms that shift layout
-- ❌ **Low contrast text** — Maintain 4.5:1 minimum contrast ratio
-- ❌ **Instant state changes** — Always use transitions (150-300ms)
-- ❌ **Invisible focus states** — Focus states must be visible for a11y
+### CTA Butonu
+
+```javascript
+{
+  backgroundColor: theme.colors.primary,
+  paddingVertical: 16,
+  paddingHorizontal: 32,
+  borderRadius: 14,
+  alignItems: 'center',
+}
+// Metin: fontWeight:'700', color: '#1A1000', fontSize: 16
+```
+
+### Glass Pill (Geri Butonu)
+
+```javascript
+{
+  backgroundColor: 'rgba(255,255,255,0.22)',
+  borderWidth: 1,
+  borderColor: 'rgba(255,255,255,0.3)',
+  borderRadius: 999,
+  paddingVertical: 8,
+  paddingHorizontal: 16,
+}
+// Metin: color: '#FFFFFF'
+```
+
+### Deste Öğesi (Deck Item)
+
+```javascript
+// Sol kenarda 4px renkli accent bar
+// Ikon arkaplanı: catColor + '20' (opacity)
+{
+  borderLeftWidth: 4,
+  borderLeftColor: catColor,
+  backgroundColor: theme.colors.surface,
+  borderRadius: 16,
+}
+```
+
+### Oyun Kartı (CardScreen)
+
+```javascript
+{
+  backgroundColor: '#FFFFFF',        // Her zaman beyaz — theme değil
+  borderRadius: 26,
+  // Üstte 6px kategori renk şeridi (View ile ayrı)
+}
+// Metin: color: '#1A1545'
+```
+
+### PRO Badge
+
+```javascript
+{
+  backgroundColor: '#D4A843',
+  borderRadius: 4,
+  paddingHorizontal: 6,
+  paddingVertical: 2,
+}
+// Metin: color: '#1A1000', fontSize: 10, fontWeight: '800'
+```
 
 ---
 
-## Pre-Delivery Checklist
+## İkonlar
 
-Before delivering any UI code, verify:
+Mevcut uygulamada iki yaklaşım birlikte kullanılıyor:
 
-- [ ] No emojis used as icons (use SVG instead)
-- [ ] All icons from consistent icon set (Heroicons/Lucide)
-- [ ] `cursor-pointer` on all clickable elements
-- [ ] Hover states with smooth transitions (150-300ms)
-- [ ] Light mode: text contrast 4.5:1 minimum
-- [ ] Focus states visible for keyboard navigation
-- [ ] `prefers-reduced-motion` respected
-- [ ] Responsive: 375px, 768px, 1024px, 1440px
-- [ ] No content hidden behind fixed navbars
-- [ ] No horizontal scroll on mobile
+- **Emoji:** Kategori ikonları için (`💑`, `🌹`, `🎉`, `🏠`, `🎲`) — bu veri modelinde tanımlı, değiştirme
+- **Feather Icons:** `@expo/vector-icons` paketi yüklü — UI aksiyonları için (✕, ←, paylaş vb.)
+
+```javascript
+import { Feather } from '@expo/vector-icons';
+<Feather name="x" size={24} color={theme.colors.text} />
+```
+
+SVG icon kütüphanesi şu an entegre edilmemiş. Yeni UI öğeleri için Feather kullan.
+
+---
+
+## Animasyon
+
+`react-native-reanimated` ve `Animated` API yüklü:
+
+```javascript
+// Giriş animasyonu için spring tercih et
+Animated.spring(value, {
+  toValue: 1,
+  friction: 8,
+  tension: 60,
+  useNativeDriver: true,
+}).start();
+
+// Swipe animasyonu (useNativeDriver: false — konum değişiyor)
+Animated.timing(position, {
+  toValue: { x: targetX, y: 0 },
+  duration: 260,
+  useNativeDriver: false,
+}).start();
+```
+
+Hızlı/kaba animasyon kullanma. Minimum 200ms, spring için friction 6–10 arası.
+
+---
+
+## Haptics
+
+`expo-haptics` yüklü ve kullanılıyor:
+
+```javascript
+import * as Haptics from 'expo-haptics';
+
+// Favori (sağ swipe)
+Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+
+// Geç (sol swipe)
+Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+```
+
+---
+
+## Swipe Etiketleri (CardScreen)
+
+| Yön | Metin | Renk |
+|-----|-------|------|
+| Sağ (favori) | `FAVORİ` | `#27AE60` |
+| Sol (geç) | `GEÇ` | `#E74C3C` |
+
+---
+
+## Her Ekranda Standart Pattern
+
+```javascript
+// ThemeContext'ten renkleri al
+const { theme, isDark } = useTheme();
+
+// Stil factory — her render'da tema değişirse güncellenir
+const s = useMemo(() => makeStyles(theme), [theme]);
+
+// makeStyles her ekranın altında tanımlı
+const makeStyles = (theme) => StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+  },
+  // ...
+});
+```
+
+---
+
+## Yasak Kalıplar
+
+- ❌ CSS class selector (`.btn-primary`, `.card` vb.) — React Native'de çalışmaz
+- ❌ `cursor: pointer` — mobilde anlamsız
+- ❌ `:hover` pseudo-class — React Native'de yok
+- ❌ `@import url(...)` Google Fonts — RN'de bu şekilde çalışmaz
+- ❌ `backdrop-filter` — web CSS özelliği, RN'de farklı çalışır
+- ❌ CSS variable (`--color-primary`) — RN'de desteklenmiyor
+- ❌ `textTransform: 'uppercase'` — Türkçe `i→İ` için yanlış sonuç verir
+- ❌ Hardcode renk — `theme.colors.*` kullan
