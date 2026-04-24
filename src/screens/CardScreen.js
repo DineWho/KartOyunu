@@ -10,6 +10,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { cards, categories } from '../data';
 import { useTheme } from '../ThemeContext';
 import { useFavorites } from '../context/FavoritesContext';
+import { useStats } from '../context/StatsContext';
 
 const { width, height } = Dimensions.get('window');
 const SWIPE_THRESHOLD = 100;
@@ -24,6 +25,7 @@ export default function CardScreen() {
   const { theme } = useTheme();
   const s = useMemo(() => makeStyles(theme), [theme]);
   const { addFavorite } = useFavorites();
+  const { addStat } = useStats();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [sessionFavorites, setSessionFavorites] = useState([]);
   const [finished, setFinished] = useState(false);
@@ -53,13 +55,16 @@ export default function CardScreen() {
   const swipeCard = (direction) => {
     const idx = currentIndexRef.current;
     const toX = direction === 'right' ? width * 1.5 : -width * 1.5;
+    const cardId = `${mod.id}-${idx}`;
 
     if (direction === 'right') {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       setSessionFavorites(prev => [...prev, modCards[idx]]);
       addFavorite(modCards[idx], mod, catColor);
+      addStat(cardId, mod.id, 'favorite');
     } else {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      addStat(cardId, mod.id, 'skip');
     }
 
     Animated.timing(position, {

@@ -1,0 +1,14 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd /Users/ozancorumlu/Documents/KartOyunu && git diff --quiet && git diff --cached --quiet || (git add App.js app.json package.json package-lock.json src/ design-system/ 2>/dev/null; git diff --cached --quiet || (git commit -m \"Auto-save: $(date '+%Y-%m-%d %H:%M')\" && git push origin main 2>/dev/null)) 2>/dev/null || true"
+          }
+        ]
+      }
+    ]
+  }
+}

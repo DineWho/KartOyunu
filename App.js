@@ -6,6 +6,8 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { ThemeProvider, useTheme } from './src/ThemeContext';
 import { FavoritesProvider } from './src/context/FavoritesContext';
+import { NetworkProvider } from './src/context/NetworkContext';
+import { StatsProvider } from './src/context/StatsContext';
 import SplashScreen from './src/screens/SplashScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import CategoryScreen from './src/screens/CategoryScreen';
@@ -72,9 +74,13 @@ export default function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemeProvider>
-        <FavoritesProvider>
-          <AppContent />
-        </FavoritesProvider>
+        <NetworkProvider>
+          <StatsProvider>
+            <FavoritesProvider>
+              <AppContent />
+            </FavoritesProvider>
+          </StatsProvider>
+        </NetworkProvider>
       </ThemeProvider>
     </GestureHandlerRootView>
   );
