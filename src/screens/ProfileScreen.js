@@ -6,12 +6,14 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
 import { useTheme } from '../ThemeContext';
 import { useStats } from '../context/StatsContext';
+import Toast from '../components/Toast';
 
 export default function ProfileScreen() {
   const { theme, isDark } = useTheme();
   const s = useMemo(() => makeStyles(theme), [theme]);
   const { getTotalStats, clearStats } = useStats();
   const [confirmVisible, setConfirmVisible] = useState(false);
+  const [toastVisible, setToastVisible] = useState(false);
   const scaleAnim = useRef(new Animated.Value(0.88)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const stats = getTotalStats();
@@ -41,6 +43,7 @@ export default function ProfileScreen() {
   const handleConfirmClear = () => {
     clearStats();
     setConfirmVisible(false);
+    setTimeout(() => setToastVisible(true), 250);
   };
 
   return (
@@ -184,6 +187,12 @@ export default function ProfileScreen() {
 
         <View style={{ height: 120 }} />
       </ScrollView>
+
+      <Toast
+        visible={toastVisible}
+        message="İstatistikler sıfırlandı"
+        onHide={() => setToastVisible(false)}
+      />
     </SafeAreaView>
   );
 }

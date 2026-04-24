@@ -11,6 +11,7 @@ import { useFavorites } from '../context/FavoritesContext';
 import { useStats } from '../context/StatsContext';
 import QuestionShareCard from '../components/QuestionShareCard';
 import { shareQuestionCard } from '../utils/shareQuestionCard';
+import Toast from '../components/Toast';
 
 const { width, height } = Dimensions.get('window');
 
@@ -200,7 +201,7 @@ function CardModal({ visible, fav, onClose, onRemove, theme }) {
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={[styles.confirmRemoveTitle, { color: theme.colors.text }]}>
-                  Favoriden kaldır?
+                  Favorilerden kaldır?
                 </Text>
                 <Text style={[styles.confirmRemoveQuestion, { color: theme.colors.textMuted }]}>
                   Emin misiniz? Bu işlem geri alınamaz.
@@ -422,6 +423,12 @@ export default function FavoritesScreen() {
   const { favorites, removeFavorite } = useFavorites();
   const [selectedFav, setSelectedFav] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [toastVisible, setToastVisible] = useState(false);
+
+  const handleRemoveFavorite = (question, modId) => {
+    removeFavorite(question, modId);
+    setTimeout(() => setToastVisible(true), 340);
+  };
 
   const grouped = useMemo(() => {
     const map = {};
@@ -512,8 +519,14 @@ export default function FavoritesScreen() {
         visible={modalVisible}
         fav={selectedFav}
         onClose={closeModal}
-        onRemove={removeFavorite}
+        onRemove={handleRemoveFavorite}
         theme={theme}
+      />
+
+      <Toast
+        visible={toastVisible}
+        message="Favorilerden kaldırıldı"
+        onHide={() => setToastVisible(false)}
       />
     </SafeAreaView>
   );
