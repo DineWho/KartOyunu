@@ -97,10 +97,9 @@ export default function CardScreen() {
     onStartShouldSetPanResponder: (evt) => {
       return evt.nativeEvent.pageX > LEFT_EDGE_ZONE;
     },
-    onPanResponderMove: Animated.event(
-      [null, { dx: position.x, dy: position.y }],
-      { useNativeDriver: true }
-    ),
+    onPanResponderMove: (_, gesture) => {
+      position.setValue({ x: gesture.dx, y: gesture.dy * 0.15 });
+    },
     onPanResponderRelease: (_, gesture) => {
       if (gesture.dx > SWIPE_THRESHOLD) {
         swipeCardRef.current('right');
