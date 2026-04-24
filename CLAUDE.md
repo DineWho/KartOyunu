@@ -90,3 +90,37 @@ Favoriler `FavoritesContext` üzerinden global state'e kaydedilir:
 ```javascript
 addFavorite(modCards[idx], mod, catColor);
 ```
+
+Oyun istatistikleri `StatsContext` üzerinden kaydedilir:
+
+```javascript
+const { addStat } = useStats();
+addStat(cardId, modId, 'favorite'); // veya 'skip'
+```
+
+---
+
+## Offline Modu & İstatistik Takibi
+
+**Offline çalışma:**
+- Tüm veriler cihazda hardcoded → internet olmasa da oynanabilir
+- Favoriler AsyncStorage'da → offline'da kalıcı
+- İstatistikler AsyncStorage'da → offline'da kaydedilir
+
+**Oyun istatistikleri** (CardScreen'de, her swipe'da kaydedilir):
+```javascript
+import { useStats } from '../context/StatsContext';
+
+const { addStat, getTotalStats, clearStats } = useStats();
+
+// Her swiped'da
+addStat(cardId, modId, direction === 'right' ? 'favorite' : 'skip');
+
+// SettingsScreen'de gösterilir
+const { totalCards, totalFavorited, modsPlayed } = getTotalStats();
+```
+
+**Storage keys:**
+- `@kartoyunu_favorites` — Favoriler
+- `@kartoyunu_stats` — İstatistikler (JSON array)
+

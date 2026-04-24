@@ -2,6 +2,34 @@
 
 ---
 
+## Offline Modu & İstatistik Takibi
+
+**Durum (çözüldü):** Uygulama tamamen offline'da çalışıyor:
+- Tüm modlar ve sorular cihazda hardcoded → internet olmasa da oynanabilir
+- Favoriler `AsyncStorage`'da saklanıyor → offline'da persist
+- Oyun istatistikleri `AsyncStorage`'da `@kartoyunu_stats` key'inde saklanıyor
+
+**StatsContext (`src/context/StatsContext.js`):**
+```javascript
+// Her swiped'da kaydedilir
+addStat(cardId, modId, action) // action: 'skip' | 'favorite'
+
+// Sorgu
+getTotalStats() → { totalCards, totalFavorited, modsPlayed }
+getStatsByMod(modId) → { attempted, favorited }
+
+// Sıfırla
+clearStats()
+```
+
+**SettingsScreen'de görüntülenir:**
+- Toplam kartlar oynanmış
+- Toplam favori
+- Modlar oynanmış
+- Sıfırla butonu
+
+---
+
 ## iOS Geri Navigasyonu
 
 React Navigation stack navigator sayesinde `CategoryScreen` ve `ModScreen` için iOS native back gesture (sol kenar swipe) otomatik çalışır. Ayrıca Android back button da stack'i otomatik yönetir.
