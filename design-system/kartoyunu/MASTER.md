@@ -15,19 +15,19 @@ Renkler `src/theme.js` içindeki `darkTheme` ve `lightTheme` nesnelerinden gelir
 
 | Token | Hex | Kullanım |
 |-------|-----|---------|
-| `background` | `#0A0A18` | Ana ekran arkaplanı |
-| `surface` | `#0F0F25` | Kart, modal yüzeyleri |
-| `surfaceElevated` | `#16162E` | Yükseltilmiş yüzeyler |
-| `surfaceHigh` | `#1E1E3F` | En üst katman yüzeyler |
+| `background` | `#07071A` | Ana ekran arkaplanı |
+| `surface` | `#0D0D28` | Kart, modal yüzeyleri |
+| `surfaceElevated` | `#131340` | Yükseltilmiş yüzeyler |
+| `surfaceHigh` | `#1A1A52` | En üst katman yüzeyler |
 | `primary` | `#D4A843` | CTA buton, vurgu, PRO badge |
 | `primaryLight` | `#E8C97A` | Hover/pressed primary |
 | `primaryDark` | `#A67C2E` | Primary gölge tonu |
 | `secondary` | `#7C5EBB` | İkincil vurgu |
-| `text` | `#EDE9FF` | Ana metin |
+| `text` | `#F0ECFF` | Ana metin |
 | `textSecondary` | `#9490B8` | İkincil metin |
 | `textMuted` | `#5C5880` | Soluk metin, placeholder |
-| `border` | `#2A2750` | Kenarlık |
-| `borderLight` | `#3D3A6A` | Hafif kenarlık |
+| `border` | `#1C1A3E` | Kenarlık |
+| `borderLight` | `#2A2758` | Hafif kenarlık |
 | `card` | `#FFFFFF` | Oyun kartı yüzeyi |
 | `cardText` | `#1A1545` | Oyun kartı metni |
 | `success` | `#27AE60` | FAVORİ swipe, onay |
@@ -45,7 +45,7 @@ Renkler `src/theme.js` içindeki `darkTheme` ve `lightTheme` nesnelerinden gelir
 | `primaryLight` | `#8B70C8` | Pressed primary |
 | `primaryDark` | `#4A3280` | Primary gölge tonu |
 | `secondary` | `#D4A843` | İkincil vurgu |
-| `text` | `#1A1545` | Ana metin |
+| `text` | `#12103A` | Ana metin |
 | `textSecondary` | `#4A4675` | İkincil metin |
 | `textMuted` | `#8B87A8` | Soluk metin |
 | `border` | `#D8D3EE` | Kenarlık |

@@ -66,7 +66,7 @@ export default function CategoryScreen({ navigate, category }) {
             >
               <TouchableOpacity
                 style={s.deckItem}
-                onPress={() => navigate('deck', { deck })}
+                onPress={() => navigate('deck', { deck, from: 'category' })}
                 activeOpacity={0.75}
               >
                 <View style={[s.deckAccentBar, { backgroundColor: catColor }]} />

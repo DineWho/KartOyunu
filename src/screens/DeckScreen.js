@@ -8,7 +8,7 @@ import { Feather } from '@expo/vector-icons';
 import { categories } from '../data';
 import { useTheme } from '../ThemeContext';
 
-export default function DeckScreen({ navigate, deck }) {
+export default function DeckScreen({ navigate, deck, from = 'home' }) {
   const { theme } = useTheme();
   const s = useMemo(() => makeStyles(theme), [theme]);
   const category = categories.find(c => c.id === deck.categoryId);
@@ -42,7 +42,7 @@ export default function DeckScreen({ navigate, deck }) {
       );
     },
     onPanResponderRelease: (_, gestureState) => {
-      if (gestureState.dx > 60) navigate('home');
+      if (gestureState.dx > 60) navigate(from);
     },
   })).current;
 
@@ -65,7 +65,7 @@ export default function DeckScreen({ navigate, deck }) {
 
       {/* Header — solid catColor, no gradient */}
       <Animated.View style={[s.header, { opacity: headerAnim }]}>
-        <TouchableOpacity style={s.backBtn} onPress={() => navigate('home')} activeOpacity={0.8}>
+        <TouchableOpacity style={s.backBtn} onPress={() => navigate(from)} activeOpacity={0.8}>
           <Feather name="arrow-left" size={16} color="rgba(255,255,255,0.9)" />
           <Text style={s.backBtnText}>Geri</Text>
         </TouchableOpacity>

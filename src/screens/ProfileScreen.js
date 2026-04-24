@@ -77,7 +77,7 @@ export default function ProfileScreen({ navigate }) {
         {/* Features list */}
         <View style={s.featureList}>
           {[
-            { icon: '♥', text: 'Favori sorularını kaybet' },
+            { icon: '♥', text: 'Favori sorularını kaydet' },
             { icon: '📊', text: 'İstatistikleri takip et' },
             { icon: '🔄', text: 'Tüm cihazlarda senkronize' },
             { icon: '🔓', text: 'Premium destelere erişim' },

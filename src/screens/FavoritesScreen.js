@@ -221,7 +221,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     letterSpacing: 1.5,
     marginBottom: 22,
-    textTransform: 'uppercase',
   },
   cardQuestion: {
     fontSize: 22,

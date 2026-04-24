@@ -19,11 +19,13 @@ function AppContent() {
   const [screen, setScreen] = useState('home');
   const [selectedDeck, setSelectedDeck] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [deckSource, setDeckSource] = useState('home');
   const { theme, isDark } = useTheme();
 
   const navigate = (screenName, params = {}) => {
     if (params.deck) setSelectedDeck(params.deck);
     if (params.category) setSelectedCategory(params.category);
+    if (screenName === 'deck') setDeckSource(params.from || 'home');
     setScreen(screenName);
   };
 
@@ -45,7 +47,7 @@ function AppContent() {
       {screen === 'settings'  && <SettingsScreen />}
       {screen === 'profile'   && <ProfileScreen navigate={navigate} />}
       {screen === 'category'  && <CategoryScreen navigate={navigate} category={selectedCategory} />}
-      {screen === 'deck'      && <DeckScreen navigate={navigate} deck={selectedDeck} />}
+      {screen === 'deck'      && <DeckScreen navigate={navigate} deck={selectedDeck} from={deckSource} />}
       {screen === 'cards'     && <CardScreen navigate={navigate} deck={selectedDeck} />}
 
       {showTabBar && (
