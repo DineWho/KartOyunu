@@ -6,7 +6,6 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { ThemeProvider, useTheme } from './src/ThemeContext';
 import { FavoritesProvider } from './src/context/FavoritesContext';
-import { NetworkProvider } from './src/context/NetworkContext';
 import { StatsProvider } from './src/context/StatsContext';
 import SplashScreen from './src/screens/SplashScreen';
 import HomeScreen from './src/screens/HomeScreen';
@@ -35,8 +34,13 @@ function MainTabs() {
   );
 }
 
-function AppContent() {
+function AppShell() {
+  const [splashDone, setSplashDone] = useState(false);
   const { theme, isDark } = useTheme();
+
+  if (!splashDone) {
+    return <SplashScreen onFinish={() => setSplashDone(true)} />;
+  }
 
   return (
     <>
@@ -61,26 +65,14 @@ function AppContent() {
 }
 
 export default function App() {
-  const [splashDone, setSplashDone] = useState(false);
-
-  if (!splashDone) {
-    return (
-      <ThemeProvider>
-        <SplashScreen onFinish={() => setSplashDone(true)} />
-      </ThemeProvider>
-    );
-  }
-
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemeProvider>
-        <NetworkProvider>
-          <StatsProvider>
-            <FavoritesProvider>
-              <AppContent />
-            </FavoritesProvider>
-          </StatsProvider>
-        </NetworkProvider>
+        <StatsProvider>
+          <FavoritesProvider>
+            <AppShell />
+          </FavoritesProvider>
+        </StatsProvider>
       </ThemeProvider>
     </GestureHandlerRootView>
   );

@@ -92,15 +92,15 @@ export default function ModScreen() {
             <Text style={s.description}>{mod.description}</Text>
           </View>
 
-          <View style={s.section}>
-            <Text style={s.sectionLabel}>NE BEKLEMELİ?</Text>
-            <View style={[s.quoteCard, { borderLeftColor: catColor }]}>
-              <Text style={[s.quoteChar, { color: catColor }]}>"</Text>
-              <Text style={s.quoteText}>
-                Bu mod sizi gerçekten konuşturacak. Her soru bir sonrakini açar, sessizlik yok.
-              </Text>
+          {!!mod.expectation && (
+            <View style={s.section}>
+              <Text style={s.sectionLabel}>NE BEKLEMELİ?</Text>
+              <View style={[s.quoteCard, { borderLeftColor: catColor }]}>
+                <Text style={[s.quoteChar, { color: catColor }]}>"</Text>
+                <Text style={s.quoteText}>{mod.expectation}</Text>
+              </View>
             </View>
-          </View>
+          )}
 
           {mod.isPremium && (
             <View style={s.section}>

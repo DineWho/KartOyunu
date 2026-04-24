@@ -479,10 +479,10 @@ export default function HomeScreen() {
               activeOpacity={0.82}
             >
               <LinearGradient
-                colors={[
-                  theme.colors.card,
-                  theme.isDark ? "#F7F3FF" : "#FFFFFF",
-                ]}
+                colors={isDark
+                  ? [theme.colors.surface, theme.colors.surfaceElevated]
+                  : [theme.colors.card, '#FFFFFF']
+                }
                 style={StyleSheet.absoluteFill}
               />
               <View style={s.dailyTopStripe} />
@@ -777,7 +777,7 @@ const makeStyles = (theme) =>
       fontSize: 22,
       fontWeight: "600",
       lineHeight: 34,
-      color: "#1A1545",
+      color: theme.colors.text,
     },
     modalOverlay: {
       flex: 1,

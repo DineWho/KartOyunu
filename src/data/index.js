@@ -29,6 +29,7 @@ export const mods = [
     level: 'Eğlenceli',
     isPremium: false,
     emoji: '😂',
+    expectation: 'Grupta kim ne zaman ne yapmış — gülmek kesin, utanmak da ihtimal dahilinde.',
   },
   {
     id: 'arkadaslar_nostalji',
@@ -41,6 +42,7 @@ export const mods = [
     level: 'Sıcak',
     isPremium: false,
     emoji: '📸',
+    expectation: 'Birlikte yaşanan anlar yeniden canlanıyor; sizi birbirinize bağlayan sıcak hatıralar.',
   },
   {
     id: 'arkadaslar_maskesiz',
@@ -53,6 +55,7 @@ export const mods = [
     level: 'Filtresiz',
     isPremium: true,
     emoji: '🪞',
+    expectation: 'Söylemesi zor olanlar bu kez söylenecek. Gerçekten hazır mısın?',
   },
   {
     id: 'arkadaslar_eski_defterler',
@@ -65,6 +68,7 @@ export const mods = [
     level: 'Katmanlı',
     isPremium: true,
     emoji: '📖',
+    expectation: 'Kapanmamış defterler açılacak. Sessiz kalan şeyler ses çıkaracak.',
   },
   {
     id: 'arkadaslar_dostluk_siniri',
@@ -77,6 +81,7 @@ export const mods = [
     level: 'İddialı',
     isPremium: true,
     emoji: '🔥',
+    expectation: 'Dostluk sınırının tam nerede olduğu netleşecek — kimi hayal kırıklığına uğrattın, kimi seni?',
   },
   // ─── İlk Buluşma ───────────────────────────────────────────────
   {
@@ -90,6 +95,7 @@ export const mods = [
     level: 'Hafif',
     isPremium: false,
     emoji: '☕',
+    expectation: 'Baskısız, doğal bir sohbet başlatır. Karşındakini tanımak bu kadar kolay hissettiriyor.',
   },
   {
     id: 'bulusma_ilk_adim',
@@ -102,6 +108,7 @@ export const mods = [
     level: 'Hafif',
     isPremium: false,
     emoji: '👀',
+    expectation: 'İlk izlenimler test ediliyor. Kim gerçekten kim olduğunu ortaya koyuyor?',
   },
   {
     id: 'bulusma_merak_uyandiran',
@@ -114,6 +121,7 @@ export const mods = [
     level: 'Rahat',
     isPremium: false,
     emoji: '🌸',
+    expectation: 'Yüzeyin altında ne var? Birbirini gerçekten merak edenler için.',
   },
   {
     id: 'bulusma_kimyayi_test_et',
@@ -126,6 +134,7 @@ export const mods = [
     level: 'Flörtöz',
     isPremium: true,
     emoji: '💘',
+    expectation: 'Kimya var mı yok mu — bu mod bunu net gösterecek. Hazır ol.',
   },
   {
     id: 'bulusma_ince_sinyaller',
@@ -138,6 +147,7 @@ export const mods = [
     level: 'Sezgisel',
     isPremium: true,
     emoji: '🔍',
+    expectation: 'Söylenenlerin değil, söylenmeyenlerin konuşulduğu bir mod.',
   },
   {
     id: 'bulusma_kirmizi_cizgiler',
@@ -150,6 +160,7 @@ export const mods = [
     level: 'Keskin',
     isPremium: true,
     emoji: '🚩',
+    expectation: 'Erken fark etmek hayat kurtarır. Bu sorular seni koruyor.',
   },
   // ─── Çiftler ───────────────────────────────────────────────
   {
@@ -163,6 +174,7 @@ export const mods = [
     level: 'Hafif',
     isPremium: false,
     emoji: '😄',
+    expectation: 'Birlikte gülebilmek güçtür — bu mod tam bunun için.',
   },
   {
     id: 'ciftler_gunluk_hayat',
@@ -175,6 +187,7 @@ export const mods = [
     level: 'Rahat',
     isPremium: false,
     emoji: '🏡',
+    expectation: 'Küçük şeyler büyük ilişki kurar. Birlikte keşfedin.',
   },
   {
     id: 'ciftler_gizli_gercekler',
@@ -187,6 +200,7 @@ export const mods = [
     level: 'Mahrem',
     isPremium: true,
     emoji: '🔐',
+    expectation: 'Söylenmesi zor ama söylenince çok şey değişiyor. Hazır mısınız?',
   },
   {
     id: 'ciftler_aramizda_kalsin',
@@ -199,6 +213,7 @@ export const mods = [
     level: 'Özel',
     isPremium: true,
     emoji: '💫',
+    expectation: 'Sadece ikinize ait, dışarı taşmayan şeyleri keşfedin.',
   },
   {
     id: 'ciftler_gece_yarisi',
@@ -211,6 +226,7 @@ export const mods = [
     level: 'Yoğun',
     isPremium: true,
     emoji: '🌊',
+    expectation: 'En derin konuşmalar gece yarısı olur. Bu mod o anı yaratıyor.',
   },
   // ─── Aile ───────────────────────────────────────────────
   {
@@ -224,6 +240,7 @@ export const mods = [
     level: 'Sıcak',
     isPremium: false,
     emoji: '🏡',
+    expectation: 'Sofrayı gerçek bir sohbete dönüştürün. Herkes konuşur, herkes dinler.',
   },
   {
     id: 'aile_cocuklarla',
@@ -236,6 +253,7 @@ export const mods = [
     level: 'Eğlenceli',
     isPremium: false,
     emoji: '🌈',
+    expectation: 'Hayal gücü tavan yapar, gülüşmeler garantili. Büyükler de en az küçükler kadar eğlenir.',
   },
   {
     id: 'aile_biz_bize',
@@ -248,6 +266,7 @@ export const mods = [
     level: 'Özel',
     isPremium: true,
     emoji: '💕',
+    expectation: 'Ailedeki o sessiz sevgiler dile gelsin. Söylenmeyenler artık söylensin.',
   },
   {
     id: 'aile_kokler',
@@ -260,6 +279,7 @@ export const mods = [
     level: 'Düşündüren',
     isPremium: true,
     emoji: '🌳',
+    expectation: 'Nereden gelindiğini bilmek, nereye gidileceğini de netleştirir.',
   },
   {
     id: 'aile_aile_arasinda',
@@ -272,6 +292,7 @@ export const mods = [
     level: 'Mahrem',
     isPremium: true,
     emoji: '🌊',
+    expectation: 'Ailede herkesin taşıdığı ama kimsenin açıklayamadığı şeyler için.',
   },
   // ─── Grup ───────────────────────────────────────────────
   {
@@ -285,6 +306,7 @@ export const mods = [
     level: 'Hafif',
     isPremium: false,
     emoji: '❄️',
+    expectation: 'Yabancılar tanışıyor, garip sessizlikler bitiyor. Hızlı ve eğlenceli.',
   },
   {
     id: 'grup_tanisma_masasi',
@@ -297,6 +319,7 @@ export const mods = [
     level: 'Rahat',
     isPremium: false,
     emoji: '🥳',
+    expectation: 'Masadaki herkes birbirini gerçekten tanımak istiyorsa, burası tam yeri.',
   },
   {
     id: 'grup_oda_dinamigi',
@@ -309,6 +332,7 @@ export const mods = [
     level: 'Katmanlı',
     isPremium: true,
     emoji: '🔍',
+    expectation: 'Kim kim — bu odadaki dinamikler ortaya çıkacak.',
   },
   {
     id: 'grup_son_hamle',
@@ -321,6 +345,7 @@ export const mods = [
     level: 'Kışkırtıcı',
     isPremium: true,
     emoji: '🎯',
+    expectation: 'Son hamleler yapılacak. Söylenmesi gerekenler bu kez söylenecek.',
   },
   {
     id: 'grup_kararsizlik_plus',
@@ -333,6 +358,7 @@ export const mods = [
     level: 'İddialı',
     isPremium: true,
     emoji: '🧩',
+    expectation: 'Grup kararları ve belirsizlikler üzerine derin bir sorgulama.',
   },
   // ─── Burçlar ───────────────────────────────────────────────
   {
@@ -346,6 +372,7 @@ export const mods = [
     level: 'Meraklı',
     isPremium: false,
     emoji: '💘',
+    expectation: 'Burçlar uyuşuyor mu, uyuşmuyor mu? Bu mod ortaya koyuyor.',
   },
   {
     id: 'burclar_burc_savasi',
@@ -358,6 +385,7 @@ export const mods = [
     level: 'Eğlenceli',
     isPremium: false,
     emoji: '⚔️',
+    expectation: 'Burçlar arasındaki rekabet başlıyor. Kim kimi atlatır?',
   },
   {
     id: 'burclar_red_flag_burclar',
@@ -370,6 +398,7 @@ export const mods = [
     level: 'Cesur',
     isPremium: false,
     emoji: '🚩',
+    expectation: 'Herkesin burcuyla ilgili söylemek istediği o şeyler — artık söyleniyor.',
   },
   {
     id: 'burclar_gizli_uyum',
@@ -382,6 +411,7 @@ export const mods = [
     level: 'Sezgisel',
     isPremium: true,
     emoji: '✨',
+    expectation: 'Kelimelerle anlatılamayan ama hissedilen o bağ nereden geliyor?',
   },
   {
     id: 'burclar_astro_itiraflar',
@@ -394,6 +424,7 @@ export const mods = [
     level: 'Mahrem',
     isPremium: true,
     emoji: '🌑',
+    expectation: 'Burcunun karanlık yanını kabul etmek — bu hiç kolay değil.',
   },
   {
     id: 'burclar_kader_cizgisi',
@@ -406,6 +437,7 @@ export const mods = [
     level: 'İddialı',
     isPremium: true,
     emoji: '🔮',
+    expectation: 'Kadere ne kadar inanıyorsun? Bu sorular sınırları zorluyor.',
   },
   // ─── Yemek ───────────────────────────────────────────────
   {
@@ -419,6 +451,7 @@ export const mods = [
     level: 'Rahat',
     isPremium: false,
     emoji: '🍴',
+    expectation: 'Damak zevkiniz kişiliğinizdir. Fark etmeden kendinizi anlatacaksınız.',
   },
   {
     id: 'yemek_asla_yemem',
@@ -431,6 +464,7 @@ export const mods = [
     level: 'Eğlenceli',
     isPremium: false,
     emoji: '🤢',
+    expectation: 'Bu mod sizi güldürür, belki biraz iğrendirip sonra da birleştirir.',
   },
   {
     id: 'yemek_sofra_muhabbeti',
@@ -443,6 +477,7 @@ export const mods = [
     level: 'Sıcak',
     isPremium: false,
     emoji: '🫕',
+    expectation: 'Sofra bir toplantı değil, bir his. Bu mod o hissi geri getiriyor.',
   },
   {
     id: 'yemek_damak_siniri',
@@ -455,6 +490,7 @@ export const mods = [
     level: 'Keskin',
     isPremium: true,
     emoji: '🍽️',
+    expectation: 'Damak zevkinizin nerede bittiği, sizi gerçekten nerede başlatıyor.',
   },
   {
     id: 'yemek_sofra_sirlari',
@@ -467,6 +503,7 @@ export const mods = [
     level: 'Özel',
     isPremium: true,
     emoji: '🌙',
+    expectation: 'Yemek ve duygu arasındaki o derin bağı keşfedin.',
   },
   {
     id: 'yemek_yasak_eslesmeler',
@@ -479,6 +516,7 @@ export const mods = [
     level: 'Kışkırtıcı',
     isPremium: true,
     emoji: '🔥',
+    expectation: 'Tartışmalı kombinasyonlar masaya yatırılıyor. Kim neyi savunuyor?',
   },
   // ─── Seyahat ───────────────────────────────────────────────
   {
@@ -492,6 +530,7 @@ export const mods = [
     level: 'Rahat',
     isPremium: false,
     emoji: '🧳',
+    expectation: 'Nasıl seyahat ettiğiniz, nasıl yaşadığınızı ele veriyor.',
   },
   {
     id: 'seyahat_sehir_mi_doga_mi',
@@ -504,6 +543,7 @@ export const mods = [
     level: 'Eğlenceli',
     isPremium: false,
     emoji: '🏕️',
+    expectation: 'Bir seçim yapmanız gerekiyor — ve bu seçim sizi ortaya koyuyor.',
   },
   {
     id: 'seyahat_birlikte_tatile_gider_miyiz',
@@ -516,6 +556,7 @@ export const mods = [
     level: 'Samimi',
     isPremium: false,
     emoji: '🤝',
+    expectation: 'Tatil arkadaşlığı gerçek uyuşmayı ortaya çıkarır.',
   },
   {
     id: 'seyahat_bavulda_kalanlar',
@@ -528,6 +569,7 @@ export const mods = [
     level: 'Mahrem',
     isPremium: true,
     emoji: '🌊',
+    expectation: 'Gidilen yerlerden geriye kalan anılar, izler ve sırlar.',
   },
   {
     id: 'seyahat_kacis_plani',
@@ -540,6 +582,7 @@ export const mods = [
     level: 'Yoğun',
     isPremium: true,
     emoji: '🚀',
+    expectation: 'Kaçmak mı istiyorsun? Bu mod neden, nereye ve nasıl sorusunu soruyor.',
   },
   {
     id: 'seyahat_uzak_ihtimaller',
@@ -552,6 +595,7 @@ export const mods = [
     level: 'Katmanlı',
     isPremium: true,
     emoji: '🌍',
+    expectation: 'Hayallerdeki o uzak ihtimaller bu kez gerçek bir konuşmaya dönüşüyor.',
   },
   // ─── Evcil Hayvanlar ───────────────────────────────────────────────
   {
@@ -565,6 +609,7 @@ export const mods = [
     level: 'Eğlenceli',
     isPremium: false,
     emoji: '🐱',
+    expectation: 'Bu seçim düşündüğünüzden çok daha fazla şey anlatıyor. Hangisi siz?',
   },
   {
     id: 'evcil_pet_parent',
@@ -577,6 +622,7 @@ export const mods = [
     level: 'Sıcak',
     isPremium: false,
     emoji: '🐾',
+    expectation: 'Evcil hayvanınızla paylaştığınız anlara bir selam götürün.',
   },
   {
     id: 'evcil_evcil_dostlar',
@@ -589,6 +635,7 @@ export const mods = [
     level: 'Samimi',
     isPremium: false,
     emoji: '💕',
+    expectation: 'O bağ sizi nasıl değiştirdi? Fark etmeden anlatacaksınız.',
   },
   {
     id: 'evcil_patili_sirlar',
@@ -601,6 +648,7 @@ export const mods = [
     level: 'Sezgisel',
     isPremium: true,
     emoji: '🔮',
+    expectation: 'Hayvanlar bazen insanlardan daha çok şey görüyor. Fark ettiniz mi?',
   },
   {
     id: 'evcil_dostluk_esigi',
@@ -613,6 +661,7 @@ export const mods = [
     level: 'Özel',
     isPremium: true,
     emoji: '🌟',
+    expectation: 'O dostluğun hayatınıza kattıklarını keşfetmeye hazır mısınız?',
   },
   {
     id: 'evcil_evin_gercek_sahibi',
@@ -625,6 +674,7 @@ export const mods = [
     level: 'İddialı',
     isPremium: true,
     emoji: '👑',
+    expectation: 'Kimin patronu kim olduğunu hep biliyordunuz. Artık itiraf edin.',
   },
   // ─── İş Hayatı ───────────────────────────────────────────────
   {
@@ -638,6 +688,7 @@ export const mods = [
     level: 'Rahat',
     isPremium: false,
     emoji: '😄',
+    expectation: 'Ofis hayatının komik, tuhaf ve evrensel anları — herkes tanıyor.',
   },
   {
     id: 'is_kurumsal_kaos',
@@ -650,6 +701,7 @@ export const mods = [
     level: 'Kaotik',
     isPremium: false,
     emoji: '🤦',
+    expectation: 'Kurumsal düzenin saçmalıklarını birlikte anlamlandırmaya çalışın.',
   },
   {
     id: 'is_is_arkadasi_testi',
@@ -662,6 +714,7 @@ export const mods = [
     level: 'Profesyonel',
     isPremium: false,
     emoji: '🤝',
+    expectation: 'İyi iş arkadaşını tanımlamak kolay — ya gerçekten olmak?',
   },
   {
     id: 'is_ofis_alt_metni',
@@ -674,6 +727,7 @@ export const mods = [
     level: 'Keskin',
     isPremium: true,
     emoji: '🔍',
+    expectation: 'Ofisteki her konuşmanın altında başka bir konuşma var. Bu mod onu okuyor.',
   },
   {
     id: 'is_guc_dengesi',
@@ -686,6 +740,7 @@ export const mods = [
     level: 'Kışkırtıcı',
     isPremium: true,
     emoji: '♟️',
+    expectation: 'Kim kimi yönlendiriyor, kim gerçekten karar veriyor? Biraz gerçek gelsin.',
   },
   {
     id: 'is_kariyer_kirilmasi',
@@ -698,6 +753,7 @@ export const mods = [
     level: 'Profesyonel',
     isPremium: true,
     emoji: '🗺️',
+    expectation: 'Dönüm noktaları, cesareti gerektiren kararlar ve pişmanlıklar.',
   },
   // ─── Nostalji ───────────────────────────────────────────────
   {
@@ -711,6 +767,7 @@ export const mods = [
     level: 'Sıcak',
     isPremium: false,
     emoji: '🌟',
+    expectation: 'O günlerin sıcaklığı hâlâ içinizde bir yerde. Bu mod oraya götürüyor.',
   },
   {
     id: 'nostalji_eski_internet',
@@ -723,6 +780,7 @@ export const mods = [
     level: 'Eğlenceli',
     isPremium: false,
     emoji: '💾',
+    expectation: 'Dial-up sesleri, MSN durumları, Flash oyunları — kim hatırlamıyor?',
   },
   {
     id: 'nostalji_okul_gunleri',
@@ -735,6 +793,7 @@ export const mods = [
     level: 'Samimi',
     isPremium: false,
     emoji: '📚',
+    expectation: 'Okul yıllarından geriye kalan izler düşündüğünüzden çok derin.',
   },
   {
     id: 'nostalji_kapanmamis_defterler',
@@ -747,6 +806,7 @@ export const mods = [
     level: 'Mahrem',
     isPremium: true,
     emoji: '📖',
+    expectation: 'Kapanmamış defterler, hâlâ bekleyen özürler ve bitiremediğiniz konuşmalar.',
   },
   {
     id: 'nostalji_eski_sen',
@@ -759,6 +819,7 @@ export const mods = [
     level: 'Sezgisel',
     isPremium: true,
     emoji: '🪞',
+    expectation: 'O eski sen hâlâ içinizde bir yerde — bu mod onunla yüzleştiriyor.',
   },
   {
     id: 'nostalji_nostalji',
@@ -771,6 +832,7 @@ export const mods = [
     level: 'Özel',
     isPremium: true,
     emoji: '🌙',
+    expectation: 'Özlem duygusu kelimelerle ifade edilmez ama bu mod deniyor.',
   },
   // ─── Psikoloji ───────────────────────────────────────────────
   {
@@ -784,6 +846,7 @@ export const mods = [
     level: 'Düşündüren',
     isPremium: false,
     emoji: '🌱',
+    expectation: 'Kendinize dürüstçe bakmak için iyi bir başlangıç noktası.',
   },
   {
     id: 'psikoloji_overthinker_31',
@@ -796,6 +859,7 @@ export const mods = [
     level: 'Samimi',
     isPremium: false,
     emoji: '🧠',
+    expectation: 'Kafanızdaki o ses hiç durmuyor, değil mi? Bu mod onu konuşturuyor.',
   },
   {
     id: 'psikoloji_icine_atanlar',
@@ -808,6 +872,7 @@ export const mods = [
     level: 'Samimi',
     isPremium: false,
     emoji: '🫙',
+    expectation: 'Birikmiş olanlar artık çıkıyor. Hafiflemek isteyenler için.',
   },
   {
     id: 'psikoloji_kendini_tani_19',
@@ -820,6 +885,7 @@ export const mods = [
     level: 'Katmanlı',
     isPremium: true,
     emoji: '🔍',
+    expectation: 'Kör noktalarınız sizi anlatıyor. Görmek zor ama gerekli.',
   },
   {
     id: 'psikoloji_overthinker_20',
@@ -832,6 +898,7 @@ export const mods = [
     level: 'Keskin',
     isPremium: true,
     emoji: '🌀',
+    expectation: 'Overthinking tuzakları bu kez gerçekten inceleniyor. Dikkatli ol.',
   },
   // ─── Viral ───────────────────────────────────────────────
   {
@@ -845,6 +912,7 @@ export const mods = [
     level: 'Eğlenceli',
     isPremium: false,
     emoji: '🎯',
+    expectation: 'Hızlı tercihler, beklenmedik itiraflar. Bu mod kim olduğunuzu ortaya koyuyor.',
   },
   {
     id: 'viral_gundemlik_34',
@@ -857,6 +925,7 @@ export const mods = [
     level: 'Meraklı',
     isPremium: false,
     emoji: '📱',
+    expectation: 'Sosyal medya alışkanlıklarınız sizi düşündüğünüzden iyi tanımlıyor.',
   },
   {
     id: 'viral_cok_tartisilir',
@@ -869,6 +938,7 @@ export const mods = [
     level: 'Tartışmalı',
     isPremium: false,
     emoji: '🔥',
+    expectation: 'Taraf seçin, savunun, ikna etmeye çalışın. Güzel bir tartışma başlıyor.',
   },
   {
     id: 'viral_herkes_cevaplasin_21',
@@ -881,6 +951,7 @@ export const mods = [
     level: 'Özel',
     isPremium: true,
     emoji: '🪞',
+    expectation: 'Herkesin bilip söylemediği şeyler için — bu kez sessizlik yok.',
   },
   {
     id: 'viral_gundemlik_22',
@@ -893,6 +964,7 @@ export const mods = [
     level: 'İddialı',
     isPremium: true,
     emoji: '💭',
+    expectation: 'Gündem, manipülasyon ve gerçek — bu mod sınır çizgisini test ediyor.',
   },
   {
     id: 'viral_nostalji',
@@ -905,6 +977,7 @@ export const mods = [
     level: 'Kışkırtıcı',
     isPremium: true,
     emoji: '📼',
+    expectation: 'İnternet tarihinin o nostaljik köşeleri gerçek bir konuşmaya dönüşüyor.',
   },
   {
     id: 'viral_gundemlik_30',
@@ -917,6 +990,7 @@ export const mods = [
     level: 'Keskin',
     isPremium: true,
     emoji: '🕵️',
+    expectation: 'Gündem okumayı bilen biri misiniz, yoksa akıntıya kapılan mı?',
   },
   // ─── Siyaset ───────────────────────────────────────────────
   {
@@ -930,6 +1004,7 @@ export const mods = [
     level: 'Tartışmalı',
     isPremium: false,
     emoji: '🗳️',
+    expectation: 'Siyasetin temel soruları masaya yatırılıyor. Konuşmak zorundasınız.',
   },
   {
     id: 'siyaset_karsit_gorusler_37',
@@ -942,6 +1017,7 @@ export const mods = [
     level: 'Cesur',
     isPremium: false,
     emoji: '🤝',
+    expectation: 'Karşı görüşü gerçekten dinlemek — bu mod bunun için.',
   },
   {
     id: 'siyaset_politika_ve_hayat_38',
@@ -954,6 +1030,7 @@ export const mods = [
     level: 'Düşündüren',
     isPremium: false,
     emoji: '🏛️',
+    expectation: 'Politika hayatın dışında değil, tam içinde. Bu mod bağlantıyı kuruyor.',
   },
   {
     id: 'siyaset_gundem_masasi_24',
@@ -966,6 +1043,7 @@ export const mods = [
     level: 'Tartışmalı',
     isPremium: true,
     emoji: '⚖️',
+    expectation: 'Demokrasi, sistem ve güç — bu sorular rahat değil ama gerekli.',
   },
   {
     id: 'siyaset_karsit_gorusler_25',
@@ -978,6 +1056,7 @@ export const mods = [
     level: 'İddialı',
     isPremium: true,
     emoji: '💬',
+    expectation: 'Gerçek diyalog nasıl kurulur? Bu mod o soruyu derinlemesine soruyor.',
   },
   {
     id: 'siyaset_politika_ve_hayat_26',
@@ -990,6 +1069,7 @@ export const mods = [
     level: 'Keskin',
     isPremium: true,
     emoji: '🌊',
+    expectation: 'Devletle, sistemle ve kendinizle hesaplaşma zamanı.',
   },
   // ─── Kaos ───────────────────────────────────────────────
   {
@@ -1003,6 +1083,7 @@ export const mods = [
     level: 'Eğlenceli',
     isPremium: false,
     emoji: '⚡',
+    expectation: 'Bu mu, şu mu? Seçmek zorunda bırakılmak bu kadar eğlenceli olmamıştı.',
   },
   {
     id: 'kaos_fikir_ayriligi_40',
@@ -1015,6 +1096,7 @@ export const mods = [
     level: 'Kaotik',
     isPremium: false,
     emoji: '🔥',
+    expectation: 'Herkes aynı fikirde değil — ve bu çok güzel. Başlayalım.',
   },
   {
     id: 'kaos_olay_cikarir_41',
@@ -1027,6 +1109,7 @@ export const mods = [
     level: 'Cesur',
     isPremium: false,
     emoji: '💥',
+    expectation: 'Bu mod olay çıkarır. Hazırsanız buyrun.',
   },
   {
     id: 'kaos_kararsizlik_plus_27',
@@ -1039,6 +1122,7 @@ export const mods = [
     level: 'Kışkırtıcı',
     isPremium: true,
     emoji: '🎲',
+    expectation: 'Kaos ve kararlar üzerine — bu kez yüzeysel değil, gerçekten derin.',
   },
   {
     id: 'kaos_fikir_ayriligi_28',
@@ -1051,6 +1135,7 @@ export const mods = [
     level: 'İddialı',
     isPremium: true,
     emoji: '🦁',
+    expectation: 'Muhalif fikirler bu kez gerçekten konuşuluyor. Rahat olmayan sorular geliyor.',
   },
   {
     id: 'kaos_olay_cikarir_29',
@@ -1063,6 +1148,7 @@ export const mods = [
     level: 'Yoğun',
     isPremium: true,
     emoji: '💣',
+    expectation: 'Patlamadan önce: öfke, kırılmalar ve yüzleşme. En yoğun Kaos modu.',
   }
 ];
 

@@ -24,7 +24,6 @@ export function StatsProvider({ children }) {
         try {
           const loaded = JSON.parse(raw);
           setStats(loaded);
-          computeModStats(loaded);
         } catch (e) {
           console.warn('Failed to parse stats:', e);
         }
@@ -48,6 +47,10 @@ export function StatsProvider({ children }) {
     setModStats(computed);
   };
 
+  useEffect(() => {
+    computeModStats(stats);
+  }, [stats]);
+
   const addStat = (cardId, modId, action) => {
     const newStat = {
       cardId,
@@ -56,10 +59,11 @@ export function StatsProvider({ children }) {
       timestamp: new Date().toISOString(),
     };
 
-    const updated = [...stats, newStat];
-    setStats(updated);
-    computeModStats(updated);
-    AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    setStats(prev => {
+      const updated = [...prev, newStat];
+      AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updated)).catch(() => {});
+      return updated;
+    });
   };
 
   const getStatsByMod = (modId) => {
