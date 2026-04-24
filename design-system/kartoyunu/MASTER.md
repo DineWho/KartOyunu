@@ -48,7 +48,7 @@ Renkler `src/theme.js` içindeki `darkTheme` ve `lightTheme` nesnelerinden gelir
 | `text` | `#12103A` | Ana metin |
 | `textSecondary` | `#4A4675` | İkincil metin |
 | `textMuted` | `#8B87A8` | Soluk metin |
-| `border` | `#D8D3EE` | Kenarlık |
+| `border` | `#E0DAF0` | Kenarlık |
 | `borderLight` | `#EDE9FF` | Hafif kenarlık |
 | `card` | `#FFFFFF` | Oyun kartı yüzeyi |
 | `cardText` | `#1A1545` | Oyun kartı metni |
