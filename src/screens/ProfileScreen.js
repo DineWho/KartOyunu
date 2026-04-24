@@ -80,7 +80,7 @@ export default function ProfileScreen({ navigate }) {
             { icon: '♥', text: 'Favori sorularını kaydet' },
             { icon: '📊', text: 'İstatistikleri takip et' },
             { icon: '🔄', text: 'Tüm cihazlarda senkronize' },
-            { icon: '🔓', text: 'Premium destelere erişim' },
+            { icon: '🔓', text: 'Premium modlara erişim' },
           ].map((f, i) => (
             <View key={i} style={s.featureRow}>
               <Text style={s.featureIcon}>{f.icon}</Text>

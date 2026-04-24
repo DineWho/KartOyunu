@@ -5,26 +5,26 @@ const FavoritesContext = createContext();
 export function FavoritesProvider({ children }) {
   const [favorites, setFavorites] = useState([]);
 
-  const addFavorite = (question, deck, catColor) => {
+  const addFavorite = (question, mod, catColor) => {
     setFavorites(prev => {
-      if (prev.some(f => f.question === question && f.deckId === deck.id)) return prev;
+      if (prev.some(f => f.question === question && f.modId === mod.id)) return prev;
       return [...prev, {
         question,
-        deckId: deck.id,
-        deckTitle: deck.title,
-        deckEmoji: deck.emoji,
-        categoryId: deck.categoryId,
+        modId: mod.id,
+        modTitle: mod.title,
+        modEmoji: mod.emoji,
+        categoryId: mod.categoryId,
         catColor,
       }];
     });
   };
 
-  const removeFavorite = (question, deckId) => {
-    setFavorites(prev => prev.filter(f => !(f.question === question && f.deckId === deckId)));
+  const removeFavorite = (question, modId) => {
+    setFavorites(prev => prev.filter(f => !(f.question === question && f.modId === modId)));
   };
 
-  const isFavorite = (question, deckId) =>
-    favorites.some(f => f.question === question && f.deckId === deckId);
+  const isFavorite = (question, modId) =>
+    favorites.some(f => f.question === question && f.modId === modId);
 
   return (
     <FavoritesContext.Provider value={{ favorites, addFavorite, removeFavorite, isFavorite }}>

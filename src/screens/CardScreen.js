@@ -16,7 +16,7 @@ const LEFT_EDGE_ZONE = 22;
 
 const upperTR = (str) => str.replace(/i/g, 'İ').toUpperCase();
 
-export default function CardScreen({ navigate, deck }) {
+export default function CardScreen({ navigate, mod }) {
   const { theme } = useTheme();
   const s = useMemo(() => makeStyles(theme), [theme]);
   const { addFavorite } = useFavorites();
@@ -28,10 +28,10 @@ export default function CardScreen({ navigate, deck }) {
   const currentIndexRef = useRef(0);
   const cardRef = useRef(null);
 
-  const deckCards = cards[deck.id] || [];
-  const category = categories.find(c => c.id === deck.categoryId);
+  const modCards = cards[mod.id] || [];
+  const category = categories.find(c => c.id === mod.categoryId);
   const catColor = category?.color || theme.colors.primary;
-  const totalCards = deckCards.length;
+  const totalCards = modCards.length;
 
   // Entrance animation
   const cardAnim = useRef(new Animated.Value(0)).current;
@@ -52,8 +52,8 @@ export default function CardScreen({ navigate, deck }) {
 
     if (direction === 'right') {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      setSessionFavorites(prev => [...prev, deckCards[idx]]);
-      addFavorite(deckCards[idx], deck, catColor);
+      setSessionFavorites(prev => [...prev, modCards[idx]]);
+      addFavorite(modCards[idx], mod, catColor);
     } else {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
@@ -130,7 +130,7 @@ export default function CardScreen({ navigate, deck }) {
 
   const handleShare = async () => {
     const idx = currentIndexRef.current;
-    const question = deckCards[idx];
+    const question = modCards[idx];
     try {
       await Share.share({
         message: `"${question}"\n\n— KartOyunu ile oynuyoruz 🎴`,
@@ -164,7 +164,7 @@ export default function CardScreen({ navigate, deck }) {
               />
               <Text style={s.finishedBadgeEmoji}>🎉</Text>
             </View>
-            <Text style={s.finishedTitle}>Deste Tamamlandı</Text>
+            <Text style={s.finishedTitle}>Mod Tamamlandı</Text>
             <Text style={s.finishedSub}>
               {sessionFavorites.length > 0
                 ? `${sessionFavorites.length} soruyu favorilediniz`
@@ -213,20 +213,20 @@ export default function CardScreen({ navigate, deck }) {
     );
   }
 
-  const currentCard = deckCards[currentIndex];
-  const nextCard = deckCards[currentIndex + 1];
+  const currentCard = modCards[currentIndex];
+  const nextCard = modCards[currentIndex + 1];
   const progress = (currentIndex + 1) / totalCards;
 
   return (
     <SafeAreaView style={s.container}>
       {/* Header */}
       <View style={s.header}>
-        <TouchableOpacity style={s.closeBtn} onPress={() => navigate('deck', { deck })}>
+        <TouchableOpacity style={s.closeBtn} onPress={() => navigate('mod', { mod })}>
           <Feather name="x" size={18} color={theme.colors.textSecondary} />
         </TouchableOpacity>
         <View style={s.headerCenter}>
           <Text style={s.categoryName}>{category?.icon} {category?.name}</Text>
-          <Text style={s.deckSubtitle}>{deck.level} · {currentIndex + 1}/{totalCards}</Text>
+          <Text style={s.deckSubtitle}>{mod.level} · {currentIndex + 1}/{totalCards}</Text>
         </View>
         <View style={{ width: 44 }} />
       </View>
@@ -284,7 +284,7 @@ export default function CardScreen({ navigate, deck }) {
 
           <View style={s.cardInner}>
             <Text style={[s.cardCategory, { color: catColor }]}>
-              {deck.emoji}  {upperTR(deck.title)}
+              {mod.emoji}  {upperTR(mod.title)}
             </Text>
             <Text style={s.cardQuestion}>{currentCard}</Text>
             <View style={s.hintRow}>
@@ -448,7 +448,6 @@ const makeStyles = (theme) => StyleSheet.create({
     fontWeight: '700',
     letterSpacing: 1.5,
     marginBottom: 22,
-    textTransform: 'uppercase',
     textAlign: 'center',
   },
   cardQuestion: {

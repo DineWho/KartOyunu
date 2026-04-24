@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
-import { categories, decks } from '../data';
+import { categories, mods } from '../data';
 import { useTheme } from '../ThemeContext';
 
 const { width } = Dimensions.get('window');
@@ -80,10 +80,10 @@ export default function HomeScreen({ navigate }) {
   const getCategory = (categoryId) => categories.find(c => c.id === categoryId);
   const getCategoryColor = (categoryId) => getCategory(categoryId)?.color ?? theme.colors.primary;
 
-  const displayedDecks = useMemo(() => {
+  const displayedMods = useMemo(() => {
     if (isSearchActive) {
       const q = searchQuery.toLowerCase();
-      return decks.filter(d => {
+      return mods.filter(d => {
         const cat = getCategory(d.categoryId);
         return (
           d.title.toLowerCase().includes(q) ||
@@ -93,11 +93,11 @@ export default function HomeScreen({ navigate }) {
       });
     }
     return selectedCategory
-      ? decks.filter(d => d.categoryId === selectedCategory)
-      : decks;
+      ? mods.filter(d => d.categoryId === selectedCategory)
+      : mods;
   }, [searchQuery, selectedCategory]);
 
-  const featuredDecks = decks.filter(d => !d.isPremium);
+  const featuredMods = mods.filter(d => !d.isPremium);
 
   // Stagger animation pool for deck list
   const fadeAnims = useRef(Array.from({ length: POOL_SIZE }, () => new Animated.Value(0))).current;
@@ -111,26 +111,26 @@ export default function HomeScreen({ navigate }) {
     fadeAnims.forEach(a => a.setValue(0));
     slideAnims.forEach(a => a.setValue(14));
 
-    const deckAnims = displayedDecks.map((_, i) =>
+    const modAnims = displayedMods.map((_, i) =>
       Animated.parallel([
         Animated.timing(fadeAnims[i], { toValue: 1, duration: 360, useNativeDriver: true }),
         Animated.spring(slideAnims[i], { toValue: 0, friction: 9, tension: 70, useNativeDriver: true }),
       ])
     );
-    Animated.stagger(50, deckAnims).start();
+    Animated.stagger(50, modAnims).start();
   }, [searchQuery, selectedCategory]);
 
   useEffect(() => {
     featuredFade.forEach(a => a.setValue(0));
     featuredSlide.forEach(a => a.setValue(12));
 
-    const fanAnims = featuredDecks.map((_, i) =>
+    const featuredAnims = featuredMods.map((_, i) =>
       Animated.parallel([
         Animated.timing(featuredFade[i], { toValue: 1, duration: 360, useNativeDriver: true }),
         Animated.spring(featuredSlide[i], { toValue: 0, friction: 9, tension: 70, useNativeDriver: true }),
       ])
     );
-    Animated.stagger(65, fanAnims).start();
+    Animated.stagger(65, featuredAnims).start();
   }, []);
 
   useEffect(() => {
@@ -148,9 +148,9 @@ export default function HomeScreen({ navigate }) {
   };
 
   const sectionTitle = () => {
-    if (isSearchActive) return `${displayedDecks.length} sonuç`;
-    if (selectedCategory) return categories.find(c => c.id === selectedCategory)?.name + ' Desteleri';
-    return 'Tüm Desteler';
+    if (isSearchActive) return `${displayedMods.length} sonuç`;
+    if (selectedCategory) return categories.find(c => c.id === selectedCategory)?.name + ' Modları';
+    return 'Tüm Modlar';
   };
 
   return (
@@ -171,7 +171,7 @@ export default function HomeScreen({ navigate }) {
                 <Text style={[s.titleStar, { color: theme.colors.primary }]}>✦</Text>
                 <Text style={s.appTitle}>KartOyunu</Text>
               </View>
-              <Text style={s.tagline}>Sessizliği bitiren desteler</Text>
+              <Text style={s.tagline}>Sessizliği bitiren modlar</Text>
             </View>
           </View>
 
@@ -192,7 +192,7 @@ export default function HomeScreen({ navigate }) {
             />
             <TextInput
               style={[s.searchInput, { color: theme.colors.text }]}
-              placeholder="Deste veya kategori ara..."
+              placeholder="Mod veya kategori ara..."
               placeholderTextColor={theme.colors.textMuted}
               value={searchQuery}
               onChangeText={setSearchQuery}
@@ -254,17 +254,17 @@ export default function HomeScreen({ navigate }) {
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={s.featuredScroll}
             >
-              {featuredDecks.map((deck, i) => {
-                const catColor = getCategoryColor(deck.categoryId);
-                const cat = getCategory(deck.categoryId);
+              {featuredMods.map((mod, i) => {
+                const catColor = getCategoryColor(mod.categoryId);
+                const cat = getCategory(mod.categoryId);
                 return (
                   <Animated.View
-                    key={deck.id}
+                    key={mod.id}
                     style={{ opacity: featuredFade[i], transform: [{ translateY: featuredSlide[i] }] }}
                   >
                     <TouchableOpacity
                       style={[s.featuredCard, { backgroundColor: catColor }]}
-                      onPress={() => navigate('deck', { deck })}
+                      onPress={() => navigate('mod', { mod })}
                       activeOpacity={0.86}
                     >
                       <LinearGradient
@@ -276,14 +276,14 @@ export default function HomeScreen({ navigate }) {
                       <View style={s.featuredCategoryChip}>
                         <Text style={s.featuredCategoryText}>{cat?.icon} {cat?.name}</Text>
                       </View>
-                      <Text style={s.featuredEmoji}>{deck.emoji}</Text>
-                      <Text style={s.featuredTitle}>{deck.title}</Text>
-                      <Text style={s.featuredDesc} numberOfLines={2}>{deck.description}</Text>
+                      <Text style={s.featuredEmoji}>{mod.emoji}</Text>
+                      <Text style={s.featuredTitle}>{mod.title}</Text>
+                      <Text style={s.featuredDesc} numberOfLines={2}>{mod.description}</Text>
                       <View style={s.featuredDivider} />
                       <View style={s.featuredStats}>
-                        <Text style={s.featuredStat}>{deck.cardCount} kart</Text>
+                        <Text style={s.featuredStat}>{mod.cardCount} kart</Text>
                         <Text style={s.featuredStatDot}>·</Text>
-                        <Text style={s.featuredStat}>{deck.duration}</Text>
+                        <Text style={s.featuredStat}>{mod.duration}</Text>
                       </View>
                     </TouchableOpacity>
                   </Animated.View>
@@ -300,49 +300,49 @@ export default function HomeScreen({ navigate }) {
         </View>
 
         {/* Empty search state */}
-        {isSearchActive && displayedDecks.length === 0 ? (
+        {isSearchActive && displayedMods.length === 0 ? (
           <View style={s.emptySearch}>
             <Feather name="search" size={40} color={theme.colors.textMuted} style={{ marginBottom: 14 }} />
             <Text style={s.emptySearchTitle}>Sonuç bulunamadı</Text>
             <Text style={s.emptySearchDesc}>
-              "{searchQuery}" için eşleşen deste yok.{'\n'}Farklı bir kelime dene.
+              "{searchQuery}" için eşleşen mod yok.{'\n'}Farklı bir kelime dene.
             </Text>
           </View>
         ) : (
           <View style={s.deckList}>
-            {displayedDecks.map((deck, i) => {
-              const catColor = getCategoryColor(deck.categoryId);
-              const cat = getCategory(deck.categoryId);
+            {displayedMods.map((mod, i) => {
+              const catColor = getCategoryColor(mod.categoryId);
+              const cat = getCategory(mod.categoryId);
               return (
                 <Animated.View
-                  key={deck.id}
+                  key={mod.id}
                   style={{ opacity: fadeAnims[i], transform: [{ translateY: slideAnims[i] }] }}
                 >
                   <TouchableOpacity
                     style={s.deckItem}
-                    onPress={() => navigate('deck', { deck })}
+                    onPress={() => navigate('mod', { mod })}
                     activeOpacity={0.75}
                   >
                     <View style={[s.deckAccentBar, { backgroundColor: catColor }]} />
                     <View style={[s.deckItemIcon, { backgroundColor: catColor + '22' }]}>
-                      <Text style={s.deckItemEmoji}>{deck.emoji}</Text>
+                      <Text style={s.deckItemEmoji}>{mod.emoji}</Text>
                     </View>
                     <View style={s.deckItemContent}>
                       <View style={s.deckItemRow}>
-                        <Text style={s.deckItemTitle}>{deck.title}</Text>
-                        {deck.isPremium && (
+                        <Text style={s.deckItemTitle}>{mod.title}</Text>
+                        {mod.isPremium && (
                           <View style={s.proBadge}>
                             <Text style={s.proText}>PRO</Text>
                           </View>
                         )}
                       </View>
-                      <Text style={s.deckItemDesc} numberOfLines={1}>{deck.description}</Text>
+                      <Text style={s.deckItemDesc} numberOfLines={1}>{mod.description}</Text>
                       <View style={s.deckItemStats}>
                         <Text style={[s.deckItemStat, { color: catColor, fontWeight: '600' }]}>{cat?.icon} {cat?.name}</Text>
                         <Text style={s.deckItemStatDot}>·</Text>
-                        <Text style={s.deckItemStat}>{deck.cardCount} kart</Text>
+                        <Text style={s.deckItemStat}>{mod.cardCount} kart</Text>
                         <Text style={s.deckItemStatDot}>·</Text>
-                        <Text style={s.deckItemStat}>{deck.duration}</Text>
+                        <Text style={s.deckItemStat}>{mod.duration}</Text>
                       </View>
                     </View>
                     <Feather name="chevron-right" size={18} color={theme.colors.textMuted} />

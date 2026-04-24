@@ -6,7 +6,7 @@ export const categories = [
   { id: 'grup', name: 'Grup', icon: '🎲', color: '#9B59B6' },
 ];
 
-export const decks = [
+export const mods = [
   // ─── Çiftler ───────────────────────────────────────────────
   {
     id: 'ciftler_hafif',

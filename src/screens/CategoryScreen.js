@@ -4,21 +4,21 @@ import {
   SafeAreaView, PanResponder, Animated,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { decks } from '../data';
+import { mods } from '../data';
 import { useTheme } from '../ThemeContext';
 
 export default function CategoryScreen({ navigate, category }) {
   const { theme } = useTheme();
   const s = useMemo(() => makeStyles(theme), [theme]);
   const catColor = category.color;
-  const categoryDecks = decks.filter(d => d.categoryId === category.id);
-  const freeCount = categoryDecks.filter(d => !d.isPremium).length;
+  const categoryMods = mods.filter(d => d.categoryId === category.id);
+  const freeCount = categoryMods.filter(d => !d.isPremium).length;
 
-  const fadeAnims = useRef(categoryDecks.map(() => new Animated.Value(0))).current;
-  const slideAnims = useRef(categoryDecks.map(() => new Animated.Value(14))).current;
+  const fadeAnims = useRef(categoryMods.map(() => new Animated.Value(0))).current;
+  const slideAnims = useRef(categoryMods.map(() => new Animated.Value(14))).current;
 
   useEffect(() => {
-    const anims = categoryDecks.map((_, i) =>
+    const anims = categoryMods.map((_, i) =>
       Animated.parallel([
         Animated.timing(fadeAnims[i], { toValue: 1, duration: 360, useNativeDriver: true }),
         Animated.spring(slideAnims[i], { toValue: 0, friction: 9, tension: 70, useNativeDriver: true }),
@@ -53,42 +53,42 @@ export default function CategoryScreen({ navigate, category }) {
         <Text style={s.headerIcon}>{category.icon}</Text>
         <Text style={s.headerTitle}>{category.name}</Text>
         <Text style={s.headerSub}>
-          {categoryDecks.length} deste  ·  {freeCount} ücretsiz
+          {categoryMods.length} mod  ·  {freeCount} ücretsiz
         </Text>
       </LinearGradient>
 
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={s.deckList}>
-          {categoryDecks.map((deck, i) => (
+          {categoryMods.map((mod, i) => (
             <Animated.View
-              key={deck.id}
+              key={mod.id}
               style={{ opacity: fadeAnims[i], transform: [{ translateY: slideAnims[i] }] }}
             >
               <TouchableOpacity
                 style={s.deckItem}
-                onPress={() => navigate('deck', { deck, from: 'category' })}
+                onPress={() => navigate('mod', { mod, from: 'category' })}
                 activeOpacity={0.75}
               >
                 <View style={[s.deckAccentBar, { backgroundColor: catColor }]} />
                 <View style={[s.deckItemIcon, { backgroundColor: catColor + '22' }]}>
-                  <Text style={s.deckItemEmoji}>{deck.emoji}</Text>
+                  <Text style={s.deckItemEmoji}>{mod.emoji}</Text>
                 </View>
                 <View style={s.deckItemContent}>
                   <View style={s.deckItemRow}>
-                    <Text style={s.deckItemTitle}>{deck.title}</Text>
-                    {deck.isPremium && (
+                    <Text style={s.deckItemTitle}>{mod.title}</Text>
+                    {mod.isPremium && (
                       <View style={s.proBadge}>
                         <Text style={s.proText}>PRO</Text>
                       </View>
                     )}
                   </View>
-                  <Text style={s.deckItemDesc} numberOfLines={2}>{deck.description}</Text>
+                  <Text style={s.deckItemDesc} numberOfLines={2}>{mod.description}</Text>
                   <View style={s.deckItemStats}>
-                    <Text style={s.deckItemStat}>{deck.cardCount} kart</Text>
+                    <Text style={s.deckItemStat}>{mod.cardCount} kart</Text>
                     <Text style={s.deckItemStatDot}>·</Text>
-                    <Text style={s.deckItemStat}>{deck.duration}</Text>
+                    <Text style={s.deckItemStat}>{mod.duration}</Text>
                     <Text style={s.deckItemStatDot}>·</Text>
-                    <Text style={s.deckItemStat}>{deck.level}</Text>
+                    <Text style={s.deckItemStat}>{mod.level}</Text>
                   </View>
                 </View>
                 <Text style={s.chevron}>›</Text>

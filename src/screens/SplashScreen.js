@@ -66,7 +66,7 @@ export default function SplashScreen({ onFinish }) {
       </Animated.Text>
 
       <Animated.Text style={[styles.tagline, { opacity: taglineOpacity }]}>
-        Sessizliği bitiren desteler
+        Sessizliği bitiren modlar
       </Animated.Text>
     </Animated.View>
   );

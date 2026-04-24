@@ -5,7 +5,7 @@ import { FavoritesProvider } from './src/context/FavoritesContext';
 import SplashScreen from './src/screens/SplashScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import CategoryScreen from './src/screens/CategoryScreen';
-import DeckScreen from './src/screens/DeckScreen';
+import ModScreen from './src/screens/ModScreen';
 import CardScreen from './src/screens/CardScreen';
 import FavoritesScreen from './src/screens/FavoritesScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
@@ -17,15 +17,15 @@ const TAB_SCREENS = ['home', 'favorites', 'settings', 'profile'];
 function AppContent() {
   const [splashDone, setSplashDone] = useState(false);
   const [screen, setScreen] = useState('home');
-  const [selectedDeck, setSelectedDeck] = useState(null);
+  const [selectedMod, setSelectedMod] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [deckSource, setDeckSource] = useState('home');
+  const [modSource, setModSource] = useState('home');
   const { theme, isDark } = useTheme();
 
   const navigate = (screenName, params = {}) => {
-    if (params.deck) setSelectedDeck(params.deck);
+    if (params.mod) setSelectedMod(params.mod);
     if (params.category) setSelectedCategory(params.category);
-    if (screenName === 'deck') setDeckSource(params.from || 'home');
+    if (screenName === 'mod') setModSource(params.from || 'home');
     setScreen(screenName);
   };
 
@@ -47,8 +47,8 @@ function AppContent() {
       {screen === 'settings'  && <SettingsScreen />}
       {screen === 'profile'   && <ProfileScreen navigate={navigate} />}
       {screen === 'category'  && <CategoryScreen navigate={navigate} category={selectedCategory} />}
-      {screen === 'deck'      && <DeckScreen navigate={navigate} deck={selectedDeck} from={deckSource} />}
-      {screen === 'cards'     && <CardScreen navigate={navigate} deck={selectedDeck} />}
+      {screen === 'mod'       && <ModScreen navigate={navigate} mod={selectedMod} from={modSource} />}
+      {screen === 'cards'     && <CardScreen navigate={navigate} mod={selectedMod} />}
 
       {showTabBar && (
         <TabBar

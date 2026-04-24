@@ -8,10 +8,10 @@ import { Feather } from '@expo/vector-icons';
 import { categories } from '../data';
 import { useTheme } from '../ThemeContext';
 
-export default function DeckScreen({ navigate, deck, from = 'home' }) {
+export default function ModScreen({ navigate, mod, from = 'home' }) {
   const { theme } = useTheme();
   const s = useMemo(() => makeStyles(theme), [theme]);
-  const category = categories.find(c => c.id === deck.categoryId);
+  const category = categories.find(c => c.id === mod.categoryId);
   const catColor = category?.color || theme.colors.primary;
 
   const headerAnim = useRef(new Animated.Value(0)).current;
@@ -47,30 +47,29 @@ export default function DeckScreen({ navigate, deck, from = 'home' }) {
   })).current;
 
   const handleStart = () => {
-    if (deck.isPremium) return;
-    navigate('cards', { deck });
+    if (mod.isPremium) return;
+    navigate('cards', { mod });
   };
 
-  const peopleVal = deck.people.replace(/\s*kişi$/i, '');
+  const peopleVal = mod.people.replace(/\s*kişi$/i, '');
 
   const stats = [
-    { value: String(deck.cardCount), label: 'KART' },
-    { value: deck.duration, label: 'SÜRE' },
+    { value: String(mod.cardCount), label: 'KART' },
+    { value: mod.duration, label: 'SÜRE' },
     { value: peopleVal, label: 'KİŞİ' },
-    { value: deck.level, label: 'SEVİYE' },
+    { value: mod.level, label: 'SEVİYE' },
   ];
 
   return (
     <SafeAreaView style={[s.container, { backgroundColor: catColor }]} {...panResponder.panHandlers}>
 
-      {/* Header — solid catColor, no gradient */}
       <Animated.View style={[s.header, { opacity: headerAnim }]}>
         <TouchableOpacity style={s.backBtn} onPress={() => navigate(from)} activeOpacity={0.8}>
           <Feather name="arrow-left" size={16} color="rgba(255,255,255,0.9)" />
           <Text style={s.backBtnText}>Geri</Text>
         </TouchableOpacity>
-        <Text style={s.headerEmoji}>{deck.emoji}</Text>
-        <Text style={s.headerTitle}>{deck.title}</Text>
+        <Text style={s.headerEmoji}>{mod.emoji}</Text>
+        <Text style={s.headerTitle}>{mod.title}</Text>
         <TouchableOpacity
           style={s.categoryPill}
           onPress={() => navigate('category', { category })}
@@ -80,13 +79,11 @@ export default function DeckScreen({ navigate, deck, from = 'home' }) {
         </TouchableOpacity>
       </Animated.View>
 
-      {/* Content Sheet — slides up from below, rounded top */}
       <Animated.View style={[s.sheet, { transform: [{ translateY: sheetAnim }] }]}>
         <View style={s.sheetHandle} />
 
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scrollContent}>
 
-          {/* Stats Row */}
           <View style={s.statsRow}>
             {stats.map((stat, i) => (
               <React.Fragment key={i}>
@@ -99,25 +96,22 @@ export default function DeckScreen({ navigate, deck, from = 'home' }) {
             ))}
           </View>
 
-          {/* Description */}
           <View style={s.section}>
             <Text style={s.sectionLabel}>HAKKINDA</Text>
-            <Text style={s.description}>{deck.description}</Text>
+            <Text style={s.description}>{mod.description}</Text>
           </View>
 
-          {/* Quote Preview */}
           <View style={s.section}>
             <Text style={s.sectionLabel}>NE BEKLEMELİ?</Text>
             <View style={[s.quoteCard, { borderLeftColor: catColor }]}>
               <Text style={[s.quoteChar, { color: catColor }]}>"</Text>
               <Text style={s.quoteText}>
-                Bu deste sizi gerçekten konuşturacak. Her soru bir sonrakini açar, sessizlik yok.
+                Bu mod sizi gerçekten konuşturacak. Her soru bir sonrakini açar, sessizlik yok.
               </Text>
             </View>
           </View>
 
-          {/* Premium Notice */}
-          {deck.isPremium && (
+          {mod.isPremium && (
             <View style={s.section}>
               <View style={s.premiumBox}>
                 <LinearGradient
@@ -127,9 +121,9 @@ export default function DeckScreen({ navigate, deck, from = 'home' }) {
                 <View style={s.premiumIconWrap}>
                   <Feather name="lock" size={26} color="#D4A843" />
                 </View>
-                <Text style={s.premiumTitle}>Premium Deste</Text>
+                <Text style={s.premiumTitle}>Premium Mod</Text>
                 <Text style={s.premiumDesc}>
-                  Bu desteye erişmek için Premium'a geç. Tüm premium destelere sınırsız erişim.
+                  Bu moda erişmek için Premium'a geç. Tüm premium modlara sınırsız erişim.
                 </Text>
               </View>
             </View>
@@ -138,10 +132,9 @@ export default function DeckScreen({ navigate, deck, from = 'home' }) {
           <View style={{ height: 20 }} />
         </ScrollView>
 
-        {/* Footer CTA */}
         <View style={s.footer}>
-          <TouchableOpacity onPress={handleStart} activeOpacity={deck.isPremium ? 1 : 0.84}>
-            {deck.isPremium ? (
+          <TouchableOpacity onPress={handleStart} activeOpacity={mod.isPremium ? 1 : 0.84}>
+            {mod.isPremium ? (
               <View style={[s.startButton, s.startButtonLocked]}>
                 <Feather name="lock" size={17} color={theme.colors.textMuted} />
                 <Text style={s.startButtonTextLocked}>Premium Gerekli</Text>
@@ -220,8 +213,6 @@ const makeStyles = (theme) => StyleSheet.create({
     fontWeight: '700',
     letterSpacing: 0.1,
   },
-
-  /* Sheet */
   sheet: {
     flex: 1,
     backgroundColor: theme.colors.background,
@@ -246,8 +237,6 @@ const makeStyles = (theme) => StyleSheet.create({
   scrollContent: {
     paddingTop: 8,
   },
-
-  /* Stats */
   statsRow: {
     flexDirection: 'row',
     backgroundColor: theme.colors.surface,
@@ -283,8 +272,6 @@ const makeStyles = (theme) => StyleSheet.create({
     backgroundColor: theme.colors.border,
     marginVertical: 4,
   },
-
-  /* Sections */
   section: {
     paddingHorizontal: 20,
     marginTop: 24,
@@ -326,8 +313,6 @@ const makeStyles = (theme) => StyleSheet.create({
     lineHeight: 24,
     fontStyle: 'italic',
   },
-
-  /* Premium */
   premiumBox: {
     borderRadius: 20,
     padding: 24,
@@ -358,8 +343,6 @@ const makeStyles = (theme) => StyleSheet.create({
     textAlign: 'center',
     lineHeight: 21,
   },
-
-  /* Footer */
   footer: {
     padding: 20,
     paddingBottom: 32,

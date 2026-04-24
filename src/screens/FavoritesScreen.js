@@ -69,7 +69,7 @@ function CardModal({ visible, fav, onClose, onRemove, theme }) {
           text: 'Kaldır',
           style: 'destructive',
           onPress: () => {
-            onRemove(fav.question, fav.deckId);
+            onRemove(fav.question, fav.modId);
             onClose();
           },
         },
@@ -120,7 +120,7 @@ function CardModal({ visible, fav, onClose, onRemove, theme }) {
           <View style={[styles.cardStripe, { backgroundColor: fav.catColor }]} />
           <View style={styles.cardInner}>
             <Text style={[styles.cardDeckLabel, { color: fav.catColor }]}>
-              {fav.deckEmoji}  {upperTR(fav.deckTitle)}
+              {fav.modEmoji}  {upperTR(fav.modTitle)}
             </Text>
             <Text style={styles.cardQuestion}>{fav.question}</Text>
           </View>
@@ -281,16 +281,16 @@ export default function FavoritesScreen({ navigate }) {
   const grouped = useMemo(() => {
     const map = {};
     favorites.forEach(fav => {
-      if (!map[fav.deckId]) {
-        map[fav.deckId] = {
-          deckId: fav.deckId,
-          deckTitle: fav.deckTitle,
-          deckEmoji: fav.deckEmoji,
+      if (!map[fav.modId]) {
+        map[fav.modId] = {
+          modId: fav.modId,
+          modTitle: fav.modTitle,
+          modEmoji: fav.modEmoji,
           catColor: fav.catColor,
           items: [],
         };
       }
-      map[fav.deckId].items.push(fav);
+      map[fav.modId].items.push(fav);
     });
     return Object.values(map);
   }, [favorites]);
@@ -336,13 +336,13 @@ export default function FavoritesScreen({ navigate }) {
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
         {grouped.map(group => (
-          <View key={group.deckId} style={s.group}>
+          <View key={group.modId} style={s.group}>
             <View style={s.groupHeader}>
               <View style={[s.groupIconWrap, { backgroundColor: group.catColor + '22' }]}>
-                <Text style={s.groupIcon}>{group.deckEmoji}</Text>
+                <Text style={s.groupIcon}>{group.modEmoji}</Text>
               </View>
               <View style={s.groupMeta}>
-                <Text style={s.groupTitle}>{group.deckTitle}</Text>
+                <Text style={s.groupTitle}>{group.modTitle}</Text>
                 <Text style={s.groupCount}>{group.items.length} soru</Text>
               </View>
             </View>
