@@ -1,6 +1,6 @@
 # Design System — KartOyunu (React Native)
 
-> **Kural:** Belirli bir ekran için `design-system/pages/[ekran-adi].md` varsa, o dosya bu Master'ı override eder.
+> **Kural:** Belirli bir ekran için `design-system/kartoyunu/pages/[ekran-adi].md` varsa, o dosya bu Master'ı override eder.
 
 **Platform:** React Native / Expo (mobil uygulama — iOS & Android)
 **Stil yaklaşımı:** `StyleSheet.create()` + inline style nesneleri. CSS class, selector veya CSS variable KULLANILMAZ.
@@ -9,7 +9,15 @@
 
 ## Renkler
 
-Renkler `src/theme.js` içindeki `darkTheme` ve `lightTheme` nesnelerinden gelir. Hardcode renk yazma — her zaman `theme.colors.*` kullan.
+Renkler `src/theme.js` içindeki `darkTheme` ve `lightTheme` nesnelerinden gelir. Genel UI'da hardcode renk yazma — her zaman `theme.colors.*` kullan.
+
+**İstisnalar (tema dışı, her zaman sabit):**
+- Oyun kartı yüzeyi: `#FFFFFF` — kart fiziksel beyaz kağıt hissini temsil eder, tema değişince değişmemeli
+- Oyun kartı metni: `#1A1545`
+- CTA buton metni: `#1A1000` — koyu altın zemin üzerinde okunabilirlik için sabit
+- PRO badge zemin: `#D4A843`, PRO badge metni: `#1A1000`
+- Glass pill metni: `#FFFFFF`
+- Kategori renkleri (`catColor`): veri modelinden gelir, tema token'ı değildir
 
 ### Dark Theme
 
@@ -276,4 +284,4 @@ const makeStyles = (theme) => StyleSheet.create({
 - ❌ `backdrop-filter` — web CSS özelliği, RN'de farklı çalışır
 - ❌ CSS variable (`--color-primary`) — RN'de desteklenmiyor
 - ❌ `textTransform: 'uppercase'` — Türkçe `i→İ` için yanlış sonuç verir
-- ❌ Hardcode renk — `theme.colors.*` kullan
+- ❌ Genel UI'da hardcode renk — `theme.colors.*` kullan (istisnalar: oyun kartı, PRO badge, CTA metin, glass pill — üstte belgelenmiş)
