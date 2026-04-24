@@ -10,15 +10,66 @@ import {
   Animated,
   TextInput,
   Keyboard,
+  Modal,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Feather } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import { categories, mods } from "../data";
+import { cards, categories, mods } from "../data";
 import { useTheme } from "../ThemeContext";
+import { useStats } from "../context/StatsContext";
+import QuestionShareCard from "../components/QuestionShareCard";
+import { shareQuestionCard } from "../utils/shareQuestionCard";
 
 const { width } = Dimensions.get("window");
 const FEATURED_CARD_WIDTH = width * 0.62;
+const DAILY_QUESTION_RESET_HOUR = 6;
+
+const getDailyQuestionKey = (date) => {
+  const shiftedDate = new Date(date);
+  shiftedDate.setHours(shiftedDate.getHours() - DAILY_QUESTION_RESET_HOUR);
+
+  return [
+    shiftedDate.getFullYear(),
+    shiftedDate.getMonth() + 1,
+    shiftedDate.getDate(),
+  ].join("-");
+};
+
+const hashString = (value) => {
+  let hash = 0;
+  for (let i = 0; i < value.length; i += 1) {
+    hash = (hash * 31 + value.charCodeAt(i)) >>> 0;
+  }
+  return hash;
+};
+
+const getDailyQuestion = (allCards, date) => {
+  const questionPool = Object.entries(allCards).flatMap(([modId, questions]) =>
+    questions.map((question, index) => ({
+      id: `${modId}-${index}`,
+      modId,
+      question,
+    })),
+  );
+
+  if (questionPool.length === 0) return null;
+
+  const dailyKey = getDailyQuestionKey(date);
+  const index = hashString(dailyKey) % questionPool.length;
+  return questionPool[index];
+};
+
+const getNextDailyQuestionReset = (date) => {
+  const nextReset = new Date(date);
+  nextReset.setHours(DAILY_QUESTION_RESET_HOUR, 0, 0, 0);
+
+  if (date >= nextReset) {
+    nextReset.setDate(nextReset.getDate() + 1);
+  }
+
+  return nextReset;
+};
 
 function CategoryPill({ label, isActive, onPress, theme, color }) {
   const scale = useRef(new Animated.Value(1)).current;
@@ -89,14 +140,22 @@ const pillStyles = StyleSheet.create({
 export default function HomeScreen() {
   const navigation = useNavigation();
   const { theme, isDark } = useTheme();
+  const { addStat } = useStats();
   const s = useMemo(() => makeStyles(theme), [theme]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchFocused, setSearchFocused] = useState(false);
+  const [dailyModalVisible, setDailyModalVisible] = useState(false);
+  const [dailyQuestionDate, setDailyQuestionDate] = useState(() => new Date());
 
   const clearOpacity = useRef(new Animated.Value(0)).current;
+  const dailyQuestionCardRef = useRef(null);
 
   const isSearchActive = searchQuery.length > 0;
+  const dailyQuestion = useMemo(
+    () => getDailyQuestion(cards, dailyQuestionDate),
+    [dailyQuestionDate],
+  );
 
   const getCategory = (categoryId) =>
     categories.find((c) => c.id === categoryId);
@@ -198,10 +257,37 @@ export default function HomeScreen() {
     }).start();
   }, [isSearchActive]);
 
+  useEffect(() => {
+    const now = new Date();
+    const nextReset = getNextDailyQuestionReset(now);
+    const delay = Math.min(nextReset.getTime() - now.getTime(), 2147483647);
+
+    const timer = setTimeout(() => {
+      setDailyQuestionDate(new Date());
+    }, delay);
+
+    return () => clearTimeout(timer);
+  }, [dailyQuestionDate]);
+
   const clearSearch = () => {
     setSearchQuery("");
     Keyboard.dismiss();
     setSearchFocused(false);
+  };
+
+  const shareDailyQuestion = async () => {
+    if (!dailyQuestion) return;
+
+    const didShare = await shareQuestionCard({
+      cardRef: dailyQuestionCardRef,
+      message: `Günün Sorusu:\n\n"${dailyQuestion.question}"\n\nKartOyunu`,
+      title: "KartOyunu - Günün Sorusu",
+      filename: "kartoyunu-gunun-sorusu",
+    });
+
+    if (didShare) {
+      addStat(dailyQuestion.id, dailyQuestion.modId, "share");
+    }
   };
 
   const sectionTitle = () => {
@@ -215,6 +301,66 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={s.container}>
+      {dailyQuestion && (
+        <View style={s.shareCaptureHost} pointerEvents="none">
+          <QuestionShareCard
+            ref={dailyQuestionCardRef}
+            question={dailyQuestion.question}
+            label="GÜNÜN SORUSU"
+            color={theme.colors.primary}
+            minHeight={230}
+          />
+        </View>
+      )}
+
+      <Modal
+        visible={dailyModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setDailyModalVisible(false)}
+      >
+        <View style={s.modalOverlay}>
+          <TouchableOpacity
+            style={StyleSheet.absoluteFill}
+            onPress={() => setDailyModalVisible(false)}
+            activeOpacity={1}
+          />
+          <View style={s.dailyModalPanel}>
+            <TouchableOpacity
+              style={s.modalCloseBtn}
+              onPress={() => setDailyModalVisible(false)}
+              activeOpacity={0.75}
+            >
+              <Feather name="x" size={18} color={theme.colors.textSecondary} />
+            </TouchableOpacity>
+
+            <View style={s.modalBadge}>
+              <Feather name="star" size={14} color={theme.colors.primary} />
+              <Text style={s.modalBadgeText}>Günün Sorusu</Text>
+            </View>
+
+            <View style={s.modalQuestionCard}>
+              <View style={s.modalQuestionStripe} />
+              <Text style={s.modalQuestionText}>
+                {dailyQuestion?.question}
+              </Text>
+            </View>
+
+            <TouchableOpacity onPress={shareDailyQuestion} activeOpacity={0.84}>
+              <LinearGradient
+                colors={[theme.colors.primary, theme.colors.primaryDark]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={s.modalShareBtn}
+              >
+                <Feather name="share-2" size={18} color="#FFFFFF" />
+                <Text style={s.modalShareBtnText}>Paylaş</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
       <ScrollView
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
@@ -323,6 +469,39 @@ export default function HomeScreen() {
               />
             ))}
           </ScrollView>
+        )}
+
+        {!isSearchActive && dailyQuestion && (
+          <View style={s.dailySection}>
+            <TouchableOpacity
+              style={s.dailyCard}
+              onPress={() => setDailyModalVisible(true)}
+              activeOpacity={0.82}
+            >
+              <LinearGradient
+                colors={[
+                  theme.colors.card,
+                  theme.isDark ? "#F7F3FF" : "#FFFFFF",
+                ]}
+                style={StyleSheet.absoluteFill}
+              />
+              <View style={s.dailyTopStripe} />
+              <View style={s.dailyHeaderRow}>
+                <View style={s.dailyBadge}>
+                  <Feather name="star" size={13} color={theme.colors.primary} />
+                  <Text style={s.dailyBadgeText}>Günün Sorusu</Text>
+                </View>
+                <Feather
+                  name="chevron-right"
+                  size={18}
+                  color={theme.colors.primaryDark}
+                />
+              </View>
+              <Text style={s.dailyQuestion} numberOfLines={3}>
+                {dailyQuestion.question}
+              </Text>
+            </TouchableOpacity>
+          </View>
         )}
 
         {/* Featured Section — hidden during search or category filter */}
@@ -483,6 +662,11 @@ const makeStyles = (theme) =>
       flex: 1,
       backgroundColor: theme.colors.background,
     },
+    shareCaptureHost: {
+      position: "absolute",
+      left: -10000,
+      top: 0,
+    },
     headerGradient: {
       paddingBottom: 16,
     },
@@ -538,6 +722,156 @@ const makeStyles = (theme) =>
       borderRadius: 10,
       alignItems: "center",
       justifyContent: "center",
+    },
+    dailySection: {
+      paddingHorizontal: 16,
+      paddingBottom: 16,
+    },
+    dailyCard: {
+      minHeight: 150,
+      borderRadius: 24,
+      padding: 20,
+      paddingTop: 22,
+      overflow: "hidden",
+      borderWidth: 1,
+      borderColor: theme.isDark
+        ? "rgba(255,255,255,0.16)"
+        : "rgba(18,16,58,0.08)",
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 10 },
+      shadowOpacity: theme.isDark ? 0.36 : 0.1,
+      shadowRadius: 20,
+      elevation: 8,
+    },
+    dailyTopStripe: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      height: 7,
+      backgroundColor: theme.colors.primary,
+    },
+    dailyHeaderRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      marginBottom: 18,
+    },
+    dailyBadge: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 7,
+      backgroundColor: theme.colors.primary + "1F",
+      borderWidth: 1,
+      borderColor: theme.colors.primary + "33",
+      borderRadius: 999,
+      paddingHorizontal: 11,
+      paddingVertical: 6,
+    },
+    dailyBadgeText: {
+      fontSize: 12,
+      fontWeight: "800",
+      color: theme.colors.primaryDark,
+    },
+    dailyQuestion: {
+      fontSize: 22,
+      fontWeight: "600",
+      lineHeight: 34,
+      color: "#1A1545",
+    },
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: "rgba(7,7,26,0.72)",
+      justifyContent: "center",
+      paddingHorizontal: 20,
+    },
+    dailyModalPanel: {
+      backgroundColor: theme.colors.surface,
+      borderRadius: 26,
+      padding: 18,
+      paddingTop: 72,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 18 },
+      shadowOpacity: 0.35,
+      shadowRadius: 30,
+      elevation: 20,
+    },
+    modalCloseBtn: {
+      position: "absolute",
+      top: 14,
+      left: 14,
+      width: 44,
+      height: 44,
+      borderRadius: 22,
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: theme.colors.surface,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      zIndex: 2,
+    },
+    modalBadge: {
+      flexDirection: "row",
+      alignItems: "center",
+      alignSelf: "flex-start",
+      gap: 7,
+      backgroundColor: theme.colors.primary + "1F",
+      borderWidth: 1,
+      borderColor: theme.colors.primary + "33",
+      borderRadius: 999,
+      paddingHorizontal: 12,
+      paddingVertical: 7,
+      marginBottom: 18,
+    },
+    modalBadgeText: {
+      fontSize: 13,
+      fontWeight: "800",
+      color: theme.colors.primary,
+    },
+    modalQuestionCard: {
+      backgroundColor: "#FFFFFF",
+      borderRadius: 24,
+      overflow: "hidden",
+      minHeight: 230,
+      justifyContent: "center",
+      marginBottom: 16,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 10 },
+      shadowOpacity: theme.isDark ? 0.34 : 0.12,
+      shadowRadius: 20,
+      elevation: 10,
+    },
+    modalQuestionStripe: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      height: 7,
+      backgroundColor: theme.colors.primary,
+    },
+    modalQuestionText: {
+      paddingHorizontal: 26,
+      paddingVertical: 34,
+      fontSize: 22,
+      fontWeight: "600",
+      lineHeight: 34,
+      color: "#1A1545",
+      textAlign: "center",
+    },
+    modalShareBtn: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 8,
+      paddingVertical: 16,
+      borderRadius: 16,
+    },
+    modalShareBtnText: {
+      fontSize: 16,
+      fontWeight: "800",
+      color: "#FFFFFF",
     },
     categoryScroll: {
       paddingHorizontal: 16,

@@ -1,9 +1,13 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { mods } from '../data';
 
 const StatsContext = createContext();
 
 const STORAGE_KEY = '@kartoyunu_stats';
+const CARDS_PER_GAME = 12;
+const PLAY_ACTIONS = ['skip', 'favorite'];
+const isPlayAction = (action) => PLAY_ACTIONS.includes(action);
 
 export function StatsProvider({ children }) {
   const [stats, setStats] = useState([]);
@@ -31,6 +35,8 @@ export function StatsProvider({ children }) {
   const computeModStats = (statsList) => {
     const computed = {};
     statsList.forEach((stat) => {
+      if (!isPlayAction(stat.action)) return;
+
       if (!computed[stat.modId]) {
         computed[stat.modId] = { attempted: 0, favorited: 0 };
       }
@@ -46,7 +52,7 @@ export function StatsProvider({ children }) {
     const newStat = {
       cardId,
       modId,
-      action, // 'skip', 'favorite'
+      action, // 'skip', 'favorite', 'share'
       timestamp: new Date().toISOString(),
     };
 
@@ -61,10 +67,20 @@ export function StatsProvider({ children }) {
   };
 
   const getTotalStats = () => {
+    const playStats = stats.filter((s) => isPlayAction(s.action));
+    const playedModIds = new Set(playStats.map((s) => s.modId).filter(Boolean));
+    const playedMods = Array.from(playedModIds)
+      .map((modId) => mods.find((mod) => mod.id === modId))
+      .filter(Boolean);
+
     return {
-      totalCards: stats.length,
+      totalCards: playStats.length,
+      totalGames: Math.floor(playStats.length / CARDS_PER_GAME),
       totalFavorited: stats.filter((s) => s.action === 'favorite').length,
-      modsPlayed: Object.keys(modStats).length,
+      categoriesPlayed: new Set(playedMods.map((mod) => mod.categoryId)).size,
+      modsPlayed: playedModIds.size,
+      levelsPlayed: new Set(playedMods.map((mod) => mod.level).filter(Boolean)).size,
+      questionsShared: stats.filter((s) => s.action === 'share').length,
     };
   };
 

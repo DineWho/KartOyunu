@@ -1,7 +1,7 @@
 import React, { useState, useRef, useMemo, useEffect } from 'react';
 import {
   View, Text, StyleSheet, SafeAreaView, ScrollView,
-  Animated, PanResponder, Dimensions, TouchableOpacity, Share,
+  Animated, PanResponder, Dimensions, TouchableOpacity,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
@@ -11,6 +11,8 @@ import { cards, categories } from '../data';
 import { useTheme } from '../ThemeContext';
 import { useFavorites } from '../context/FavoritesContext';
 import { useStats } from '../context/StatsContext';
+import QuestionShareCard from '../components/QuestionShareCard';
+import { shareQuestionCard } from '../utils/shareQuestionCard';
 
 const { width, height } = Dimensions.get('window');
 const SWIPE_THRESHOLD = 100;
@@ -32,7 +34,7 @@ export default function CardScreen() {
   const position = useRef(new Animated.ValueXY()).current;
 
   const currentIndexRef = useRef(0);
-  const cardRef = useRef(null);
+  const shareCardRef = useRef(null);
 
   const modCards = cards[mod.id] || [];
   const category = categories.find(c => c.id === mod.categoryId);
@@ -140,13 +142,16 @@ export default function CardScreen() {
   const handleShare = async () => {
     const idx = currentIndexRef.current;
     const question = modCards[idx];
-    try {
-      await Share.share({
-        message: `"${question}"\n\n— KartOyunu ile oynuyoruz 🎴`,
-        title: 'KartOyunu',
-      });
-    } catch {
-      // user cancelled
+
+    const didShare = await shareQuestionCard({
+      cardRef: shareCardRef,
+      message: `"${question}"\n\n— KartOyunu ile oynuyoruz 🎴`,
+      title: 'KartOyunu',
+      filename: 'kartoyunu-soru',
+    });
+
+    if (didShare) {
+      addStat(`${mod.id}-${idx}`, mod.id, 'share');
     }
   };
 
@@ -228,6 +233,15 @@ export default function CardScreen() {
 
   return (
     <SafeAreaView style={s.container}>
+      <View style={s.shareCaptureHost} pointerEvents="none">
+        <QuestionShareCard
+          ref={shareCardRef}
+          question={currentCard}
+          label={`${mod.emoji}  ${upperTR(mod.title)}`}
+          color={catColor}
+        />
+      </View>
+
       {/* Header */}
       <View style={s.header}>
         <TouchableOpacity style={s.closeBtn} onPress={() => navigation.goBack()}>
@@ -256,8 +270,6 @@ export default function CardScreen() {
         )}
 
         <Animated.View
-          ref={cardRef}
-          collapsable={false}
           style={[
             s.card,
             {
@@ -343,6 +355,11 @@ const makeStyles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,
+  },
+  shareCaptureHost: {
+    position: 'absolute',
+    left: -10000,
+    top: 0,
   },
   header: {
     flexDirection: 'row',

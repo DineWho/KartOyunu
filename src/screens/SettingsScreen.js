@@ -4,7 +4,6 @@ import {
   SafeAreaView, Switch,
 } from 'react-native';
 import { useTheme } from '../ThemeContext';
-import { useStats } from '../context/StatsContext';
 
 function SettingRow({ icon, label, sublabel, right, onPress, theme }) {
   const s = useMemo(() => rowStyles(theme), [theme]);
@@ -91,9 +90,7 @@ function SettingsGroup({ title, children, theme }) {
 
 export default function SettingsScreen() {
   const { theme, isDark, toggleTheme } = useTheme();
-  const { getTotalStats, clearStats } = useStats();
   const s = useMemo(() => makeStyles(theme), [theme]);
-  const stats = getTotalStats();
 
   return (
     <SafeAreaView style={s.container}>
@@ -118,30 +115,6 @@ export default function SettingsScreen() {
               />
             }
           />
-        </SettingsGroup>
-
-        <SettingsGroup title="İSTATİSTİKLER" theme={theme}>
-          <View style={s.statsGrid}>
-            <View style={s.statItem}>
-              <Text style={s.statValue}>{stats.totalCards}</Text>
-              <Text style={[s.statLabel, { color: theme.colors.textMuted }]}>Kart Oynanmış</Text>
-            </View>
-            <View style={[s.statItem, { borderLeftWidth: 1, borderLeftColor: theme.colors.border }]}>
-              <Text style={s.statValue}>{stats.totalFavorited}</Text>
-              <Text style={[s.statLabel, { color: theme.colors.textMuted }]}>Favori</Text>
-            </View>
-            <View style={[s.statItem, { borderLeftWidth: 1, borderLeftColor: theme.colors.border }]}>
-              <Text style={s.statValue}>{stats.modsPlayed}</Text>
-              <Text style={[s.statLabel, { color: theme.colors.textMuted }]}>Mod Oynanmış</Text>
-            </View>
-          </View>
-          {stats.totalCards > 0 && (
-            <View style={[s.statsFooter, { borderTopColor: theme.colors.border }]}>
-              <TouchableOpacity onPress={clearStats} activeOpacity={0.7}>
-                <Text style={[s.clearStatsText, { color: '#E74C3C' }]}>İstatistikleri Sıfırla</Text>
-              </TouchableOpacity>
-            </View>
-          )}
         </SettingsGroup>
 
         <SettingsGroup title="UYGULAMA" theme={theme}>
@@ -219,36 +192,6 @@ const makeStyles = (theme) => StyleSheet.create({
   scroll: {
     paddingHorizontal: 16,
     paddingTop: 4,
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-  },
-  statItem: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  statValue: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: theme.colors.primary,
-    letterSpacing: -0.2,
-  },
-  statLabel: {
-    fontSize: 11,
-    fontWeight: '500',
-    marginTop: 6,
-  },
-  statsFooter: {
-    borderTopWidth: 1,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    alignItems: 'center',
-  },
-  clearStatsText: {
-    fontSize: 13,
-    fontWeight: '600',
   },
   version: {
     textAlign: 'center',

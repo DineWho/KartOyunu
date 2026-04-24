@@ -1,13 +1,16 @@
 import React, { useMemo, useState, useRef } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
-  SafeAreaView, Modal, Share, Animated, Dimensions, TouchableWithoutFeedback, Alert,
+  SafeAreaView, Modal, Animated, Dimensions, TouchableWithoutFeedback, Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../ThemeContext';
 import { useFavorites } from '../context/FavoritesContext';
+import { useStats } from '../context/StatsContext';
+import QuestionShareCard from '../components/QuestionShareCard';
+import { shareQuestionCard } from '../utils/shareQuestionCard';
 
 const { width, height } = Dimensions.get('window');
 
@@ -16,6 +19,8 @@ const upperTR = (str) => str.replace(/i/g, 'İ').toUpperCase();
 function CardModal({ visible, fav, onClose, onRemove, theme }) {
   const slideAnim = useRef(new Animated.Value(height)).current;
   const backdropAnim = useRef(new Animated.Value(0)).current;
+  const cardRef = useRef(null);
+  const { addStat } = useStats();
 
   React.useEffect(() => {
     if (visible) {
@@ -50,13 +55,16 @@ function CardModal({ visible, fav, onClose, onRemove, theme }) {
 
   const handleShare = async () => {
     if (!fav) return;
-    try {
-      await Share.share({
-        message: `"${fav.question}"\n\n— KartOyunu ile oynuyoruz 🎴`,
-        title: 'KartOyunu',
-      });
-    } catch {
-      // user cancelled
+
+    const didShare = await shareQuestionCard({
+      cardRef,
+      message: `"${fav.question}"\n\n— KartOyunu ile oynuyoruz 🎴`,
+      title: 'KartOyunu',
+      filename: 'kartoyunu-favori-soru',
+    });
+
+    if (didShare) {
+      addStat(`${fav.modId}-${fav.question}`, fav.modId, 'share');
     }
   };
 
@@ -108,12 +116,13 @@ function CardModal({ visible, fav, onClose, onRemove, theme }) {
 
         {/* Card */}
         <View style={[styles.card, {
-          shadowColor: fav.catColor,
-          shadowOpacity: 0.25,
-          shadowRadius: 24,
-          shadowOffset: { width: 0, height: 8 },
-          elevation: 16,
-        }]}>
+            shadowColor: fav.catColor,
+            shadowOpacity: 0.25,
+            shadowRadius: 24,
+            shadowOffset: { width: 0, height: 8 },
+            elevation: 16,
+          }]}
+        >
           <LinearGradient
             colors={['#FFFFFF', '#FAFAFE']}
             style={StyleSheet.absoluteFill}
@@ -125,6 +134,16 @@ function CardModal({ visible, fav, onClose, onRemove, theme }) {
             </Text>
             <Text style={styles.cardQuestion}>{fav.question}</Text>
           </View>
+        </View>
+
+        <View style={styles.shareCaptureHost} pointerEvents="none">
+          <QuestionShareCard
+            ref={cardRef}
+            question={fav.question}
+            label={`${fav.modEmoji}  ${upperTR(fav.modTitle)}`}
+            color={fav.catColor}
+            minHeight={height * 0.34}
+          />
         </View>
 
         {/* Actions */}
@@ -166,6 +185,11 @@ const styles = StyleSheet.create({
   backdrop: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0,0,0,0.55)',
+  },
+  shareCaptureHost: {
+    position: 'absolute',
+    left: -10000,
+    top: 0,
   },
   modalSheet: {
     position: 'absolute',
