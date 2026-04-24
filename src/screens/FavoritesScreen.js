@@ -97,22 +97,23 @@ function CardModal({ visible, fav, onClose, onRemove, theme }) {
       <Animated.View
         style={[styles.modalSheet, { transform: [{ translateY: slideAnim }] }]}
       >
-        {/* Header row: drag handle + close button */}
-        <View style={styles.sheetHeader}>
-          <View style={styles.sheetHeaderSpacer} />
+        {/* Drag handle */}
+        <View style={styles.dragHandleRow}>
           <View style={styles.dragHandle} />
-          <TouchableOpacity
-            style={[styles.closeBtn, {
-              backgroundColor: theme.colors.surface,
-              borderColor: theme.colors.border,
-            }]}
-            onPress={onClose}
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            activeOpacity={0.75}
-          >
-            <Feather name="x" size={16} color={theme.colors.textSecondary} />
-          </TouchableOpacity>
         </View>
+
+        {/* Close button — sağ üst */}
+        <TouchableOpacity
+          style={[styles.closeBtn, {
+            backgroundColor: theme.colors.surface,
+            borderColor: theme.colors.border,
+          }]}
+          onPress={onClose}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          activeOpacity={0.75}
+        >
+          <Feather name="x" size={16} color={theme.colors.textSecondary} />
+        </TouchableOpacity>
 
         {/* Card */}
         <View style={[styles.card, {
@@ -202,14 +203,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     alignItems: 'stretch',
   },
-  sheetHeader: {
-    flexDirection: 'row',
+  dragHandleRow: {
     alignItems: 'center',
-    justifyContent: 'space-between',
     marginBottom: 20,
-  },
-  sheetHeaderSpacer: {
-    width: 36,
   },
   dragHandle: {
     width: 40,
@@ -218,6 +214,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.4)',
   },
   closeBtn: {
+    position: 'absolute',
+    top: 16,
+    right: 0,
     width: 36,
     height: 36,
     borderRadius: 18,

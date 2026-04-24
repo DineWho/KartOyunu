@@ -920,7 +920,7 @@ const makeStyles = (theme) =>
     modalCloseBtn: {
       position: "absolute",
       top: 14,
-      left: 14,
+      right: 14,
       width: 44,
       height: 44,
       borderRadius: 22,
