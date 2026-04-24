@@ -71,7 +71,7 @@ export default function ProfileScreen() {
 
             <Text style={s.confirmTitle}>İstatistikleri Sıfırla</Text>
             <Text style={s.confirmDesc}>
-              Oyun, favori ve paylaşım istatistiklerinin tamamı silinir.{'\n'}Bu işlem geri alınamaz.
+              İstatistiklerinizin tamamı silinecek.{'\n\n'}Bu işlem geri alınamaz.
             </Text>
 
             {/* Danger action — on top */}

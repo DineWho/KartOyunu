@@ -104,23 +104,21 @@ function CardModal({ visible, fav, onClose, onRemove, theme }) {
       <Animated.View
         style={[styles.modalSheet, { transform: [{ translateY: slideAnim }] }]}
       >
-        {/* Drag handle */}
+        {/* Drag handle + close button */}
         <View style={styles.dragHandleRow}>
           <View style={styles.dragHandle} />
+          <TouchableOpacity
+            style={[styles.closeBtn, {
+              backgroundColor: theme.colors.surface,
+              borderColor: theme.colors.border,
+            }]}
+            onPress={onClose}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            activeOpacity={0.75}
+          >
+            <Feather name="x" size={16} color={theme.colors.textSecondary} />
+          </TouchableOpacity>
         </View>
-
-        {/* Close button — sağ üst */}
-        <TouchableOpacity
-          style={[styles.closeBtn, {
-            backgroundColor: theme.colors.surface,
-            borderColor: theme.colors.border,
-          }]}
-          onPress={onClose}
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-          activeOpacity={0.75}
-        >
-          <Feather name="x" size={16} color={theme.colors.textSecondary} />
-        </TouchableOpacity>
 
         {/* Card */}
         <View style={[styles.card, {
@@ -190,24 +188,22 @@ function CardModal({ visible, fav, onClose, onRemove, theme }) {
             opacity: confirmAnim,
             transform: [{ scale: confirmAnim.interpolate({ inputRange: [0, 1], outputRange: [0.96, 1] }) }],
             backgroundColor: theme.colors.surface,
-            borderColor: theme.colors.danger + '30',
+            borderColor: theme.colors.danger + '38',
+            borderTopColor: theme.colors.danger,
           }]}>
-            {/* Danger indicator strip */}
-            <View style={[styles.confirmRemoveStrip, { backgroundColor: theme.colors.danger }]} />
-
             <View style={styles.confirmRemoveHeader}>
               <View style={[styles.confirmRemoveIconWrap, {
                 backgroundColor: theme.colors.danger + '14',
                 borderColor: theme.colors.danger + '38',
               }]}>
-                <Feather name="heart-off" size={16} color={theme.colors.danger} />
+                <Feather name="alert-circle" size={16} color={theme.colors.danger} />
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={[styles.confirmRemoveTitle, { color: theme.colors.text }]}>
                   Favoriden kaldır?
                 </Text>
-                <Text style={[styles.confirmRemoveQuestion, { color: theme.colors.textMuted }]} numberOfLines={1}>
-                  {fav.question}
+                <Text style={[styles.confirmRemoveQuestion, { color: theme.colors.textMuted }]}>
+                  Emin misiniz? Bu işlem geri alınamaz.
                 </Text>
               </View>
             </View>
@@ -267,7 +263,9 @@ const styles = StyleSheet.create({
   },
   dragHandleRow: {
     alignItems: 'center',
-    marginBottom: 20,
+    justifyContent: 'center',
+    minHeight: 36,
+    marginBottom: 16,
   },
   dragHandle: {
     width: 40,
@@ -277,8 +275,8 @@ const styles = StyleSheet.create({
   },
   closeBtn: {
     position: 'absolute',
-    top: 16,
     right: 0,
+    top: 0,
     width: 36,
     height: 36,
     borderRadius: 18,
@@ -358,15 +356,12 @@ const styles = StyleSheet.create({
   confirmRemovePanel: {
     borderRadius: 18,
     borderWidth: 1,
-    overflow: 'hidden',
+    borderTopWidth: 4,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.2,
     shadowRadius: 16,
     elevation: 8,
-  },
-  confirmRemoveStrip: {
-    height: 3,
   },
   confirmRemoveHeader: {
     flexDirection: 'row',
