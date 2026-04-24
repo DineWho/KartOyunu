@@ -88,6 +88,73 @@ export function StatsProvider({ children }) {
     };
   };
 
+  const getCompletedModsCount = () => {
+    return Object.values(modStats).filter((s) => s.attempted >= CARDS_PER_GAME).length;
+  };
+
+  const getTotalFavoriteCount = () => {
+    return stats.filter((s) => s.action === 'favorite').length;
+  };
+
+  const getTopCategories = (limit = 2) => {
+    const categoryScore = {};
+    Object.entries(modStats).forEach(([modId, s]) => {
+      const mod = mods.find((m) => m.id === modId);
+      if (!mod) return;
+      categoryScore[mod.categoryId] = (categoryScore[mod.categoryId] || 0) + s.attempted;
+    });
+    return Object.entries(categoryScore)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, limit)
+      .map(([catId]) => catId);
+  };
+
+  const getRecommendedByCategory = (limit = 5) => {
+    const topCats = getTopCategories(2);
+    if (topCats.length === 0) return [];
+
+    const completedModIds = new Set(
+      Object.entries(modStats)
+        .filter(([, s]) => s.attempted >= CARDS_PER_GAME)
+        .map(([modId]) => modId),
+    );
+
+    return mods
+      .filter((mod) => topCats.includes(mod.categoryId) && !completedModIds.has(mod.id))
+      .slice(0, limit);
+  };
+
+  const getRecommendedByFavorites = (limit = 5) => {
+    const favoritedModIds = Object.entries(modStats)
+      .filter(([, s]) => s.favorited > 0)
+      .map(([modId]) => modId);
+
+    if (favoritedModIds.length === 0) return [];
+
+    const favCategoryIds = new Set(
+      favoritedModIds.map((modId) => mods.find((m) => m.id === modId)?.categoryId).filter(Boolean),
+    );
+
+    const interactedModIds = new Set(Object.keys(modStats));
+
+    const unplayed = mods.filter(
+      (mod) => favCategoryIds.has(mod.categoryId) && !interactedModIds.has(mod.id),
+    );
+
+    if (unplayed.length >= limit) return unplayed.slice(0, limit);
+
+    const lowInteraction = mods
+      .filter(
+        (mod) =>
+          favCategoryIds.has(mod.categoryId) &&
+          !unplayed.includes(mod) &&
+          (modStats[mod.id]?.attempted || 0) < CARDS_PER_GAME,
+      )
+      .sort((a, b) => (modStats[a.id]?.attempted || 0) - (modStats[b.id]?.attempted || 0));
+
+    return [...unplayed, ...lowInteraction].slice(0, limit);
+  };
+
   const clearStats = () => {
     setStats([]);
     setModStats({});
@@ -102,6 +169,10 @@ export function StatsProvider({ children }) {
         addStat,
         getStatsByMod,
         getTotalStats,
+        getCompletedModsCount,
+        getTotalFavoriteCount,
+        getRecommendedByCategory,
+        getRecommendedByFavorites,
         clearStats,
       }}
     >

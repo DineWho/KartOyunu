@@ -140,7 +140,13 @@ const pillStyles = StyleSheet.create({
 export default function HomeScreen() {
   const navigation = useNavigation();
   const { theme, isDark } = useTheme();
-  const { addStat } = useStats();
+  const {
+    addStat,
+    getCompletedModsCount,
+    getTotalFavoriteCount,
+    getRecommendedByCategory,
+    getRecommendedByFavorites,
+  } = useStats();
   const s = useMemo(() => makeStyles(theme), [theme]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -180,6 +186,17 @@ export default function HomeScreen() {
   }, [searchQuery, selectedCategory]);
 
   const featuredMods = mods.filter((d) => !d.isPremium);
+
+  const completedCount = getCompletedModsCount();
+  const favoriteCount = getTotalFavoriteCount();
+  const categoryRecs = useMemo(
+    () => (completedCount >= 2 ? getRecommendedByCategory(6) : []),
+    [completedCount],
+  );
+  const favoriteRecs = useMemo(
+    () => (favoriteCount >= 5 ? getRecommendedByFavorites(6) : []),
+    [favoriteCount],
+  );
 
   // Stagger animation pool for deck list — dynamically sized
   const fadeAnims = useRef([]).current;
@@ -502,6 +519,108 @@ export default function HomeScreen() {
               </Text>
             </TouchableOpacity>
           </View>
+        )}
+
+        {/* Senin kategorin — en az 2 oyun bittikten sonra gösterilir */}
+        {!selectedCategory && !isSearchActive && categoryRecs.length > 0 && (
+          <>
+            <View style={s.sectionHeader}>
+              <Text style={s.sectionTitle}>Senin kategorin</Text>
+              <View style={s.sectionLine} />
+            </View>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={s.featuredScroll}
+            >
+              {categoryRecs.map((mod) => {
+                const catColor = getCategoryColor(mod.categoryId);
+                const cat = getCategory(mod.categoryId);
+                return (
+                  <TouchableOpacity
+                    key={mod.id}
+                    style={[s.featuredCard, { backgroundColor: catColor }]}
+                    onPress={() => navigation.navigate("Mod", { mod })}
+                    activeOpacity={0.86}
+                  >
+                    <LinearGradient
+                      colors={["rgba(255,255,255,0.12)", "rgba(0,0,0,0.18)"]}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 0, y: 1 }}
+                      style={StyleSheet.absoluteFill}
+                    />
+                    <View style={s.featuredCategoryChip}>
+                      <Text style={s.featuredCategoryText}>
+                        {cat?.icon} {cat?.name}
+                      </Text>
+                    </View>
+                    <Text style={s.featuredEmoji}>{mod.emoji}</Text>
+                    <Text style={s.featuredTitle}>{mod.title}</Text>
+                    <Text style={s.featuredDesc} numberOfLines={2}>
+                      {mod.description}
+                    </Text>
+                    <View style={s.featuredDivider} />
+                    <View style={s.featuredStats}>
+                      <Text style={s.featuredStat}>{mod.cardCount} kart</Text>
+                      <Text style={s.featuredStatDot}>·</Text>
+                      <Text style={s.featuredStat}>{mod.duration}</Text>
+                    </View>
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+          </>
+        )}
+
+        {/* Favorilerine göre — en az 5 favori biriktikten sonra gösterilir */}
+        {!selectedCategory && !isSearchActive && favoriteRecs.length > 0 && (
+          <>
+            <View style={s.sectionHeader}>
+              <Text style={s.sectionTitle}>Favorilerine göre</Text>
+              <View style={s.sectionLine} />
+            </View>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={s.featuredScroll}
+            >
+              {favoriteRecs.map((mod) => {
+                const catColor = getCategoryColor(mod.categoryId);
+                const cat = getCategory(mod.categoryId);
+                return (
+                  <TouchableOpacity
+                    key={mod.id}
+                    style={[s.featuredCard, { backgroundColor: catColor }]}
+                    onPress={() => navigation.navigate("Mod", { mod })}
+                    activeOpacity={0.86}
+                  >
+                    <LinearGradient
+                      colors={["rgba(255,255,255,0.12)", "rgba(0,0,0,0.18)"]}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 0, y: 1 }}
+                      style={StyleSheet.absoluteFill}
+                    />
+                    <View style={s.featuredCategoryChip}>
+                      <Text style={s.featuredCategoryText}>
+                        {cat?.icon} {cat?.name}
+                      </Text>
+                    </View>
+                    <Text style={s.featuredEmoji}>{mod.emoji}</Text>
+                    <Text style={s.featuredTitle}>{mod.title}</Text>
+                    <Text style={s.featuredDesc} numberOfLines={2}>
+                      {mod.description}
+                    </Text>
+                    <View style={s.featuredDivider} />
+                    <View style={s.featuredStats}>
+                      <Text style={s.featuredStat}>{mod.cardCount} kart</Text>
+                      <Text style={s.featuredStatDot}>·</Text>
+                      <Text style={s.featuredStat}>{mod.duration}</Text>
+                    </View>
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+          </>
         )}
 
         {/* Featured Section — hidden during search or category filter */}
