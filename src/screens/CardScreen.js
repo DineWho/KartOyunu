@@ -78,7 +78,7 @@ export default function CardScreen() {
     Animated.timing(position, {
       toValue: { x: toX, y: 0 },
       duration: 260,
-      useNativeDriver: false,
+      useNativeDriver: true,
     }).start(() => {
       position.setValue({ x: 0, y: 0 });
       const next = idx + 1;
@@ -97,9 +97,10 @@ export default function CardScreen() {
     onStartShouldSetPanResponder: (evt) => {
       return evt.nativeEvent.pageX > LEFT_EDGE_ZONE;
     },
-    onPanResponderMove: (_, gesture) => {
-      position.setValue({ x: gesture.dx, y: gesture.dy * 0.15 });
-    },
+    onPanResponderMove: Animated.event(
+      [null, { dx: position.x, dy: position.y }],
+      { useNativeDriver: true }
+    ),
     onPanResponderRelease: (_, gesture) => {
       if (gesture.dx > SWIPE_THRESHOLD) {
         swipeCardRef.current('right');
@@ -108,7 +109,7 @@ export default function CardScreen() {
       } else {
         Animated.spring(position, {
           toValue: { x: 0, y: 0 },
-          useNativeDriver: false,
+          useNativeDriver: true,
           friction: 6,
           tension: 80,
         }).start();
