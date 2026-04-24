@@ -16,7 +16,6 @@ import { Feather } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { categories, mods } from "../data";
 import { useTheme } from "../ThemeContext";
-import { useNetwork } from "../context/NetworkContext";
 
 const { width } = Dimensions.get("window");
 const FEATURED_CARD_WIDTH = width * 0.62;
@@ -90,7 +89,6 @@ const pillStyles = StyleSheet.create({
 export default function HomeScreen() {
   const navigation = useNavigation();
   const { theme, isDark } = useTheme();
-  const { isOnline } = useNetwork();
   const s = useMemo(() => makeStyles(theme), [theme]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -231,7 +229,7 @@ export default function HomeScreen() {
           locations={[0, 0.55, 1]}
           style={s.headerGradient}
         >
-          <View style={[s.header, { justifyContent: 'space-between' }]}>
+          <View style={s.header}>
             <View>
               <View style={s.titleRow}>
                 <Text style={[s.titleStar, { color: theme.colors.primary }]}>
@@ -241,12 +239,6 @@ export default function HomeScreen() {
               </View>
               <Text style={s.tagline}>Sessizliği bitiren modlar</Text>
             </View>
-            {!isOnline && (
-              <View style={[s.offlineBadge, { backgroundColor: theme.colors.surface }]}>
-                <Feather name="wifi-off" size={14} color={theme.colors.textMuted} />
-                <Text style={[s.offlineBadgeText, { color: theme.colors.textMuted }]}>Offline</Text>
-              </View>
-            )}
           </View>
 
           {/* Search Bar */}
@@ -546,21 +538,6 @@ const makeStyles = (theme) =>
       borderRadius: 10,
       alignItems: "center",
       justifyContent: "center",
-    },
-    offlineBadge: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: 6,
-      paddingHorizontal: 12,
-      paddingVertical: 6,
-      borderRadius: 12,
-      borderWidth: 1,
-      borderColor: theme.colors.border,
-    },
-    offlineBadgeText: {
-      fontSize: 12,
-      fontWeight: "600",
-      letterSpacing: 0.1,
     },
     categoryScroll: {
       paddingHorizontal: 16,

@@ -1,29 +1,11 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import NetInfo from '@react-native-community/netinfo';
+import React, { createContext, useContext } from 'react';
 
 const NetworkContext = createContext();
 
+// Fallback: her zaman online assume (Expo managed workflow uyumluluğu)
 export function NetworkProvider({ children }) {
-  const [isOnline, setIsOnline] = useState(true);
-  const [isConnecting, setIsConnecting] = useState(false);
-
-  useEffect(() => {
-    const unsubscribe = NetInfo.addEventListener((state) => {
-      setIsOnline(state.isConnected ?? true);
-      setIsConnecting(state.isConnected === null);
-    });
-
-    // Check initial state
-    NetInfo.fetch().then((state) => {
-      setIsOnline(state.isConnected ?? true);
-      setIsConnecting(state.isConnected === null);
-    });
-
-    return unsubscribe;
-  }, []);
-
   return (
-    <NetworkContext.Provider value={{ isOnline, isConnecting }}>
+    <NetworkContext.Provider value={{ isOnline: true, isConnecting: false }}>
       {children}
     </NetworkContext.Provider>
   );
@@ -36,3 +18,4 @@ export function useNetwork() {
   }
   return ctx;
 }
+
