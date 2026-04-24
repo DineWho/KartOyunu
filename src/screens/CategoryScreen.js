@@ -1,13 +1,17 @@
 import React, { useMemo, useRef, useEffect } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
-  SafeAreaView, PanResponder, Animated,
+  SafeAreaView, Animated,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { mods } from '../data';
 import { useTheme } from '../ThemeContext';
 
-export default function CategoryScreen({ navigate, category }) {
+export default function CategoryScreen() {
+  const navigation = useNavigation();
+  const route = useRoute();
+  const { category } = route.params;
   const { theme } = useTheme();
   const s = useMemo(() => makeStyles(theme), [theme]);
   const catColor = category.color;
@@ -27,27 +31,14 @@ export default function CategoryScreen({ navigate, category }) {
     Animated.stagger(60, anims).start();
   }, []);
 
-  const panResponder = useRef(PanResponder.create({
-    onMoveShouldSetPanResponderCapture: (evt, gestureState) => {
-      return (
-        evt.nativeEvent.pageX < 22 &&
-        gestureState.dx > 10 &&
-        Math.abs(gestureState.dy) < Math.abs(gestureState.dx)
-      );
-    },
-    onPanResponderRelease: (_, gestureState) => {
-      if (gestureState.dx > 60) navigate('home');
-    },
-  })).current;
-
   return (
-    <SafeAreaView style={s.container} {...panResponder.panHandlers}>
+    <SafeAreaView style={s.container}>
       <LinearGradient
         colors={[catColor, catColor + 'EE', catColor + 'BB', catColor + '66', catColor + '00']}
         locations={[0, 0.25, 0.5, 0.75, 1]}
         style={s.header}
       >
-        <TouchableOpacity style={s.backBtn} onPress={() => navigate('home')}>
+        <TouchableOpacity style={s.backBtn} onPress={() => navigation.goBack()}>
           <Text style={s.backBtnText}>← Geri</Text>
         </TouchableOpacity>
         <Text style={s.headerIcon}>{category.icon}</Text>
@@ -66,7 +57,7 @@ export default function CategoryScreen({ navigate, category }) {
             >
               <TouchableOpacity
                 style={s.deckItem}
-                onPress={() => navigate('mod', { mod, from: 'category' })}
+                onPress={() => navigation.navigate('Mod', { mod })}
                 activeOpacity={0.75}
               >
                 <View style={[s.deckAccentBar, { backgroundColor: catColor }]} />

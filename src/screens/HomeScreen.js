@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 import { categories, mods } from '../data';
 import { useTheme } from '../ThemeContext';
 
@@ -66,7 +67,8 @@ const pillStyles = StyleSheet.create({
   },
 });
 
-export default function HomeScreen({ navigate }) {
+export default function HomeScreen() {
+  const navigation = useNavigation();
   const { theme, isDark } = useTheme();
   const s = useMemo(() => makeStyles(theme), [theme]);
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -264,7 +266,7 @@ export default function HomeScreen({ navigate }) {
                   >
                     <TouchableOpacity
                       style={[s.featuredCard, { backgroundColor: catColor }]}
-                      onPress={() => navigate('mod', { mod })}
+                      onPress={() => navigation.navigate('Mod', { mod })}
                       activeOpacity={0.86}
                     >
                       <LinearGradient
@@ -320,7 +322,7 @@ export default function HomeScreen({ navigate }) {
                 >
                   <TouchableOpacity
                     style={s.deckItem}
-                    onPress={() => navigate('mod', { mod })}
+                    onPress={() => navigation.navigate('Mod', { mod })}
                     activeOpacity={0.75}
                   >
                     <View style={[s.deckAccentBar, { backgroundColor: catColor }]} />

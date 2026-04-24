@@ -1,14 +1,18 @@
 import React, { useMemo, useRef, useEffect } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
-  SafeAreaView, PanResponder, Animated,
+  SafeAreaView, Animated,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { categories } from '../data';
 import { useTheme } from '../ThemeContext';
 
-export default function ModScreen({ navigate, mod, from = 'home' }) {
+export default function ModScreen() {
+  const navigation = useNavigation();
+  const route = useRoute();
+  const { mod } = route.params;
   const { theme } = useTheme();
   const s = useMemo(() => makeStyles(theme), [theme]);
   const category = categories.find(c => c.id === mod.categoryId);
@@ -33,22 +37,9 @@ export default function ModScreen({ navigate, mod, from = 'home' }) {
     ]).start();
   }, []);
 
-  const panResponder = useRef(PanResponder.create({
-    onMoveShouldSetPanResponderCapture: (evt, gestureState) => {
-      return (
-        evt.nativeEvent.pageX < 22 &&
-        gestureState.dx > 10 &&
-        Math.abs(gestureState.dy) < Math.abs(gestureState.dx)
-      );
-    },
-    onPanResponderRelease: (_, gestureState) => {
-      if (gestureState.dx > 60) navigate(from);
-    },
-  })).current;
-
   const handleStart = () => {
     if (mod.isPremium) return;
-    navigate('cards', { mod });
+    navigation.navigate('Cards', { mod });
   };
 
   const peopleVal = mod.people.replace(/\s*kişi$/i, '');
@@ -61,10 +52,10 @@ export default function ModScreen({ navigate, mod, from = 'home' }) {
   ];
 
   return (
-    <SafeAreaView style={[s.container, { backgroundColor: catColor }]} {...panResponder.panHandlers}>
+    <SafeAreaView style={[s.container, { backgroundColor: catColor }]}>
 
       <Animated.View style={[s.header, { opacity: headerAnim }]}>
-        <TouchableOpacity style={s.backBtn} onPress={() => navigate(from)} activeOpacity={0.8}>
+        <TouchableOpacity style={s.backBtn} onPress={() => navigation.goBack()} activeOpacity={0.8}>
           <Feather name="arrow-left" size={16} color="rgba(255,255,255,0.9)" />
           <Text style={s.backBtnText}>Geri</Text>
         </TouchableOpacity>
@@ -72,7 +63,7 @@ export default function ModScreen({ navigate, mod, from = 'home' }) {
         <Text style={s.headerTitle}>{mod.title}</Text>
         <TouchableOpacity
           style={s.categoryPill}
-          onPress={() => navigate('category', { category })}
+          onPress={() => navigation.navigate('Category', { category })}
           activeOpacity={0.8}
         >
           <Text style={s.categoryPillText}>{category?.icon}  {category?.name}</Text>

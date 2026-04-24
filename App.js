@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
-import { View, StatusBar } from 'react-native';
+import { StatusBar } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { ThemeProvider, useTheme } from './src/ThemeContext';
 import { FavoritesProvider } from './src/context/FavoritesContext';
 import SplashScreen from './src/screens/SplashScreen';
@@ -12,60 +16,66 @@ import SettingsScreen from './src/screens/SettingsScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import TabBar from './src/components/TabBar';
 
-const TAB_SCREENS = ['home', 'favorites', 'settings', 'profile'];
+const RootStack = createNativeStackNavigator();
+const Tab = createBottomTabNavigator();
+
+function MainTabs() {
+  return (
+    <Tab.Navigator
+      tabBar={(props) => <TabBar {...props} />}
+      screenOptions={{ headerShown: false }}
+    >
+      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Favorites" component={FavoritesScreen} />
+      <Tab.Screen name="Settings" component={SettingsScreen} />
+      <Tab.Screen name="Profile" component={ProfileScreen} />
+    </Tab.Navigator>
+  );
+}
 
 function AppContent() {
-  const [splashDone, setSplashDone] = useState(false);
-  const [screen, setScreen] = useState('home');
-  const [selectedMod, setSelectedMod] = useState(null);
-  const [selectedCategory, setSelectedCategory] = useState(null);
-  const [modSource, setModSource] = useState('home');
   const { theme, isDark } = useTheme();
 
-  const navigate = (screenName, params = {}) => {
-    if (params.mod) setSelectedMod(params.mod);
-    if (params.category) setSelectedCategory(params.category);
-    if (screenName === 'mod') setModSource(params.from || 'home');
-    setScreen(screenName);
-  };
-
-  if (!splashDone) {
-    return <SplashScreen onFinish={() => setSplashDone(true)} />;
-  }
-
-  const showTabBar = TAB_SCREENS.includes(screen);
-
   return (
-    <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
+    <>
       <StatusBar
         barStyle={isDark ? 'light-content' : 'dark-content'}
         backgroundColor={theme.colors.background}
       />
-
-      {screen === 'home'      && <HomeScreen navigate={navigate} />}
-      {screen === 'favorites' && <FavoritesScreen navigate={navigate} />}
-      {screen === 'settings'  && <SettingsScreen />}
-      {screen === 'profile'   && <ProfileScreen navigate={navigate} />}
-      {screen === 'category'  && <CategoryScreen navigate={navigate} category={selectedCategory} />}
-      {screen === 'mod'       && <ModScreen navigate={navigate} mod={selectedMod} from={modSource} />}
-      {screen === 'cards'     && <CardScreen navigate={navigate} mod={selectedMod} />}
-
-      {showTabBar && (
-        <TabBar
-          activeTab={screen}
-          onTabChange={(tab) => setScreen(tab)}
-        />
-      )}
-    </View>
+      <NavigationContainer>
+        <RootStack.Navigator screenOptions={{ headerShown: false }}>
+          <RootStack.Screen name="MainTabs" component={MainTabs} />
+          <RootStack.Screen name="Category" component={CategoryScreen} />
+          <RootStack.Screen name="Mod" component={ModScreen} />
+          <RootStack.Screen
+            name="Cards"
+            component={CardScreen}
+            options={{ gestureEnabled: false }}
+          />
+        </RootStack.Navigator>
+      </NavigationContainer>
+    </>
   );
 }
 
 export default function App() {
+  const [splashDone, setSplashDone] = useState(false);
+
+  if (!splashDone) {
+    return (
+      <ThemeProvider>
+        <SplashScreen onFinish={() => setSplashDone(true)} />
+      </ThemeProvider>
+    );
+  }
+
   return (
-    <ThemeProvider>
-      <FavoritesProvider>
-        <AppContent />
-      </FavoritesProvider>
-    </ThemeProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ThemeProvider>
+        <FavoritesProvider>
+          <AppContent />
+        </FavoritesProvider>
+      </ThemeProvider>
+    </GestureHandlerRootView>
   );
 }

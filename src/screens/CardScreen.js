@@ -6,6 +6,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { cards, categories } from '../data';
 import { useTheme } from '../ThemeContext';
 import { useFavorites } from '../context/FavoritesContext';
@@ -16,7 +17,10 @@ const LEFT_EDGE_ZONE = 22;
 
 const upperTR = (str) => str.replace(/i/g, 'İ').toUpperCase();
 
-export default function CardScreen({ navigate, mod }) {
+export default function CardScreen() {
+  const navigation = useNavigation();
+  const route = useRoute();
+  const { mod } = route.params;
   const { theme } = useTheme();
   const s = useMemo(() => makeStyles(theme), [theme]);
   const { addFavorite } = useFavorites();
@@ -202,7 +206,7 @@ export default function CardScreen({ navigate, mod }) {
             </TouchableOpacity>
             <TouchableOpacity
               style={[s.finishedBtn, s.finishedBtnSecondary]}
-              onPress={() => navigate('home')}
+              onPress={() => navigation.navigate('MainTabs', { screen: 'Home' })}
               activeOpacity={0.75}
             >
               <Text style={[s.finishedBtnText, { color: theme.colors.text }]}>Ana Sayfa</Text>
@@ -221,7 +225,7 @@ export default function CardScreen({ navigate, mod }) {
     <SafeAreaView style={s.container}>
       {/* Header */}
       <View style={s.header}>
-        <TouchableOpacity style={s.closeBtn} onPress={() => navigate('mod', { mod })}>
+        <TouchableOpacity style={s.closeBtn} onPress={() => navigation.goBack()}>
           <Feather name="x" size={18} color={theme.colors.textSecondary} />
         </TouchableOpacity>
         <View style={s.headerCenter}>

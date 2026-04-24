@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../ThemeContext';
 import { useFavorites } from '../context/FavoritesContext';
 
@@ -271,7 +272,8 @@ const styles = StyleSheet.create({
   },
 });
 
-export default function FavoritesScreen({ navigate }) {
+export default function FavoritesScreen() {
+  const navigation = useNavigation();
   const { theme } = useTheme();
   const s = useMemo(() => makeStyles(theme), [theme]);
   const { favorites, removeFavorite } = useFavorites();
@@ -317,7 +319,7 @@ export default function FavoritesScreen({ navigate }) {
           </Text>
           <TouchableOpacity
             style={[s.emptyBtn, { backgroundColor: theme.colors.primary }]}
-            onPress={() => navigate('home')}
+            onPress={() => navigation.navigate('Home')}
             activeOpacity={0.84}
           >
             <Text style={s.emptyBtnText}>Oynamaya Başla</Text>

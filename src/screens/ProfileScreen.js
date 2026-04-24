@@ -6,7 +6,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../ThemeContext';
 import { useFavorites } from '../context/FavoritesContext';
 
-export default function ProfileScreen({ navigate }) {
+export default function ProfileScreen() {
   const { theme, isDark } = useTheme();
   const s = useMemo(() => makeStyles(theme), [theme]);
   const { favorites } = useFavorites();

@@ -12,19 +12,19 @@ const TAB_COUNT = 4;
 const INDICATOR_WIDTH = TAB_BAR_WIDTH / TAB_COUNT - 8;
 
 const TABS = [
-  { key: 'home',      label: 'Ana Sayfa', icon: 'home' },
-  { key: 'favorites', label: 'Favoriler', icon: 'heart' },
-  { key: 'settings',  label: 'Ayarlar',   icon: 'settings' },
-  { key: 'profile',   label: 'Profil',    icon: 'user' },
+  { key: 'Home',      label: 'Ana Sayfa', icon: 'home' },
+  { key: 'Favorites', label: 'Favoriler', icon: 'heart' },
+  { key: 'Settings',  label: 'Ayarlar',   icon: 'settings' },
+  { key: 'Profile',   label: 'Profil',    icon: 'user' },
 ];
 
-export default function TabBar({ activeTab, onTabChange }) {
+export default function TabBar({ state, navigation }) {
   const { theme, isDark } = useTheme();
   const { favorites } = useFavorites();
   const indicatorAnim = useRef(new Animated.Value(0)).current;
   const scaleAnims = useRef(TABS.map(() => new Animated.Value(1))).current;
 
-  const activeIndex = TABS.findIndex(t => t.key === activeTab);
+  const activeIndex = state.index;
 
   useEffect(() => {
     Animated.spring(indicatorAnim, {
@@ -40,7 +40,7 @@ export default function TabBar({ activeTab, onTabChange }) {
       Animated.spring(scaleAnims[index], { toValue: 0.85, useNativeDriver: true, friction: 12, tension: 200 }),
       Animated.spring(scaleAnims[index], { toValue: 1, useNativeDriver: true, friction: 6, tension: 100 }),
     ]).start();
-    onTabChange(tab.key);
+    navigation.navigate(tab.key);
   };
 
   const indicatorX = indicatorAnim.interpolate({
@@ -68,10 +68,10 @@ export default function TabBar({ activeTab, onTabChange }) {
         />
 
         {TABS.map((tab, index) => {
-          const isActive = tab.key === activeTab;
+          const isActive = index === activeIndex;
           const activeColor = isDark ? '#D4A843' : '#6B4FA8';
           const inactiveColor = isDark ? '#5C5880' : '#8B87A8';
-          const hasBadge = tab.key === 'favorites' && favorites.length > 0;
+          const hasBadge = tab.key === 'Favorites' && favorites.length > 0;
 
           return (
             <Animated.View
