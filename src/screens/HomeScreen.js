@@ -11,7 +11,6 @@ import { useTheme } from '../ThemeContext';
 
 const { width } = Dimensions.get('window');
 const FEATURED_CARD_WIDTH = width * 0.62;
-const POOL_SIZE = 30;
 
 function CategoryPill({ label, isActive, onPress, theme, color }) {
   const scale = useRef(new Animated.Value(1)).current;
@@ -101,13 +100,29 @@ export default function HomeScreen() {
 
   const featuredMods = mods.filter(d => !d.isPremium);
 
-  // Stagger animation pool for deck list
-  const fadeAnims = useRef(Array.from({ length: POOL_SIZE }, () => new Animated.Value(0))).current;
-  const slideAnims = useRef(Array.from({ length: POOL_SIZE }, () => new Animated.Value(14))).current;
+  // Stagger animation pool for deck list — dynamically sized
+  const fadeAnims = useRef([]).current;
+  const slideAnims = useRef([]).current;
 
-  // Featured card anim pool
-  const featuredFade = useRef(Array.from({ length: POOL_SIZE }, () => new Animated.Value(0))).current;
-  const featuredSlide = useRef(Array.from({ length: POOL_SIZE }, () => new Animated.Value(12))).current;
+  // Featured card anim pool — dynamically sized
+  const featuredFade = useRef([]).current;
+  const featuredSlide = useRef([]).current;
+
+  // Ensure animation arrays match displayedMods length
+  while (fadeAnims.length < displayedMods.length) {
+    fadeAnims.push(new Animated.Value(0));
+    slideAnims.push(new Animated.Value(14));
+  }
+  fadeAnims.length = displayedMods.length;
+  slideAnims.length = displayedMods.length;
+
+  // Ensure featured animation arrays match featuredMods length
+  while (featuredFade.length < featuredMods.length) {
+    featuredFade.push(new Animated.Value(0));
+    featuredSlide.push(new Animated.Value(12));
+  }
+  featuredFade.length = featuredMods.length;
+  featuredSlide.length = featuredMods.length;
 
   useEffect(() => {
     fadeAnims.forEach(a => a.setValue(0));
