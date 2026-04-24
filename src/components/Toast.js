@@ -1,10 +1,12 @@
 import React, { useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, Animated } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../ThemeContext';
 
 export default function Toast({ message, visible, onHide }) {
   const { theme } = useTheme();
+  const insets = useSafeAreaInsets();
   const translateY = useRef(new Animated.Value(-90)).current;
   const opacity = useRef(new Animated.Value(0)).current;
 
@@ -46,6 +48,7 @@ export default function Toast({ message, visible, onHide }) {
       style={[
         styles.container,
         {
+          top: insets.top + 10,
           backgroundColor: theme.colors.surfaceElevated,
           borderColor: theme.colors.border,
           borderLeftColor: theme.colors.success,
@@ -66,7 +69,6 @@ export default function Toast({ message, visible, onHide }) {
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    top: 12,
     left: 16,
     right: 16,
     flexDirection: 'row',
