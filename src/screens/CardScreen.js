@@ -6,6 +6,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
+import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { cards, categories } from '../data';
 import { useTheme } from '../ThemeContext';
@@ -40,6 +41,11 @@ export default function CardScreen() {
   const category = categories.find(c => c.id === mod.categoryId);
   const catColor = category?.color || theme.colors.primary;
   const totalCards = modCards.length;
+
+  useEffect(() => {
+    activateKeepAwakeAsync();
+    return () => deactivateKeepAwake();
+  }, []);
 
   // Entrance animation
   const cardAnim = useRef(new Animated.Value(0)).current;
