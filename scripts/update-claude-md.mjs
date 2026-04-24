@@ -1,9 +1,14 @@
-// Runs after data/index.js changes — regenerates the category/deck tables in CLAUDE.md
+// Runs after data/index.js changes — regenerates the current data tables in DATA_MODEL.md.
+// CLAUDE.md links to DATA_MODEL.md as the source of truth for content structure.
 import { readFileSync, writeFileSync } from 'fs';
-import { categories, decks } from '../src/data/index.js';
+import { categories, mods, cards } from '../src/data/index.js';
 
-const CLAUDE_MD = new URL('../CLAUDE.md', import.meta.url).pathname;
-const content = readFileSync(CLAUDE_MD, 'utf8');
+const DATA_MODEL_MD = new URL('../DATA_MODEL.md', import.meta.url).pathname;
+const content = readFileSync(DATA_MODEL_MD, 'utf8');
+
+const totalCards = Object.values(cards).reduce((sum, group) => sum + group.length, 0);
+const freeCount = mods.filter(mod => !mod.isPremium).length;
+const premiumCount = mods.filter(mod => mod.isPremium).length;
 
 const catTable = [
   '### Kategoriler (' + categories.length + ' adet)',
@@ -12,34 +17,33 @@ const catTable = [
   ...categories.map(c => `| \`${c.id}\` | ${c.name} | ${c.icon} | \`${c.color}\` |`),
 ].join('\n');
 
-const deckTable = [
-  '### Desteler (' + decks.length + ' adet)',
+const modTable = [
+  '### Modlar (' + mods.length + ' adet)',
   '| id | kategori | title | emoji | level | people | premium |',
   '|----|----------|-------|-------|-------|--------|---------|',
-  ...decks.map(d =>
-    `| \`${d.id}\` | ${d.categoryId} | ${d.title} | ${d.emoji} | ${d.level} | ${d.people} | ${d.isPremium ? '✓' : '✗'} |`
+  ...mods.map(mod =>
+    `| \`${mod.id}\` | ${mod.categoryId} | ${mod.title} | ${mod.emoji} | ${mod.level} | ${mod.people} | ${mod.isPremium ? '✓' : '✗'} |`
   ),
 ].join('\n');
 
 const cardStats = [
-  `**Kart sayısı:** 12 per deste, toplam ${decks.length * 12} soru`,
-  '**Her kategoride:** 2 ücretsiz + 2-3 premium deste',
-  '`deck.people` → DeckScreen\'de `.replace(/\\s*kişi$/i, \'\')` ile "kişi" strip edilir',
+  `**Toplam:** ${mods.length} mod, ${totalCards} soru`,
+  `**Free / Pro:** ${freeCount} ücretsiz mod, ${premiumCount} premium mod`,
 ].join('\n');
 
-const newBlock = `${catTable}\n\n${deckTable}\n\n${cardStats}`;
+const newBlock = `${catTable}\n\n${modTable}\n\n${cardStats}\n\n`;
 
 const START_MARKER = '### Kategoriler (';
-const END_MARKER = '\n\n## Türkçe Büyük Harf';
+const END_MARKER = '### `mod.people` Notu';
 
 const startIdx = content.indexOf(START_MARKER);
 const endIdx = content.indexOf(END_MARKER);
 
 if (startIdx === -1 || endIdx === -1) {
-  console.error('Marker bulunamadı — CLAUDE.md yapısı değişmiş olabilir.');
+  console.error('Marker bulunamadı — DATA_MODEL.md yapısı değişmiş olabilir.');
   process.exit(1);
 }
 
 const updated = content.slice(0, startIdx) + newBlock + content.slice(endIdx);
-writeFileSync(CLAUDE_MD, updated);
-console.log(`✓ CLAUDE.md güncellendi: ${categories.length} kategori, ${decks.length} deste, ${decks.length * 12} soru`);
+writeFileSync(DATA_MODEL_MD, updated);
+console.log(`✓ DATA_MODEL.md güncellendi: ${categories.length} kategori, ${mods.length} mod, ${totalCards} soru`);

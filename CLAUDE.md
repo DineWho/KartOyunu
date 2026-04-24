@@ -28,6 +28,18 @@ Türkçe sohbet kartı oyunu. React Native / Expo ile yapılmış mobil uygulama
 
 ---
 
+## Claude ↔ Codex Geçiş Notu
+
+Codex tarafından yapılan commit'ler şu formatla atılır:
+
+```text
+codex: YYYY-MM-DD HH:mm +03 <kısa açıklama>
+```
+
+Commit mesajı gövdesinde `Codex-assisted change.` notu, değişiklik özeti ve çalıştırılan kontroller bulunur. Claude tarafında devam ederken Codex'in yaptığı işleri görmek için `git log` geçmişinde `codex:` ile başlayan commit'lere bak.
+
+---
+
 ## Navigasyon
 
 React Navigation kullanılıyor. Ekranlar arası geçiş için `useNavigation()` hook'u:
@@ -123,4 +135,3 @@ const { totalCards, totalFavorited, modsPlayed } = getTotalStats();
 **Storage keys:**
 - `@kartoyunu_favorites` — Favoriler
 - `@kartoyunu_stats` — İstatistikler (JSON array)
-

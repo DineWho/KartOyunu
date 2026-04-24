@@ -28,4 +28,11 @@ After editing code:
 - Tell the user how to test the change.
 - Mention if `npx expo run:ios --device`, `npx expo start -c`, `npm install`, or `pod install` is needed.
 
+When Codex creates a git commit:
+- Use this commit subject format: `codex: YYYY-MM-DD HH:mm +03 <short summary>`.
+- Use the current Istanbul time for the timestamp.
+- Include `Codex-assisted change.` in the commit body.
+- Include a short bullet list of what changed and which checks were run.
+- Keep this convention even if the user does not explicitly remind Codex.
+
 The user is non-technical. Explain all steps simply and clearly.
