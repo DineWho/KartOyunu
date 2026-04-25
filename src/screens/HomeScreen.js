@@ -550,6 +550,11 @@ export default function HomeScreen() {
                       end={{ x: 0, y: 1 }}
                       style={StyleSheet.absoluteFill}
                     />
+                    {mod.isPremium && (
+                      <View style={[s.proBadge, s.featuredProBadge]}>
+                        <Text style={s.proText}>PRO</Text>
+                      </View>
+                    )}
                     <View style={s.featuredCategoryChip}>
                       <Text style={s.featuredCategoryText}>
                         {cat?.icon} {cat?.name}
@@ -601,6 +606,11 @@ export default function HomeScreen() {
                       end={{ x: 0, y: 1 }}
                       style={StyleSheet.absoluteFill}
                     />
+                    {mod.isPremium && (
+                      <View style={[s.proBadge, s.featuredProBadge]}>
+                        <Text style={s.proText}>PRO</Text>
+                      </View>
+                    )}
                     <View style={s.featuredCategoryChip}>
                       <Text style={s.featuredCategoryText}>
                         {cat?.icon} {cat?.name}
@@ -658,6 +668,11 @@ export default function HomeScreen() {
                         end={{ x: 0, y: 1 }}
                         style={StyleSheet.absoluteFill}
                       />
+                      {mod.isPremium && (
+                        <View style={[s.proBadge, s.featuredProBadge]}>
+                          <Text style={s.proText}>PRO</Text>
+                        </View>
+                      )}
                       <View style={s.featuredCategoryChip}>
                         <Text style={s.featuredCategoryText}>
                           {cat?.icon} {cat?.name}
@@ -1151,6 +1166,12 @@ const makeStyles = (theme) =>
       paddingHorizontal: 7,
       paddingVertical: 2,
       borderRadius: 5,
+    },
+    featuredProBadge: {
+      position: "absolute",
+      top: rs(16),
+      right: rs(16),
+      zIndex: 2,
     },
     proText: {
       fontSize: 10,
