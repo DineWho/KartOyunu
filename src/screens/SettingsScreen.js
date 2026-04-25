@@ -4,6 +4,7 @@ import {
   SafeAreaView, Switch,
 } from 'react-native';
 import { useTheme } from '../ThemeContext';
+import { useAudio } from '../context/AudioContext';
 
 function SettingRow({ icon, label, sublabel, right, onPress, theme }) {
   const s = useMemo(() => rowStyles(theme), [theme]);
@@ -90,6 +91,7 @@ function SettingsGroup({ title, children, theme }) {
 
 export default function SettingsScreen() {
   const { theme, isDark, toggleTheme } = useTheme();
+  const { soundEnabled, toggleSound } = useAudio();
   const s = useMemo(() => makeStyles(theme), [theme]);
 
   return (
@@ -112,6 +114,21 @@ export default function SettingsScreen() {
                 onValueChange={toggleTheme}
                 trackColor={{ false: theme.colors.border, true: theme.colors.primary + '88' }}
                 thumbColor={isDark ? theme.colors.primary : theme.colors.textMuted}
+              />
+            }
+          />
+          <View style={{ height: 1, backgroundColor: theme.colors.border, marginLeft: 66 }} />
+          <SettingRow
+            icon={soundEnabled ? '🔊' : '🔇'}
+            label="Ses Efektleri"
+            sublabel={soundEnabled ? 'Açık' : 'Kapalı'}
+            theme={theme}
+            right={
+              <Switch
+                value={soundEnabled}
+                onValueChange={toggleSound}
+                trackColor={{ false: theme.colors.border, true: theme.colors.primary + '88' }}
+                thumbColor={soundEnabled ? theme.colors.primary : theme.colors.textMuted}
               />
             }
           />

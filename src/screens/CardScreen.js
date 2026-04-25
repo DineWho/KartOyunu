@@ -12,8 +12,10 @@ import { cards, categories } from '../data';
 import { useTheme } from '../ThemeContext';
 import { useFavorites } from '../context/FavoritesContext';
 import { useStats } from '../context/StatsContext';
+import { useAudio } from '../context/AudioContext';
 import QuestionShareCard from '../components/QuestionShareCard';
 import { shareQuestionCard } from '../utils/shareQuestionCard';
+import Confetti from '../components/Confetti';
 
 const { width, height } = Dimensions.get('window');
 const SWIPE_THRESHOLD = 100;
@@ -29,10 +31,19 @@ export default function CardScreen() {
   const s = useMemo(() => makeStyles(theme), [theme]);
   const { addFavorite } = useFavorites();
   const { addStat } = useStats();
+  const { playSound } = useAudio();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [sessionFavorites, setSessionFavorites] = useState([]);
   const [finished, setFinished] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
   const position = useRef(new Animated.ValueXY()).current;
+
+  // Back card animated scale — reacts to drag progress
+  const backCardScale = useRef(new Animated.Value(0.94)).current;
+  // Glow pulse for when threshold is crossed
+  const glowPulse = useRef(new Animated.Value(0)).current;
+  const glowLoopRef = useRef(null);
+  const thresholdCrossedRef = useRef(false);
 
   const currentIndexRef = useRef(0);
   const shareCardRef = useRef(null);
@@ -44,7 +55,13 @@ export default function CardScreen() {
 
   useEffect(() => {
     activateKeepAwakeAsync();
-    return () => deactivateKeepAwake();
+    return () => {
+      deactivateKeepAwake();
+      if (glowLoopRef.current) {
+        glowLoopRef.current.stop();
+        glowLoopRef.current = null;
+      }
+    };
   }, []);
 
   // Entrance animation
@@ -60,30 +77,62 @@ export default function CardScreen() {
 
   const swipeCardRef = useRef(null);
 
+  const stopGlowLoop = () => {
+    if (glowLoopRef.current) {
+      glowLoopRef.current.stop();
+      glowLoopRef.current = null;
+    }
+    glowPulse.setValue(0);
+    thresholdCrossedRef.current = false;
+  };
+
+  const startGlowLoop = () => {
+    if (glowLoopRef.current) return;
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(glowPulse, { toValue: 1, duration: 300, useNativeDriver: true }),
+        Animated.timing(glowPulse, { toValue: 0.5, duration: 300, useNativeDriver: true }),
+      ])
+    );
+    glowLoopRef.current = loop;
+    loop.start();
+  };
+
   const swipeCard = (direction) => {
+    stopGlowLoop();
     const idx = currentIndexRef.current;
     const toX = direction === 'right' ? width * 1.5 : -width * 1.5;
+    const toY = direction === 'right' ? -30 : 20;
     const cardId = `${mod.id}-${idx}`;
 
     if (direction === 'right') {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      playSound('swipe_right');
       setSessionFavorites(prev => [...prev, modCards[idx]]);
       addFavorite(modCards[idx], mod, catColor);
       addStat(cardId, mod.id, 'favorite');
     } else {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      playSound('swipe_left');
       addStat(cardId, mod.id, 'skip');
     }
 
+    // Reset back card scale
+    Animated.spring(backCardScale, { toValue: 0.94, friction: 8, useNativeDriver: true }).start();
+
     Animated.timing(position, {
-      toValue: { x: toX, y: 0 },
-      duration: 260,
+      toValue: { x: toX, y: toY },
+      duration: 220,
       useNativeDriver: true,
     }).start(() => {
       position.setValue({ x: 0, y: 0 });
+      backCardScale.setValue(0.94);
       const next = idx + 1;
       if (next >= totalCards) {
         setFinished(true);
+        setShowConfetti(true);
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        playSound('game_end');
       } else {
         currentIndexRef.current = next;
         setCurrentIndex(next);
@@ -99,6 +148,21 @@ export default function CardScreen() {
     },
     onPanResponderMove: (_, gesture) => {
       position.setValue({ x: gesture.dx, y: gesture.dy * 0.15 });
+
+      // Drive back card scale based on drag progress
+      const progress = Math.min(Math.abs(gesture.dx) / SWIPE_THRESHOLD, 1);
+      backCardScale.setValue(0.94 + progress * 0.06);
+
+      // Trigger glow + haptic once when threshold is first crossed
+      const overThreshold = Math.abs(gesture.dx) > SWIPE_THRESHOLD;
+      if (overThreshold && !thresholdCrossedRef.current) {
+        thresholdCrossedRef.current = true;
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        startGlowLoop();
+      } else if (!overThreshold && thresholdCrossedRef.current) {
+        thresholdCrossedRef.current = false;
+        stopGlowLoop();
+      }
     },
     onPanResponderRelease: (_, gesture) => {
       if (gesture.dx > SWIPE_THRESHOLD) {
@@ -106,6 +170,8 @@ export default function CardScreen() {
       } else if (gesture.dx < -SWIPE_THRESHOLD) {
         swipeCardRef.current('left');
       } else {
+        stopGlowLoop();
+        Animated.spring(backCardScale, { toValue: 0.94, friction: 8, useNativeDriver: true }).start();
         Animated.spring(position, {
           toValue: { x: 0, y: 0 },
           useNativeDriver: true,
@@ -119,6 +185,11 @@ export default function CardScreen() {
   const rotate = position.x.interpolate({
     inputRange: [-width, 0, width],
     outputRange: ['-10deg', '0deg', '10deg'],
+  });
+
+  const rotateY = position.x.interpolate({
+    inputRange: [-width, 0, width],
+    outputRange: ['8deg', '0deg', '-8deg'],
   });
 
   const skipOpacity = position.x.interpolate({
@@ -145,6 +216,25 @@ export default function CardScreen() {
     extrapolate: 'clamp',
   });
 
+  // Glow overlay opacity driven by glowPulse + whether threshold is crossed
+  const skipGlowOpacity = Animated.multiply(
+    position.x.interpolate({
+      inputRange: [-SWIPE_THRESHOLD - 10, -SWIPE_THRESHOLD],
+      outputRange: [1, 0],
+      extrapolate: 'clamp',
+    }),
+    glowPulse
+  );
+
+  const favGlowOpacity = Animated.multiply(
+    position.x.interpolate({
+      inputRange: [SWIPE_THRESHOLD, SWIPE_THRESHOLD + 10],
+      outputRange: [0, 1],
+      extrapolate: 'clamp',
+    }),
+    glowPulse
+  );
+
   const handleShare = async () => {
     const idx = currentIndexRef.current;
     const question = modCards[idx];
@@ -166,12 +256,15 @@ export default function CardScreen() {
     setCurrentIndex(0);
     setSessionFavorites([]);
     setFinished(false);
+    setShowConfetti(false);
     position.setValue({ x: 0, y: 0 });
+    backCardScale.setValue(0.94);
   };
 
   if (finished) {
     return (
       <SafeAreaView style={s.container}>
+        {showConfetti && <Confetti color={catColor} />}
         <ScrollView
           contentContainerStyle={s.finishedScroll}
           showsVerticalScrollIndicator={false}
@@ -267,12 +360,21 @@ export default function CardScreen() {
         />
       </View>
 
+      {/* Confetti layer — rendered above everything */}
+      {showConfetti && <Confetti color={catColor} />}
+
       {/* Cards Area */}
       <View style={s.cardArea}>
         {nextCard && (
-          <View style={[s.card, s.cardBack, { backgroundColor: theme.colors.surface }]}>
+          <Animated.View
+            style={[
+              s.card,
+              s.cardBack,
+              { backgroundColor: theme.colors.surface, transform: [{ scale: backCardScale }, { translateY: 16 }] },
+            ]}
+          >
             <View style={[s.cardTopStripe, { backgroundColor: catColor, opacity: 0.5 }]} />
-          </View>
+          </Animated.View>
         )}
 
         <Animated.View
@@ -282,9 +384,11 @@ export default function CardScreen() {
               shadowColor: theme.isDark ? catColor : '#000',
               shadowOpacity: theme.isDark ? 0.45 : 0.28,
               transform: [
+                { perspective: 1000 },
                 { translateX: position.x },
                 { translateY: position.y },
                 { rotate },
+                { rotateY },
               ],
             },
           ]}
@@ -296,6 +400,9 @@ export default function CardScreen() {
           />
           <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: '#E74C3C', opacity: skipBgOpacity }]} />
           <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: '#27AE60', opacity: favBgOpacity }]} />
+          {/* Threshold glow pulses */}
+          <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: '#E74C3C', opacity: skipGlowOpacity }]} />
+          <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: '#27AE60', opacity: favGlowOpacity }]} />
 
           <View style={[s.cardTopStripe, { backgroundColor: catColor }]} />
 
@@ -436,7 +543,6 @@ const makeStyles = (theme) => StyleSheet.create({
     elevation: 20,
   },
   cardBack: {
-    transform: [{ scale: 0.94 }, { translateY: 16 }],
     opacity: 0.4,
   },
   cardTopStripe: {

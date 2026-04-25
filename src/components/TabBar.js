@@ -3,6 +3,7 @@ import {
   View, Text, TouchableOpacity, StyleSheet, Animated, Dimensions,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import { useTheme } from '../ThemeContext';
 import { useFavorites } from '../context/FavoritesContext';
 
@@ -36,6 +37,7 @@ export default function TabBar({ state, navigation }) {
   }, [activeIndex]);
 
   const handlePress = (tab, index) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     Animated.sequence([
       Animated.spring(scaleAnims[index], { toValue: 0.85, useNativeDriver: true, friction: 12, tension: 200 }),
       Animated.spring(scaleAnims[index], { toValue: 1, useNativeDriver: true, friction: 6, tension: 100 }),

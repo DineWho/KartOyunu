@@ -6,6 +6,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import * as Haptics from 'expo-haptics';
 import { categories } from '../data';
 import { useTheme } from '../ThemeContext';
 
@@ -39,6 +40,7 @@ export default function ModScreen() {
 
   const handleStart = () => {
     if (mod.isPremium) return;
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     navigation.navigate('Cards', { mod });
   };
 

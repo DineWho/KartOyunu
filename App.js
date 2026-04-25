@@ -8,6 +8,7 @@ import { ThemeProvider, useTheme } from './src/ThemeContext';
 import { FavoritesProvider } from './src/context/FavoritesContext';
 import { StatsProvider } from './src/context/StatsContext';
 import { BadgesProvider } from './src/context/BadgesContext';
+import { AudioProvider } from './src/context/AudioContext';
 import BadgePopup from './src/components/BadgePopup';
 import SplashScreen from './src/screens/SplashScreen';
 import HomeScreen from './src/screens/HomeScreen';
@@ -71,13 +72,15 @@ export default function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemeProvider>
-        <StatsProvider>
-          <FavoritesProvider>
-            <BadgesProvider>
-              <AppShell />
-            </BadgesProvider>
-          </FavoritesProvider>
-        </StatsProvider>
+        <AudioProvider>
+          <StatsProvider>
+            <FavoritesProvider>
+              <BadgesProvider>
+                <AppShell />
+              </BadgesProvider>
+            </FavoritesProvider>
+          </StatsProvider>
+        </AudioProvider>
       </ThemeProvider>
     </GestureHandlerRootView>
   );
