@@ -1,4 +1,4 @@
-# KartOyunu — Claude Talimatları
+# CardWho — Claude Talimatları
 
 Türkçe sohbet kartı oyunu. React Native / Expo ile yapılmış mobil uygulama (iOS & Android).
 
@@ -11,7 +11,7 @@ Türkçe sohbet kartı oyunu. React Native / Expo ile yapılmış mobil uygulama
 | Navigasyon, ekranlar, stack, dosya yapısı | [ARCHITECTURE.md](ARCHITECTURE.md) |
 | Veri modeli, paket/kategori/mod/seviye, mod tablosu | [DATA_MODEL.md](DATA_MODEL.md) |
 | İçerik kuralları, soru yazımı, Free/Pro dengesi | [CONTENT_GUIDE.md](CONTENT_GUIDE.md) |
-| UI, tema, bileşen kalıpları, renk tokenları | [design-system/kartoyunu/MASTER.md](design-system/kartoyunu/MASTER.md) |
+| UI, tema, bileşen kalıpları, renk tokenları | [design-system/cardwho/MASTER.md](design-system/cardwho/MASTER.md) |
 | Bilinen bug'lar, geçici çözümler, kritik pattern'lar | [KNOWN_ISSUES.md](KNOWN_ISSUES.md) |
 
 ---
@@ -106,7 +106,7 @@ const s = useMemo(() => makeStyles(theme), [theme]);
 ```
 
 Renk token'ları için `theme.colors.*` kullan — hardcode renk yazma.  
-Tam token listesi ve dark/light değerleri → [design-system/kartoyunu/MASTER.md](design-system/kartoyunu/MASTER.md)
+Tam token listesi ve dark/light değerleri → [design-system/cardwho/MASTER.md](design-system/cardwho/MASTER.md)
 
 ---
 
@@ -157,5 +157,5 @@ const { totalCards, totalFavorited, modsPlayed } = getTotalStats();
 ```
 
 **Storage keys:**
-- `@kartoyunu_favorites` — Favoriler
-- `@kartoyunu_stats` — İstatistikler (JSON array)
+- `@cardwho_favorites` — Favoriler
+- `@cardwho_stats` — İstatistikler (JSON array)

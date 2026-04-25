@@ -1,4 +1,4 @@
-# Veri Modeli — KartOyunu
+# Veri Modeli — CardWho
 
 > **Dikkat:** Mevcut kod (`src/data/index.js`) hâlâ **eski modelle** çalışıyor.
 > Hedef model bu dosyada tanımlı — kod henüz güncellenmedi.

@@ -1,4 +1,4 @@
-# Mimari — KartOyunu
+# Mimari — CardWho
 
 ---
 
@@ -134,6 +134,6 @@ const s = useMemo(() => makeStyles(theme), [theme]);
 ```
 
 Her ekranın altında `makeStyles(theme)` factory'si tanımlı. Renkler `theme.colors.*` üzerinden alınır.  
-Renk token tablosu → [design-system/kartoyunu/MASTER.md](design-system/kartoyunu/MASTER.md)
+Renk token tablosu → [design-system/cardwho/MASTER.md](design-system/cardwho/MASTER.md)
 
 HomeScreen sağ üstte ☀/☽ toggle butonu var.

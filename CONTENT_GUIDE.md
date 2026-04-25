@@ -1,4 +1,4 @@
-# İçerik Kılavuzu — KartOyunu
+# İçerik Kılavuzu — CardWho
 
 Soru yazımı, paket tasarımı ve Free/Pro dengesine dair kurallar.
 

@@ -7,7 +7,7 @@
 **Durum (çözüldü):** Uygulama tamamen offline'da çalışıyor:
 - Tüm modlar ve sorular cihazda hardcoded → internet olmasa da oynanabilir
 - Favoriler `AsyncStorage`'da saklanıyor → offline'da persist
-- Oyun istatistikleri `AsyncStorage`'da `@kartoyunu_stats` key'inde saklanıyor
+- Oyun istatistikleri `AsyncStorage`'da `@cardwho_stats` key'inde saklanıyor
 
 **StatsContext (`src/context/StatsContext.js`):**
 ```javascript
@@ -108,12 +108,12 @@ mod.people.replace(/\s*kişi$/i, '')
 
 ```javascript
 // Mount'ta yükle
-AsyncStorage.getItem('@kartoyunu_favorites').then(raw => {
+AsyncStorage.getItem('@cardwho_favorites').then(raw => {
   if (raw) setFavorites(JSON.parse(raw));
 });
 
 // Her değişiklikte kaydet
-AsyncStorage.setItem('@kartoyunu_favorites', JSON.stringify(favorites));
+AsyncStorage.setItem('@cardwho_favorites', JSON.stringify(favorites));
 ```
 
 `loaded` ref'i ile ilk render'daki boş state storage'ın üzerine yazılmaz.
