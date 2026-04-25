@@ -49,12 +49,12 @@ export default function ProfileScreen() {
   }, [confirmVisible]);
 
   const statItems = [
-    { value: stats.totalGames, label: 'Oyun Oynanmış' },
+    { value: stats.totalGames, label: 'Oynanan Oyun' },
     { value: stats.totalFavorited, label: 'Favori' },
-    { value: stats.categoriesPlayed, label: 'Kategori Oynanmış' },
-    { value: stats.modsPlayed, label: 'Mod Oynanmış' },
-    { value: stats.levelsPlayed, label: 'Seviye Oynanmış' },
-    { value: stats.questionsShared, label: 'Soru Paylaşılmış' },
+    { value: stats.categoriesPlayed, label: 'Oynanan Kategori' },
+    { value: stats.modsPlayed, label: 'Oynanan Mod' },
+    { value: stats.levelsPlayed, label: 'Oynanan Seviye' },
+    { value: stats.questionsShared, label: 'Paylaşılan Soru' },
   ];
   const hasStats = stats.totalCards > 0 || stats.questionsShared > 0;
 

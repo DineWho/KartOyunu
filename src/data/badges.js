@@ -39,7 +39,7 @@ export const STATIC_BADGES = [
   { id: 'games_30', group: 'Oyunlar', title: 'Adanmış', desc: '30 oyun tamamladın',    icon: 'zap',      color: '#D97706', check: s => s.totalGames >= 30 },
 
   // Çeşitlilik
-  { id: 'levels_5',      group: 'Çeşitlilik', title: 'Çok Yönlü',  desc: '5 farklı seviyeyi dendin',   icon: 'sliders', color: '#0D9488', check: s => s.levelsPlayed >= 5 },
+  { id: 'levels_5',      group: 'Çeşitlilik', title: 'Çok Yönlü',  desc: '5 farklı seviyeyi denedin',   icon: 'sliders', color: '#0D9488', check: s => s.levelsPlayed >= 5 },
   { id: 'premium_first', group: 'Çeşitlilik', title: 'Pro Oyuncu', desc: 'İlk premium modu oynadın',   icon: 'unlock',  color: '#D4A843', check: s => s.hasPremium        },
 ];
 
