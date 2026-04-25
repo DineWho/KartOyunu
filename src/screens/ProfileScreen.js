@@ -1,22 +1,39 @@
 import React, { useMemo, useState, useRef, useEffect } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView, Modal, Animated,
+  useWindowDimensions,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
 import { useTheme } from '../ThemeContext';
 import { useStats } from '../context/StatsContext';
+import { useBadges } from '../context/BadgesContext';
 import Toast from '../components/Toast';
+
+const GROUP_ORDER = ['İlerleme', 'Favoriler', 'Paylaşım', 'Keşif', 'Oyunlar', 'Çeşitlilik', 'Kategoriler', 'Seviyeler'];
 
 export default function ProfileScreen() {
   const { theme, isDark } = useTheme();
+  const { width } = useWindowDimensions();
   const s = useMemo(() => makeStyles(theme), [theme]);
   const { getTotalStats, clearStats } = useStats();
+  const { earnedIds, allBadges } = useBadges();
   const [confirmVisible, setConfirmVisible] = useState(false);
   const [toastVisible, setToastVisible] = useState(false);
   const scaleAnim = useRef(new Animated.Value(0.88)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const stats = getTotalStats();
+
+  const cellWidth = (width - 40) / 4;
+
+  const badgeGroups = useMemo(() => {
+    const map = {};
+    allBadges.forEach(badge => {
+      if (!map[badge.group]) map[badge.group] = [];
+      map[badge.group].push(badge);
+    });
+    return GROUP_ORDER.filter(g => map[g]).map(g => ({ name: g, badges: map[g] }));
+  }, [allBadges]);
 
   useEffect(() => {
     if (confirmVisible) {
@@ -142,6 +159,50 @@ export default function ProfileScreen() {
               <Text style={s.clearStatsText}>İstatistikleri Sıfırla</Text>
             </TouchableOpacity>
           )}
+        </View>
+
+        {/* Badges */}
+        <View style={s.badgesSection}>
+          <Text style={s.sectionTitle}>ROZETLER</Text>
+          {badgeGroups.map(group => (
+            <View key={group.name} style={s.badgeGroup}>
+              <Text style={s.badgeGroupTitle}>{group.name}</Text>
+              <View style={s.badgeGrid}>
+                {group.badges.map(badge => {
+                  const earned = earnedIds.has(badge.id);
+                  return (
+                    <View key={badge.id} style={[s.badgeCell, { width: cellWidth }]}>
+                      <View
+                        style={[
+                          s.badgeCircle,
+                          earned
+                            ? { backgroundColor: badge.color + '22', borderColor: badge.color + '66' }
+                            : { backgroundColor: theme.colors.surface, borderColor: theme.colors.border },
+                        ]}
+                      >
+                        <Feather
+                          name={badge.icon}
+                          size={20}
+                          color={earned ? badge.color : theme.colors.textMuted}
+                          style={!earned && { opacity: 0.35 }}
+                        />
+                      </View>
+                      <Text
+                        style={[
+                          s.badgeCellLabel,
+                          { color: earned ? theme.colors.text : theme.colors.textMuted },
+                          !earned && { opacity: 0.4 },
+                        ]}
+                        numberOfLines={2}
+                      >
+                        {badge.title}
+                      </Text>
+                    </View>
+                  );
+                })}
+              </View>
+            </View>
+          ))}
         </View>
 
         {/* Auth CTA */}
@@ -449,5 +510,44 @@ const makeStyles = (theme) => StyleSheet.create({
   featureText: {
     fontSize: 14,
     fontWeight: '500',
+  },
+  badgesSection: {
+    marginBottom: 20,
+  },
+  badgeGroup: {
+    marginBottom: 16,
+  },
+  badgeGroupTitle: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: theme.colors.textMuted,
+    letterSpacing: 0.8,
+    marginBottom: 8,
+    marginLeft: 2,
+  },
+  badgeGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  badgeCell: {
+    alignItems: 'center',
+    paddingVertical: 6,
+    paddingHorizontal: 4,
+  },
+  badgeCircle: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    borderWidth: 1.5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 6,
+  },
+  badgeCellLabel: {
+    fontSize: 9,
+    fontWeight: '600',
+    textAlign: 'center',
+    lineHeight: 13,
+    maxWidth: 56,
   },
 });
