@@ -16,6 +16,12 @@ Türkçe sohbet kartı oyunu. React Native / Expo ile yapılmış mobil uygulama
 
 ---
 
+## Hedef Platformlar
+
+Uygulama **hem telefon hem tablet** için eş zamanlı geliştirilmektedir. Her değişiklik varsayılan olarak her iki platform için geçerlidir. Kullanıcı açıkça "yalnızca telefonda" veya "yalnızca tablette" demediği sürece ayrıca sorma — iki taraf için de uygula.
+
+---
+
 ## Mutlak Kurallar
 
 1. **Mevcut export'lar:** `src/data/index.js` → `categories`, `mods`, `cards`. "Deste" kavramı "Mod" olarak rename tamamlandı.
