@@ -66,6 +66,13 @@ export default function CardScreen() {
     };
   }, []);
 
+  useEffect(() => {
+    if (currentIndex > 0) {
+      position.setValue({ x: 0, y: 0 });
+      backCardScale.setValue(0.94);
+    }
+  }, [currentIndex]);
+
   // Entrance animation
   const cardAnim = useRef(new Animated.Value(0)).current;
   useEffect(() => {
@@ -140,10 +147,10 @@ export default function CardScreen() {
       duration: 220,
       useNativeDriver: true,
     }).start(() => {
-      position.setValue({ x: 0, y: 0 });
-      backCardScale.setValue(0.94);
       const next = idx + 1;
       if (next >= totalCards) {
+        position.setValue({ x: 0, y: 0 });
+        backCardScale.setValue(0.94);
         setFinished(true);
         setShowConfetti(true);
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
