@@ -1,4 +1,4 @@
-import React, { useState, useRef, useMemo, useEffect } from 'react';
+import React, { useState, useRef, useMemo, useEffect, useLayoutEffect } from 'react';
 import {
   View, Text, StyleSheet, SafeAreaView, ScrollView,
   Animated, PanResponder, Dimensions, TouchableOpacity,
@@ -66,7 +66,7 @@ export default function CardScreen() {
     };
   }, []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (currentIndex > 0) {
       position.setValue({ x: 0, y: 0 });
       backCardScale.setValue(0.94);
@@ -126,6 +126,7 @@ export default function CardScreen() {
     const toX = direction === 'right' ? width * 1.5 : -width * 1.5;
     const toY = direction === 'right' ? -30 : 20;
     const cardId = `${mod.id}-${idx}`;
+    const next = idx + 1;
 
     if (direction === 'right') {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -139,15 +140,15 @@ export default function CardScreen() {
       addStat(cardId, mod.id, 'skip');
     }
 
-    // Reset back card scale
-    Animated.spring(backCardScale, { toValue: 0.94, friction: 8, useNativeDriver: true }).start();
+    if (next < totalCards) {
+      Animated.spring(backCardScale, { toValue: 1, friction: 8, useNativeDriver: true }).start();
+    }
 
     Animated.timing(position, {
       toValue: { x: toX, y: toY },
       duration: 220,
       useNativeDriver: true,
     }).start(() => {
-      const next = idx + 1;
       if (next >= totalCards) {
         position.setValue({ x: 0, y: 0 });
         backCardScale.setValue(0.94);
@@ -389,13 +390,24 @@ export default function CardScreen() {
       <View style={s.cardArea}>
         {nextCard && (
           <Animated.View
+            pointerEvents="none"
             style={[
               s.card,
               s.cardBack,
-              { backgroundColor: theme.colors.surface, transform: [{ scale: backCardScale }, { translateY: 16 }] },
+              { transform: [{ scale: backCardScale }, { translateY: 16 }] },
             ]}
           >
-            <View style={[s.cardTopStripe, { backgroundColor: catColor, opacity: 0.5 }]} />
+            <LinearGradient
+              colors={['#FFFFFF', '#FAFAFE']}
+              style={StyleSheet.absoluteFill}
+            />
+            <View style={[s.cardTopStripe, { backgroundColor: catColor, opacity: 0.65 }]} />
+            <View style={s.cardInner}>
+              <Text style={[s.cardCategory, { color: catColor }]}>
+                {mod.emoji}  {upperTR(mod.title)}
+              </Text>
+              <Text style={s.cardQuestion}>{nextCard}</Text>
+            </View>
           </Animated.View>
         )}
 
@@ -565,7 +577,7 @@ const makeStyles = (theme) => StyleSheet.create({
     elevation: 20,
   },
   cardBack: {
-    opacity: 0.4,
+    opacity: 0.78,
   },
   cardTopStripe: {
     height: 7,
