@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import { useTheme } from '../ThemeContext';
 import { useAudio } from '../context/AudioContext';
+import { rs, rf } from '../utils/responsive';
 
 function SettingRow({ icon, label, sublabel, right, onPress, theme }) {
   const s = useMemo(() => rowStyles(theme), [theme]);
@@ -35,26 +36,26 @@ const rowStyles = (theme) => StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 13,
-    gap: 12,
+    paddingHorizontal: rs(16),
+    paddingVertical: rs(13),
+    gap: rs(12),
   },
   iconWrap: {
-    width: 38,
-    height: 38,
-    borderRadius: 11,
+    width: rs(38),
+    height: rs(38),
+    borderRadius: rs(11),
     alignItems: 'center',
     justifyContent: 'center',
   },
-  icon: { fontSize: 18 },
+  icon: { fontSize: rf(18) },
   rowContent: { flex: 1 },
   rowLabel: {
-    fontSize: 15,
+    fontSize: rf(15),
     fontWeight: '600',
     color: theme.colors.text,
   },
   rowSublabel: {
-    fontSize: 12,
+    fontSize: rf(12),
     color: theme.colors.textMuted,
     marginTop: 1,
   },
@@ -196,19 +197,19 @@ const makeStyles = (theme) => StyleSheet.create({
     backgroundColor: theme.colors.background,
   },
   header: {
-    paddingHorizontal: 20,
-    paddingTop: 22,
-    paddingBottom: 16,
+    paddingHorizontal: rs(20),
+    paddingTop: rs(22),
+    paddingBottom: rs(16),
   },
   headerTitle: {
-    fontSize: 28,
+    fontSize: rf(28),
     fontWeight: '800',
     color: theme.colors.text,
     letterSpacing: -0.6,
   },
   scroll: {
-    paddingHorizontal: 16,
-    paddingTop: 4,
+    paddingHorizontal: rs(16),
+    paddingTop: rs(4),
   },
   version: {
     textAlign: 'center',

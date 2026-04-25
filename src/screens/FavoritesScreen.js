@@ -12,6 +12,7 @@ import { useStats } from '../context/StatsContext';
 import QuestionShareCard from '../components/QuestionShareCard';
 import { shareQuestionCard } from '../utils/shareQuestionCard';
 import Toast from '../components/Toast';
+import { rs, rf, MODAL_MAX_WIDTH } from '../utils/responsive';
 
 const { width, height } = Dimensions.get('window');
 
@@ -254,11 +255,15 @@ const styles = StyleSheet.create({
   modalSheet: {
     position: 'absolute',
     bottom: 0,
-    left: 0,
-    right: 0,
-    paddingHorizontal: 20,
-    paddingBottom: 48,
-    paddingTop: 16,
+    left: MODAL_MAX_WIDTH
+      ? Math.max(0, (width - MODAL_MAX_WIDTH) / 2)
+      : 0,
+    right: MODAL_MAX_WIDTH
+      ? Math.max(0, (width - MODAL_MAX_WIDTH) / 2)
+      : 0,
+    paddingHorizontal: rs(20),
+    paddingBottom: rs(48),
+    paddingTop: rs(16),
     backgroundColor: 'transparent',
     alignItems: 'stretch',
   },
@@ -538,24 +543,24 @@ const makeStyles = (theme) => StyleSheet.create({
     backgroundColor: theme.colors.background,
   },
   header: {
-    paddingHorizontal: 20,
-    paddingTop: 22,
-    paddingBottom: 16,
+    paddingHorizontal: rs(20),
+    paddingTop: rs(22),
+    paddingBottom: rs(16),
   },
   headerTitle: {
-    fontSize: 28,
+    fontSize: rf(28),
     fontWeight: '800',
     color: theme.colors.text,
     letterSpacing: -0.6,
   },
   headerSub: {
-    fontSize: 13,
+    fontSize: rf(13),
     color: theme.colors.textSecondary,
-    marginTop: 4,
+    marginTop: rs(4),
   },
   scroll: {
-    paddingHorizontal: 16,
-    gap: 16,
+    paddingHorizontal: rs(16),
+    gap: rs(16),
   },
   emptyState: {
     flex: 1,
@@ -642,8 +647,8 @@ const makeStyles = (theme) => StyleSheet.create({
   },
   favQuestion: {
     flex: 1,
-    fontSize: 14,
+    fontSize: rf(14),
     color: theme.colors.text,
-    lineHeight: 21,
+    lineHeight: rf(21),
   },
 });

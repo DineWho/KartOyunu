@@ -7,6 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { mods } from '../data';
 import { useTheme } from '../ThemeContext';
+import { rs, rf } from '../utils/responsive';
 
 export default function CategoryScreen() {
   const navigation = useNavigation();
@@ -99,57 +100,57 @@ const makeStyles = (theme) => StyleSheet.create({
     backgroundColor: theme.colors.background,
   },
   header: {
-    paddingBottom: 32,
-    paddingHorizontal: 20,
+    paddingBottom: rs(32),
+    paddingHorizontal: rs(20),
   },
   backBtn: {
     alignSelf: 'flex-start',
-    marginTop: 14,
-    marginBottom: 18,
+    marginTop: rs(14),
+    marginBottom: rs(18),
     backgroundColor: 'rgba(255,255,255,0.22)',
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 9,
+    borderRadius: rs(20),
+    paddingHorizontal: rs(16),
+    paddingVertical: rs(9),
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.3)',
   },
   backBtnText: {
     color: '#FFFFFF',
-    fontSize: 15,
+    fontSize: rf(15),
     fontWeight: '600',
   },
   headerIcon: {
-    fontSize: 46,
-    marginBottom: 8,
+    fontSize: rf(46),
+    marginBottom: rs(8),
   },
   headerTitle: {
-    fontSize: 32,
+    fontSize: rf(32),
     fontWeight: '800',
     color: '#FFFFFF',
     letterSpacing: -0.6,
-    marginBottom: 8,
+    marginBottom: rs(8),
     textShadowColor: 'rgba(0,0,0,0.2)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 4,
   },
   headerSub: {
-    fontSize: 14,
+    fontSize: rf(14),
     color: 'rgba(255,255,255,0.78)',
     fontWeight: '500',
   },
   deckList: {
-    paddingHorizontal: 16,
-    paddingTop: 20,
-    gap: 10,
+    paddingHorizontal: rs(16),
+    paddingTop: rs(20),
+    gap: rs(10),
   },
   deckItem: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: theme.colors.surface,
-    borderRadius: 18,
-    padding: 14,
-    paddingLeft: 20,
-    gap: 12,
+    borderRadius: rs(18),
+    padding: rs(14),
+    paddingLeft: rs(20),
+    gap: rs(12),
     borderWidth: 1,
     borderColor: theme.colors.border,
     overflow: 'hidden',
@@ -189,7 +190,7 @@ const makeStyles = (theme) => StyleSheet.create({
     marginBottom: 3,
   },
   deckItemTitle: {
-    fontSize: 15,
+    fontSize: rf(15),
     fontWeight: '700',
     color: theme.colors.text,
     letterSpacing: -0.1,
@@ -207,23 +208,23 @@ const makeStyles = (theme) => StyleSheet.create({
     letterSpacing: 0.5,
   },
   deckItemDesc: {
-    fontSize: 12,
+    fontSize: rf(12),
     color: theme.colors.textSecondary,
-    marginBottom: 6,
-    lineHeight: 17,
+    marginBottom: rs(6),
+    lineHeight: rf(17),
   },
   deckItemStats: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
+    gap: rs(5),
   },
   deckItemStat: {
-    fontSize: 11,
+    fontSize: rf(11),
     color: theme.colors.textMuted,
     fontWeight: '500',
   },
   deckItemStatDot: {
-    fontSize: 11,
+    fontSize: rf(11),
     color: theme.colors.textMuted,
   },
   chevron: {

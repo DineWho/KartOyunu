@@ -1,6 +1,10 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Animated } from 'react-native';
+import { View, Text, StyleSheet, Animated, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+
+const { width: screenWidth } = Dimensions.get('window');
+const GLOW_SIZE = screenWidth * 0.75;
+const CARD_SCALE = Math.min(screenWidth / 390, 1.45);
 
 export default function SplashScreen({ onFinish }) {
   const cardsOpacity = useRef(new Animated.Value(0)).current;
@@ -81,9 +85,9 @@ const styles = StyleSheet.create({
   },
   glow: {
     position: 'absolute',
-    width: 300,
-    height: 300,
-    borderRadius: 150,
+    width: GLOW_SIZE,
+    height: GLOW_SIZE,
+    borderRadius: GLOW_SIZE / 2,
     backgroundColor: '#D4A843',
     shadowColor: '#D4A843',
     shadowOffset: { width: 0, height: 0 },
@@ -92,16 +96,16 @@ const styles = StyleSheet.create({
     elevation: 0,
   },
   cardsArea: {
-    width: 150,
-    height: 158,
+    width: Math.round(150 * CARD_SCALE),
+    height: Math.round(158 * CARD_SCALE),
     position: 'relative',
-    marginBottom: 44,
+    marginBottom: Math.round(44 * CARD_SCALE),
   },
   card: {
     position: 'absolute',
-    width: 88,
-    height: 122,
-    borderRadius: 18,
+    width: Math.round(88 * CARD_SCALE),
+    height: Math.round(122 * CARD_SCALE),
+    borderRadius: Math.round(18 * CARD_SCALE),
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 14 },
     shadowOpacity: 0.7,
@@ -110,39 +114,39 @@ const styles = StyleSheet.create({
   },
   cardLeft: {
     left: 0,
-    top: 20,
+    top: Math.round(20 * CARD_SCALE),
     backgroundColor: '#E94560',
     transform: [{ rotate: '-14deg' }],
     opacity: 0.85,
   },
   cardRight: {
     right: 0,
-    top: 20,
+    top: Math.round(20 * CARD_SCALE),
     backgroundColor: '#3498DB',
     transform: [{ rotate: '14deg' }],
     opacity: 0.85,
   },
   cardCenter: {
-    left: 31,
-    top: 4,
+    left: Math.round(31 * CARD_SCALE),
+    top: Math.round(4 * CARD_SCALE),
     backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
   },
   cardCenterMark: {
-    fontSize: 34,
+    fontSize: Math.round(34 * CARD_SCALE),
     color: '#D4A843',
     fontWeight: '700',
   },
   title: {
-    fontSize: 40,
+    fontSize: Math.round(40 * CARD_SCALE),
     fontWeight: '800',
     color: '#F0ECFF',
     letterSpacing: -1.2,
-    marginBottom: 10,
+    marginBottom: Math.round(10 * CARD_SCALE),
   },
   tagline: {
-    fontSize: 14,
+    fontSize: Math.round(14 * CARD_SCALE),
     color: '#9490B8',
     letterSpacing: 0.6,
   },

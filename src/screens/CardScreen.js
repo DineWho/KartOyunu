@@ -16,6 +16,7 @@ import { useAudio } from '../context/AudioContext';
 import QuestionShareCard from '../components/QuestionShareCard';
 import { shareQuestionCard } from '../utils/shareQuestionCard';
 import Confetti from '../components/Confetti';
+import { rs, rf, isTablet, CARD_MAX_WIDTH } from '../utils/responsive';
 
 const { width, height } = Dimensions.get('window');
 const SWIPE_THRESHOLD = 100;
@@ -531,7 +532,7 @@ const makeStyles = (theme) => StyleSheet.create({
   },
   card: {
     position: 'absolute',
-    width: width - 40,
+    width: CARD_MAX_WIDTH ? Math.min(width - 40, CARD_MAX_WIDTH) : width - 40,
     minHeight: height * 0.44,
     backgroundColor: '#FFFFFF',
     borderRadius: 28,
@@ -551,7 +552,7 @@ const makeStyles = (theme) => StyleSheet.create({
   },
   cardInner: {
     flex: 1,
-    padding: 30,
+    padding: rs(30),
     justifyContent: 'center',
   },
   swipeLabel: {
@@ -589,10 +590,10 @@ const makeStyles = (theme) => StyleSheet.create({
     textAlign: 'center',
   },
   cardQuestion: {
-    fontSize: 22,
+    fontSize: rf(22),
     fontWeight: '600',
     color: '#1A1545',
-    lineHeight: 34,
+    lineHeight: rf(34),
     textAlign: 'center',
   },
   hintRow: {
@@ -622,14 +623,14 @@ const makeStyles = (theme) => StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 20,
-    paddingBottom: 36,
-    paddingTop: 14,
+    gap: rs(20),
+    paddingBottom: rs(36),
+    paddingTop: rs(14),
   },
   actionBtn: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    width: rs(64),
+    height: rs(64),
+    borderRadius: rs(32),
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
@@ -702,9 +703,9 @@ const makeStyles = (theme) => StyleSheet.create({
   },
   // Finished screen
   finishedScroll: {
-    paddingHorizontal: 24,
-    paddingTop: 48,
-    paddingBottom: 48,
+    paddingHorizontal: rs(24),
+    paddingTop: rs(48),
+    paddingBottom: rs(48),
   },
   finishedTop: {
     alignItems: 'center',
@@ -724,17 +725,17 @@ const makeStyles = (theme) => StyleSheet.create({
     fontSize: 48,
   },
   finishedTitle: {
-    fontSize: 26,
+    fontSize: rf(26),
     fontWeight: '800',
     color: theme.colors.text,
     letterSpacing: -0.4,
-    marginBottom: 8,
+    marginBottom: rs(8),
   },
   finishedSub: {
-    fontSize: 15,
+    fontSize: rf(15),
     color: theme.colors.textSecondary,
     textAlign: 'center',
-    lineHeight: 22,
+    lineHeight: rf(22),
   },
   favSection: {
     marginBottom: 28,
