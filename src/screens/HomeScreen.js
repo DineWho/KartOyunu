@@ -298,9 +298,9 @@ export default function HomeScreen() {
 
     const didShare = await shareQuestionCard({
       cardRef: dailyQuestionCardRef,
-      message: `Günün Sorusu:\n\n"${dailyQuestion.question}"\n\nKartOyunu`,
-      title: "KartOyunu - Günün Sorusu",
-      filename: "kartoyunu-gunun-sorusu",
+      message: `Günün Sorusu:\n\n"${dailyQuestion.question}"\n\nCardWho`,
+      title: "CardWho - Günün Sorusu",
+      filename: "cardwho-gunun-sorusu",
     });
 
     if (didShare) {
@@ -399,7 +399,7 @@ export default function HomeScreen() {
                 <Text style={[s.titleStar, { color: theme.colors.primary }]}>
                   ✦
                 </Text>
-                <Text style={s.appTitle}>KartOyunu</Text>
+                <Text style={s.appTitle}>CardWho</Text>
               </View>
               <Text style={s.tagline}>Sessizliği bitiren modlar</Text>
             </View>

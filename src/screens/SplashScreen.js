@@ -66,7 +66,7 @@ export default function SplashScreen({ onFinish }) {
         styles.title,
         { opacity: logoOpacity, transform: [{ translateY: logoTranslateY }] },
       ]}>
-        KartOyunu
+        CardWho
       </Animated.Text>
 
       <Animated.Text style={[styles.tagline, { opacity: taglineOpacity }]}>

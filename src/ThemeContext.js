@@ -3,7 +3,7 @@ import { useColorScheme } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { darkTheme, lightTheme } from './theme';
 
-const STORAGE_KEY = '@kartoyunu_theme';
+const STORAGE_KEY = '@cardwho_theme';
 
 const ThemeContext = createContext({ theme: darkTheme, isDark: true, toggleTheme: () => {} });
 

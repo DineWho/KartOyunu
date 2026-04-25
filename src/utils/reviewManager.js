@@ -2,11 +2,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as StoreReview from 'expo-store-review';
 import { Linking, Platform } from 'react-native';
 
-const STORAGE_KEY = '@kartoyunu_review';
+const STORAGE_KEY = '@cardwho_review';
 
-// TODO: Ayarla — bundle ID kararından sonra doldur
+// TODO: Ayarla — App Store'a yüklendikten sonra IOS_APP_ID'yi güncelle
 const IOS_APP_ID = 'XXXXXXXX';
-const ANDROID_PACKAGE = 'com.kartoyunu.app';
+const ANDROID_PACKAGE = 'com.erikmedya.cardwho';
 
 const STORE_URL = Platform.select({
   ios: `https://apps.apple.com/app/id${IOS_APP_ID}?action=write-review`,

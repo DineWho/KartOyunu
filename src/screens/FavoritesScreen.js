@@ -64,9 +64,9 @@ function CardModal({ visible, fav, onClose, onRemove, theme }) {
 
     const didShare = await shareQuestionCard({
       cardRef,
-      message: `"${fav.question}"\n\n— KartOyunu ile oynuyoruz 🎴`,
-      title: 'KartOyunu',
-      filename: 'kartoyunu-favori-soru',
+      message: `"${fav.question}"\n\n— CardWho ile oynuyoruz 🎴`,
+      title: 'CardWho',
+      filename: 'cardwho-favori-soru',
     });
 
     if (didShare) {

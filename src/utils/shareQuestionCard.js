@@ -21,8 +21,8 @@ const isCancelError = (error) => {
 export const shareQuestionCard = async ({
   cardRef,
   message,
-  title = 'KartOyunu',
-  filename = 'kartoyunu-soru',
+  title = 'CardWho',
+  filename = 'cardwho-soru',
 }) => {
   let imageUri = null;
 

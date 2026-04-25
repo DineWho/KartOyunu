@@ -5,7 +5,7 @@ import { useStats } from './StatsContext';
 import { getAllBadges } from '../data/badges';
 
 const BadgesContext = createContext();
-const STORAGE_KEY = '@kartoyunu_badges';
+const STORAGE_KEY = '@cardwho_badges';
 const ALL_BADGES = getAllBadges();
 
 export function BadgesProvider({ children }) {

@@ -264,9 +264,9 @@ export default function CardScreen() {
 
     const didShare = await shareQuestionCard({
       cardRef: shareCardRef,
-      message: `"${question}"\n\n— KartOyunu ile oynuyoruz 🎴`,
-      title: 'KartOyunu',
-      filename: 'kartoyunu-soru',
+      message: `"${question}"\n\n— CardWho ile oynuyoruz 🎴`,
+      title: 'CardWho',
+      filename: 'cardwho-soru',
     });
 
     if (didShare) {

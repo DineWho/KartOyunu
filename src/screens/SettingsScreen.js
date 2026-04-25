@@ -169,7 +169,7 @@ export default function SettingsScreen() {
           <SettingRow
             icon="✉️"
             label="Bize Ulaş"
-            sublabel="destek@kartoyunu.app"
+            sublabel="destek@cardwho.app"
             theme={theme}
             right={<Text style={{ color: theme.colors.textMuted, fontSize: 18 }}>›</Text>}
             onPress={() => {}}
@@ -184,7 +184,7 @@ export default function SettingsScreen() {
           />
         </SettingsGroup>
 
-        <Text style={s.version}>KartOyunu v1.0.0</Text>
+        <Text style={s.version}>CardWho v1.0.0</Text>
 
         <View style={{ height: 120 }} />
       </ScrollView>

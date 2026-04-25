@@ -2,7 +2,7 @@ import React, { createContext, useContext, useRef, useEffect, useState } from 'r
 import { Audio } from 'expo-av';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const STORAGE_KEY = '@kartoyunu_sound_enabled';
+const STORAGE_KEY = '@cardwho_sound_enabled';
 
 const SOUNDS = {
   swipe_right: require('../../assets/sounds/swipe_right.mp3'),

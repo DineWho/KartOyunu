@@ -4,7 +4,7 @@ import { mods } from '../data';
 
 const StatsContext = createContext();
 
-const STORAGE_KEY = '@kartoyunu_stats';
+const STORAGE_KEY = '@cardwho_stats';
 const CARDS_PER_GAME = 12;
 const PLAY_ACTIONS = ['skip', 'favorite'];
 const isPlayAction = (action) => PLAY_ACTIONS.includes(action);

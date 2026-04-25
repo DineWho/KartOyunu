@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const STORAGE_KEY = '@kartoyunu_favorites';
+const STORAGE_KEY = '@cardwho_favorites';
 const FavoritesContext = createContext();
 
 export function FavoritesProvider({ children }) {
