@@ -12,6 +12,7 @@ import { cards, categories } from '../data';
 import { useTheme } from '../ThemeContext';
 import { useFavorites } from '../context/FavoritesContext';
 import { useStats } from '../context/StatsContext';
+import { shouldAutoAsk, markAsked, openReview } from '../utils/reviewManager';
 import { useAudio } from '../context/AudioContext';
 import QuestionShareCard from '../components/QuestionShareCard';
 import { shareQuestionCard } from '../utils/shareQuestionCard';
@@ -31,7 +32,7 @@ export default function CardScreen() {
   const { theme } = useTheme();
   const s = useMemo(() => makeStyles(theme), [theme]);
   const { addFavorite } = useFavorites();
-  const { addStat } = useStats();
+  const { addStat, getTotalStats } = useStats();
   const { playSound } = useAudio();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [sessionFavorites, setSessionFavorites] = useState([]);
@@ -75,6 +76,19 @@ export default function CardScreen() {
       useNativeDriver: true,
     }).start();
   }, []);
+
+  // Review prompt — 2sn sonra, kullanıcı yeterince oynadıysa
+  useEffect(() => {
+    if (!finished) return;
+    const timer = setTimeout(async () => {
+      const { totalGames } = getTotalStats();
+      if (await shouldAutoAsk(totalGames)) {
+        await openReview();
+        await markAsked();
+      }
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [finished]);
 
   const swipeCardRef = useRef(null);
 

@@ -6,6 +6,7 @@ import {
 import { useTheme } from '../ThemeContext';
 import { useAudio } from '../context/AudioContext';
 import { rs, rf } from '../utils/responsive';
+import { openReview } from '../utils/reviewManager';
 
 function SettingRow({ icon, label, sublabel, right, onPress, theme }) {
   const s = useMemo(() => rowStyles(theme), [theme]);
@@ -151,7 +152,7 @@ export default function SettingsScreen() {
             sublabel="App Store'da değerlendir"
             theme={theme}
             right={<Text style={{ color: theme.colors.textMuted, fontSize: 18 }}>›</Text>}
-            onPress={() => {}}
+            onPress={openReview}
           />
           <View style={{ height: 1, backgroundColor: theme.colors.border, marginLeft: 66 }} />
           <SettingRow
