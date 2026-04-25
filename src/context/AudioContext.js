@@ -6,9 +6,9 @@ const STORAGE_KEY = '@kartoyunu_sound_enabled';
 
 const SOUNDS = {
   swipe_right: require('../../assets/sounds/swipe_right.mp3'),
-  swipe_left: require('../../assets/sounds/swipe_left.mp3'),
+  swipe_left: require('../../assets/sounds/swipe_left.wav'),
   badge_earn: require('../../assets/sounds/badge_earn.mp3'),
-  game_end: require('../../assets/sounds/game_end.mp3'),
+  game_end: require('../../assets/sounds/game_end.wav'),
 };
 
 const AudioContext = createContext(null);
