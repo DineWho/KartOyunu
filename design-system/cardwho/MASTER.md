@@ -1,6 +1,6 @@
-# Design System — KartOyunu (React Native)
+# Design System — CardWho (React Native)
 
-> **Kural:** Belirli bir ekran için `design-system/kartoyunu/pages/[ekran-adi].md` varsa, o dosya bu Master'ı override eder.
+> **Kural:** Belirli bir ekran için `design-system/cardwho/pages/[ekran-adi].md` varsa, o dosya bu Master'ı override eder.
 
 **Platform:** React Native / Expo (mobil uygulama — iOS & Android)
 **Stil yaklaşımı:** `StyleSheet.create()` + inline style nesneleri. CSS class, selector veya CSS variable KULLANILMAZ.
