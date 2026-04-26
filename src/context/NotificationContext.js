@@ -279,6 +279,7 @@ export function NotificationProvider({ children }) {
         setNotificationsEnabled: persistEnabled,
         completeOnboarding,
         refreshNotifications: loadNotifications,
+        addNotification,
         removeNotification,
         clearNotifications,
         markAllRead,
