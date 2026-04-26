@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import * as Crypto from 'expo-crypto';
@@ -18,7 +18,7 @@ import {
   signOut as jsSignOut,
 } from 'firebase/auth';
 import { jsAuth } from '../lib/firebase';
-import { deleteUserProfile } from '../lib/firestore';
+import { deleteUserProfile, writeUserProfile } from '../lib/firestore';
 
 const PROFILE_CACHE_PREFIX = '@cardwho_user_profile_';
 
@@ -67,14 +67,33 @@ const snapshotUser = (firebaseUser) =>
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [authReady, setAuthReady] = useState(false);
+  // ID token her saat refresh olur; aynı email/displayName için tekrar
+  // Firestore'a yazmamak için son senkronlanan key'i tutuyoruz.
+  const lastSyncRef = useRef(null);
 
   useEffect(() => {
     const unsubscribe = onIdTokenChanged(jsAuth, async (firebaseUser) => {
       if (firebaseUser) {
         setUser(snapshotUser(firebaseUser));
         setAuthReady(true);
+
+        // Anonim olmayan ve email'i olan kullanıcılar için Firestore'da
+        // email + displayName'i senkronize tut. Fire-and-forget.
+        if (!firebaseUser.isAnonymous && firebaseUser.email) {
+          const key = `${firebaseUser.uid}|${firebaseUser.email}|${firebaseUser.displayName || ''}`;
+          if (lastSyncRef.current !== key) {
+            lastSyncRef.current = key;
+            writeUserProfile(firebaseUser.uid, {
+              email: firebaseUser.email,
+              displayName: firebaseUser.displayName || null,
+            }).catch(() => {});
+          }
+        } else {
+          lastSyncRef.current = null;
+        }
       } else {
         setAuthReady(true);
+        lastSyncRef.current = null;
         try {
           await signInAnonymously(jsAuth);
         } catch {

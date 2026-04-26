@@ -15,7 +15,8 @@ service cloud.firestore {
       function createKeysOk() {
         return request.resource.data.keys().hasOnly([
           'firstName', 'birthDate', 'gender', 'city', 'countryCode',
-          'locale', 'schemaVersion', 'createdAt', 'updatedAt'
+          'locale', 'email', 'displayName',
+          'schemaVersion', 'createdAt', 'updatedAt'
         ]);
       }
 
@@ -23,7 +24,8 @@ service cloud.firestore {
       function updateKeysOk() {
         return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
           'firstName', 'birthDate', 'gender', 'city', 'countryCode',
-          'locale', 'schemaVersion', 'updatedAt'
+          'locale', 'email', 'displayName',
+          'schemaVersion', 'updatedAt'
         ]);
       }
 

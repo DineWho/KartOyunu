@@ -60,7 +60,7 @@ function ThemeSelector({ theme, themeMode, setThemeMode }) {
 export default function SettingsScreen() {
   const { theme, themeMode, setThemeMode } = useTheme();
   const { soundEnabled, toggleSound } = useAudio();
-  const { notificationsEnabled, permissionGranted, toggleNotifications } = useNotifications();
+  const { notificationsEnabled, permissionGranted, toggleNotifications, fcmToken } = useNotifications();
   const s = useMemo(() => makeStyles(theme), [theme]);
 
   const handleNotificationsToggle = async () => {
@@ -161,6 +161,16 @@ export default function SettingsScreen() {
           />
         </SettingsGroup>
 
+        {__DEV__ && fcmToken && (
+          <View style={s.debugBox}>
+            <Text style={s.debugLabel}>FCM TOKEN (test push için)</Text>
+            <Text selectable style={s.debugValue}>{fcmToken}</Text>
+            <Text style={s.debugHint}>
+              Uzun bas → Kopyala → Firebase Console → Cloud Messaging → Send test message
+            </Text>
+          </View>
+        )}
+
         <Text style={s.version}>CardWho v1.0.0</Text>
 
         <View style={{ height: 120 }} />
@@ -194,5 +204,33 @@ const makeStyles = (theme) => StyleSheet.create({
     fontSize: 12,
     color: theme.colors.textMuted,
     marginBottom: 8,
+  },
+  debugBox: {
+    marginTop: rs(20),
+    marginBottom: rs(16),
+    padding: rs(14),
+    borderRadius: rs(12),
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    borderStyle: 'dashed',
+    backgroundColor: theme.colors.surface,
+  },
+  debugLabel: {
+    fontSize: rf(11),
+    fontWeight: '700',
+    color: theme.colors.textMuted,
+    letterSpacing: 0.6,
+    marginBottom: rs(8),
+  },
+  debugValue: {
+    fontSize: rf(11),
+    fontFamily: 'Courier',
+    color: theme.colors.text,
+    marginBottom: rs(8),
+  },
+  debugHint: {
+    fontSize: rf(11),
+    color: theme.colors.textMuted,
+    fontStyle: 'italic',
   },
 });

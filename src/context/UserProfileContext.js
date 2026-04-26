@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from './AuthContext';
 import { subscribeUserProfile, writeUserProfile, PROFILE_FIELDS } from '../lib/firestore';
@@ -51,14 +51,11 @@ export function UserProfileProvider({ children }) {
   const { user, isAnonymous } = useAuth();
   const [profile, setProfile] = useState(EMPTY_PROFILE);
   const [loading, setLoading] = useState(true);
-  // Snapshot doc var mı? createdAt'ı bir kez yazmak için takip ediyoruz.
-  const docExistsRef = useRef(false);
 
   const uid = !isAnonymous && user?.uid ? user.uid : null;
 
   useEffect(() => {
     let cancelled = false;
-    docExistsRef.current = false;
 
     if (!uid) {
       setProfile(EMPTY_PROFILE);
@@ -86,7 +83,6 @@ export function UserProfileProvider({ children }) {
       uid,
       (data) => {
         if (cancelled) return;
-        docExistsRef.current = data != null;
         const next = data ? { ...EMPTY_PROFILE, ...toCacheable(data) } : EMPTY_PROFILE;
         setProfile(next);
         setLoading(false);
@@ -113,16 +109,10 @@ export function UserProfileProvider({ children }) {
       const whitelisted = pickWhitelist(partial);
       // Optimistic update: UI hemen güncel hissetsin.
       setProfile((prev) => ({ ...prev, ...whitelisted }));
-      try {
-        await writeUserProfile(uid, whitelisted, {
-          isFirstWrite: !docExistsRef.current,
-        });
-        docExistsRef.current = true;
-      } catch (err) {
-        // Firestore offline'da local mutation queue'sunu kullanır;
-        // gerçek hatalar (rules ihlali vb.) burada yakalanır — caller bilgilendirilsin.
-        throw err;
-      }
+      // writeUserProfile içinde getDoc + setDoc/merge ile createdAt'ı bir kez
+      // yazıyor. Hata Firestore offline mutation queue dışındaki gerçek
+      // ihlallerde (rules vb.) çağırana fırlar.
+      await writeUserProfile(uid, whitelisted);
     },
     [uid]
   );

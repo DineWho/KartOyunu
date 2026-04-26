@@ -17,6 +17,10 @@ export const PROFILE_FIELDS = [
   'city',
   'countryCode',
   'locale',
+  // Auth tarafından doldurulur (login sonrası senkronize edilir);
+  // AccountInfoScreen bu alanları göstermez/yazmaz.
+  'email',
+  'displayName',
 ];
 
 export function userDocRef(uid) {
@@ -35,16 +39,18 @@ export function subscribeUserProfile(uid, onData, onError) {
   );
 }
 
-export async function writeUserProfile(uid, partial, { isFirstWrite } = {}) {
+export async function writeUserProfile(uid, partial) {
+  const ref = userDocRef(uid);
+  const snap = await getDoc(ref);
   const payload = {
     ...partial,
     schemaVersion: PROFILE_SCHEMA_VERSION,
     updatedAt: serverTimestamp(),
   };
-  if (isFirstWrite) {
+  if (!snap.exists()) {
     payload.createdAt = serverTimestamp();
   }
-  await setDoc(userDocRef(uid), payload, { merge: true });
+  await setDoc(ref, payload, { merge: true });
 }
 
 export async function getUserProfileOnce(uid) {
