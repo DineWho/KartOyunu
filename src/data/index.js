@@ -2942,14 +2942,14 @@ export const cards = {
   matematik_kanit_pesinde: [
     'Bir şeyin doğru görünmesiyle kanıtlanmış olması arasındaki farkı nasıl anlatırsın?',
     'Bir iddiayı çürütmek için tek karşı örnek ne zaman yeterli olur?',
-    'Matematikte “neden” sorusu cevaptan daha önemli olabilir mi?',
+    'Matematikte “neden” sorusu cevaptan daha mı önemli sence — hangi durumda?',
     'Bir kuralı ezberlemek yerine kanıtını anlamak sana ne kazandırır?',
     'Bir sonuca ulaşırken hangi adımı atladığını fark etmek neden zordur?',
     'Bir ispatı güzel yapan şey kısa olması mı, kaçınılmaz hissettirmesi mi?',
     'Bir varsayımı açıkça söylememek hangi tür hatalara yol açar?',
     'Sezgisel olarak doğru gelen ama kanıt isteyen bir fikir örneği ne?',
     'Bir arkadaşına “bunu kabul etme, göster” diyeceğin durum ne olurdu?',
-    'Yanlış bir kanıt seni doğru bir fikre götürebilir mi?',
+    'Yanlış bir kanıt seni doğru bir fikre nasıl götürebilir?',
     'Matematiksel kesinlik günlük hayatta neden her zaman mümkün değildir?',
     'Bir düşünce zincirinde en zayıf halkayı nasıl bulursun?'
   ],
