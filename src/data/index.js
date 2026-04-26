@@ -1008,7 +1008,7 @@ export const mods = [
     level: 'Tartışmalı',
     isPremium: false,
     emoji: '🗳️',
-    expectation: 'Siyasetin temel soruları masaya yatırılıyor. Konuşmak zorundasınız.',
+    expectation: 'Sorular masaya yatıyor. Konuşma zamanı.',
   },
   {
     id: 'siyaset_karsit_gorusler_37',
@@ -1021,7 +1021,7 @@ export const mods = [
     level: 'Cesur',
     isPremium: false,
     emoji: '🤝',
-    expectation: 'Karşı görüşü gerçekten dinlemek — bu mod bunun için.',
+    expectation: 'Karşı görüşü gerçekten dinlemek — bu sorular bunun için.',
   },
   {
     id: 'siyaset_politika_ve_hayat_38',
@@ -1034,7 +1034,7 @@ export const mods = [
     level: 'Düşündüren',
     isPremium: false,
     emoji: '🏛️',
-    expectation: 'Politika hayatın dışında değil, tam içinde. Bu mod bağlantıyı kuruyor.',
+    expectation: 'Politika hayatın dışında değil, tam içinde. Bu sorular bağlantıyı kuruyor.',
   },
   {
     id: 'siyaset_gundem_masasi_24',
@@ -1060,7 +1060,7 @@ export const mods = [
     level: 'İddialı',
     isPremium: true,
     emoji: '💬',
-    expectation: 'Gerçek diyalog nasıl kurulur? Bu mod o soruyu derinlemesine soruyor.',
+    expectation: 'Gerçek diyalog nasıl kurulur? Bu sorular onu derinlemesine soruyor.',
   },
   {
     id: 'siyaset_politika_ve_hayat_26',
@@ -2562,32 +2562,32 @@ export const cards = {
     'En keskin gözlemini tek cümleyle nasıl özetlersin?'
   ],
   siyaset_gundem_masasi_36: [
-    'Siyaseti takip etmek vatandaşlık görevi mi?',
-    'Oy vermek gerçekten fark yaratıyor mu?',
-    'Muhalefet olmadan demokrasi işler mi?',
-    'Siyasetçilere güvenmek mümkün mü?',
+    'Siyaseti takip etmek bir vatandaşlık görevi mi, yoksa bir tercih mi?',
+    'Oy vermek gerçekten ne kadar fark yaratıyor?',
+    'Muhalefet olmadan demokrasi nasıl bir şey olur?',
+    'Siyasetçilere güvenmek mümkün mü — hangi koşullarda?',
     'Gündelik yaşamı en çok etkileyen siyasi karar hangisi sence?',
     'Ekonomi mi önce, özgürlük mü?',
     'Yerel yönetimler mi, merkezi hükümet mi daha etkili?',
-    'Bir siyasi liderin özel yaşamı görüşlerini etkiler mi?',
+    'Bir siyasi liderin özel yaşamı görüşlerini ne kadar etkiler?',
     'Gençler siyasetten uzak mı, yoksa farklı mı katılıyor?',
     'Sosyal medya siyasi algıyı ne kadar şekillendiriyor?',
     'Hangi siyasi vaat sana en boş geliyor?',
     'Bu ülkede en çok değişmesini istediğin siyasi şey nedir?'
   ],
   siyaset_karsit_gorusler_37: [
-    'Siyasi görüşlerinle çelişen biri seni ikna edebilir mi?',
-    'Hiç kendi görüşlerin tamamen farklı düşünen biriyle konuşurken anlaştığın oldu mu?',
+    'Siyasi görüşlerinle çelişen biri seni nasıl ikna edebilir?',
+    'Senden tamamen farklı düşünen biriyle konuşurken anlaştığın o an hangisiydi?',
     'Siyasi tartışmada kazanmak mı önemli, anlamak mı?',
-    'Hiç siyasi görüşlerin değişti mi — ne sağladı bunu?',
+    'Siyasi görüşlerinin değiştiği o an ne oldu — neyi tetikledi bunu?',
     'Siyasi olarak en çok hangisi seni rahatsız eder: yalan mı, gerçek ama kötü politika mı?',
     'Karşı görüşü dinlemek seni güçlendiriyor mu yoksa yoruyor mu?',
-    'Birinin siyasi görüşü seninle arkadaşlığını etkiler mi?',
+    'Birinin siyasi görüşü seninle arkadaşlığını ne kadar etkiler?',
     'Siyasi tartışmalarda en çok neyin farklı olmasını isterdin?',
-    'Karşı tarafın en güçlü argümanını kendi cümlelerinle anlatabilir misin?',
+    'Karşı tarafın en güçlü argümanını kendi cümlelerinle nasıl anlatırdın?',
     'Uzlaşı mı, mücadele mi — siyasette hangisi daha etkili?',
     'Hangi konuda kendi görüşüne en az güveniyorsun?',
-    'Siyasi olarak çok farklı biriyle ortak zemin bulmak mümkün mü?'
+    'Siyasi olarak çok farklı biriyle ortak zemin bulmak nasıl mümkün olabilir?'
   ],
   siyaset_politika_ve_hayat_38: [
     'Politika seni günlük yaşamında ne kadar etkiliyor?',
@@ -2599,15 +2599,15 @@ export const cards = {
     'Siyasi kararlar gelecek nesilleri hangi konuda en çok etkileyecek?',
     'Bireysel özgürlük ile toplumun iyiliği çatışırsa, hangisini önce alırsın?',
     'Siyasetten kaçınmak mümkün mü, yoksa bir yanılsama mı?',
-    'Bu ülkede sıradan bir insanın sesinin duyulabileceğine inanıyor musun?',
-    'Bir devlet kurumuna güvendiğin ya da güvenemediğin bir an oldu mu?',
-    'Siyasi bir konuda konuşmaktan çekindiğin oldu mu — neden?'
+    'Bu ülkede sıradan bir insanın sesi ne kadar duyulabilir sence?',
+    'Bir devlet kurumuna güvendiğin ya da güvenemediğin o an hangisiydi?',
+    'Siyasi bir konuda konuşmaktan çekindiğin o an hangisiydi — neden?'
   ],
   siyaset_gundem_masasi_24: [
     'Seçimler iktidarı değiştirebilir mi, yoksa sistemi mi?',
     'Demokrasinin en büyük açığı nedir sence?',
     'Hangi siyasi fikir çoğunluk tarafından yanlış anlaşılıyor?',
-    'Siyasette dürüstlük ve etkinlik bir arada bulunabilir mi?',
+    'Siyasette dürüstlük ve etkinlik bir arada bulunabilir mi — hangi koşullarda?',
     'Bu ülkenin en büyük siyasi yalanı nedir?',
     'Seçmen kitlesi mi politikacıları şekillendiriyor, politikacılar mı seçmeni?',
     'Bir siyasi lider için en önemli özellik nedir?',
@@ -2619,21 +2619,21 @@ export const cards = {
   ],
   siyaset_karsit_gorusler_25: [
     'Karşı görüşü gerçekten anlamak için ne gerekiyor?',
-    'Karşı tarafın haklı olduğunu kabul etmek en zor olduğu zaman ne hissettirdi?',
+    'Karşı tarafın haklı olduğunu kabul etmenin en zor olduğu o an sana ne hissettirdi?',
     'Siyasi bir konuda kendinle çeliştiğini fark ettiğinde ne yaparsın?',
     'Siyasi polarizasyonu çözecek bir şey olsa, ne olurdu?',
     'İnsanların siyasi görüşleri bilinçsizce mi oluşuyor, yoksa gerçekten düşünerek mi?',
     'Hangi siyasi tartışma tamamen yanlış bir eksende yürütülüyor sence?',
-    'Kendi görüşünü savunurken gerçeği çarptırdığını fark edip devam ettiğin oldu mu?',
+    'Kendi görüşünü savunurken gerçeği çarptırdığını fark edip devam ettiğin o an hangisiydi?',
     'Siyasi tartışma bir çözüm mü üretiyor, yoksa tarafları mı sertleştiriyor?',
     'Hangi konuda toplum iki kutup yerine üçüncü bir yolu keşfetmeli?',
     'Gerçek diyalog ile iktidar mücadelesi arasındaki fark ne?',
-    'Karşı tarafın argümanında ‘bu haklı’ dediğin en son ne oldu?',
-    'Siyasi olarak en çok korktuğun senaryoyu paylaşabiliyor musun?'
+    'Karşı tarafın argümanında “bu haklı” dediğin en son ne oldu?',
+    'Siyasi olarak en çok korktuğun senaryo ne?'
   ],
   siyaset_politika_ve_hayat_26: [
     'Devlet seninle ne zaman gerçekten karşı karşıya geldi?',
-    'Hangi politika kararı sana ‘bu ülkede yaşamanın ne anlama geldiğini’ gösterdi?',
+    'Hangi politika kararı sana “bu ülkede yaşamanın ne anlama geldiğini” gösterdi?',
     'Siyaset sana göre bir umut mu, yoksa bir tehdit mi?',
     'İktidar sahipleri senin hayatını ne kadar biliyor sence?',
     'Bu toplumda kimin sesi gerçekten duyuluyor?',
@@ -2641,8 +2641,8 @@ export const cards = {
     'Yarın bu ülke değişseydi, ne değişmesini isterdin, ne kalmasını?',
     'Hangi siyasi söylem sana sürekli yalan gibi geliyor?',
     'Siyasi motivasyonla yapılan bir iyiliğe güvenilir mi?',
-    'Bu toplumda ‘vatandaş olmak’ ne anlama geliyor sence?',
-    'Hangi konu için ‘bu değişmez’ diyorsun ama değişmesini istiyorsun?',
+    'Bu toplumda “vatandaş olmak” ne anlama geliyor sence?',
+    'Hangi konu için “bu değişmez” diyorsun ama değişmesini istiyorsun?',
     'Gelecek hakkında umutlu musun yoksa korkuyor musun — siyasi açıdan?'
   ],
   kaos_kararsizlik_plus_39: [
