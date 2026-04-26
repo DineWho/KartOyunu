@@ -229,7 +229,10 @@ function friendlyError(code) {
     case 'auth/credential-already-in-use':
       return 'Bu hesap başka bir kullanıcıya bağlı.';
     default:
-      return 'Bir hata oluştu. Tekrar deneyin.';
+      // Bilinmeyen hatalarda code'u UI'a yansıt; debug ve teşhis kolaylaşsın.
+      return code
+        ? `Bir hata oluştu (${code}). Tekrar deneyin.`
+        : 'Bir hata oluştu. Tekrar deneyin.';
   }
 }
 

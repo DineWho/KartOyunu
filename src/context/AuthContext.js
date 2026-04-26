@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import * as Crypto from 'expo-crypto';
 import * as WebBrowser from 'expo-web-browser';
@@ -17,6 +18,21 @@ import {
   signOut as jsSignOut,
 } from 'firebase/auth';
 import { jsAuth } from '../lib/firebase';
+import { deleteUserProfile } from '../lib/firestore';
+
+const PROFILE_CACHE_PREFIX = '@cardwho_user_profile_';
+
+// signOut/deleteAccount sonrası başka bir kullanıcı login olduğunda eski
+// profilin bir frame için görünmesini engellemek için tüm cache key'leri sil.
+async function clearAllProfileCaches() {
+  try {
+    const keys = await AsyncStorage.getAllKeys();
+    const profileKeys = keys.filter((k) => k.startsWith(PROFILE_CACHE_PREFIX));
+    if (profileKeys.length) await AsyncStorage.multiRemove(profileKeys);
+  } catch {
+    // Sessizce geç — signOut akışı asla bunun yüzünden bloke olmasın.
+  }
+}
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -131,7 +147,10 @@ export function AuthProvider({ children }) {
     return result;
   };
 
-  const signOut = () => jsSignOut(jsAuth);
+  const signOut = async () => {
+    await clearAllProfileCaches();
+    await jsSignOut(jsAuth);
+  };
 
   const sendPasswordReset = (email) => sendPasswordResetEmail(jsAuth, email);
 
@@ -140,6 +159,19 @@ export function AuthProvider({ children }) {
   const deleteAccount = async () => {
     const current = jsAuth.currentUser;
     if (!current) throw new Error('No current user');
+    const uid = current.uid;
+    const wasAnonymous = current.isAnonymous;
+    // Önce Firestore doc'u sil; auth user silinince request.auth.uid null
+    // olacak ve security rules yazımı reddedecek. Anonim user'ın doc'u
+    // zaten yok (rules engelliyor), o yüzden anonim için atla.
+    if (!wasAnonymous) {
+      try {
+        await deleteUserProfile(uid);
+      } catch {
+        // Doc yoksa veya offline'sa sessizce geç; auth silme işlemi devam etsin.
+      }
+    }
+    await clearAllProfileCaches();
     await deleteUser(current);
   };
 

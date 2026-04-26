@@ -1,4 +1,5 @@
 import {
+  deleteDoc,
   doc,
   getDoc,
   onSnapshot,
@@ -49,4 +50,8 @@ export async function writeUserProfile(uid, partial, { isFirstWrite } = {}) {
 export async function getUserProfileOnce(uid) {
   const snap = await getDoc(userDocRef(uid));
   return snap.exists() ? snap.data() : null;
+}
+
+export async function deleteUserProfile(uid) {
+  await deleteDoc(userDocRef(uid));
 }
