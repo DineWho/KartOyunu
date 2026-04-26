@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from './AuthContext';
+import { subscribeUserProfile, writeUserProfile, PROFILE_FIELDS } from '../lib/firestore';
 
 const STORAGE_PREFIX = '@cardwho_user_profile_';
 
@@ -25,15 +26,40 @@ const UserProfileContext = createContext({
 
 const storageKey = (uid) => `${STORAGE_PREFIX}${uid}`;
 
+// Sadece beyaz listedeki alanları client'tan Firestore'a yaz; security rules
+// de aynı listeyi enforce ediyor.
+function pickWhitelist(partial) {
+  const out = {};
+  for (const k of PROFILE_FIELDS) {
+    if (k in partial) out[k] = partial[k];
+  }
+  return out;
+}
+
+// AsyncStorage cache'ine yazılan plain JSON; Firestore Timestamp'leri
+// epoch millis'e indirgenir (cache yalnızca offline-first hızlı render için).
+function toCacheable(data) {
+  if (!data) return null;
+  const out = {};
+  for (const k of PROFILE_FIELDS) {
+    out[k] = data[k] ?? null;
+  }
+  return out;
+}
+
 export function UserProfileProvider({ children }) {
   const { user, isAnonymous } = useAuth();
   const [profile, setProfile] = useState(EMPTY_PROFILE);
   const [loading, setLoading] = useState(true);
+  // Snapshot doc var mı? createdAt'ı bir kez yazmak için takip ediyoruz.
+  const docExistsRef = useRef(false);
 
   const uid = !isAnonymous && user?.uid ? user.uid : null;
 
   useEffect(() => {
     let cancelled = false;
+    docExistsRef.current = false;
+
     if (!uid) {
       setProfile(EMPTY_PROFILE);
       setLoading(false);
@@ -41,46 +67,64 @@ export function UserProfileProvider({ children }) {
         cancelled = true;
       };
     }
+
     setLoading(true);
-    AsyncStorage.getItem(storageKey(uid))
-      .then((raw) => {
+
+    // 1) Cache'ten hızlı render — offline-first.
+    AsyncStorage.getItem(storageKey(uid)).then((raw) => {
+      if (cancelled || !raw) return;
+      try {
+        const parsed = JSON.parse(raw);
+        setProfile({ ...EMPTY_PROFILE, ...parsed });
+      } catch {
+        // bozuk cache — yoksay
+      }
+    });
+
+    // 2) Firestore listener — source of truth.
+    const unsubscribe = subscribeUserProfile(
+      uid,
+      (data) => {
         if (cancelled) return;
-        if (raw) {
-          try {
-            const parsed = JSON.parse(raw);
-            setProfile({ ...EMPTY_PROFILE, ...parsed });
-          } catch {
-            setProfile(EMPTY_PROFILE);
-          }
-        } else {
-          setProfile(EMPTY_PROFILE);
-        }
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
+        docExistsRef.current = data != null;
+        const next = data ? { ...EMPTY_PROFILE, ...toCacheable(data) } : EMPTY_PROFILE;
+        setProfile(next);
+        setLoading(false);
+        AsyncStorage.setItem(storageKey(uid), JSON.stringify(next)).catch(() => {});
+      },
+      () => {
+        if (cancelled) return;
+        // Hata durumunda cache'le devam et, loading'i bitir.
+        setLoading(false);
+      }
+    );
+
     return () => {
       cancelled = true;
+      try {
+        unsubscribe();
+      } catch {}
     };
   }, [uid]);
 
   const updateProfile = useCallback(
     async (partial) => {
       if (!uid) return;
-      const next = {
-        ...EMPTY_PROFILE,
-        ...profile,
-        ...partial,
-        updatedAt: Date.now(),
-      };
-      setProfile(next);
+      const whitelisted = pickWhitelist(partial);
+      // Optimistic update: UI hemen güncel hissetsin.
+      setProfile((prev) => ({ ...prev, ...whitelisted }));
       try {
-        await AsyncStorage.setItem(storageKey(uid), JSON.stringify(next));
-      } catch {
-        // Sessizce geç — UI optimistic update zaten yapıldı
+        await writeUserProfile(uid, whitelisted, {
+          isFirstWrite: !docExistsRef.current,
+        });
+        docExistsRef.current = true;
+      } catch (err) {
+        // Firestore offline'da local mutation queue'sunu kullanır;
+        // gerçek hatalar (rules ihlali vb.) burada yakalanır — caller bilgilendirilsin.
+        throw err;
       }
     },
-    [uid, profile]
+    [uid]
   );
 
   const clearProfile = useCallback(async () => {

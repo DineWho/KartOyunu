@@ -2,6 +2,10 @@ const { withDangerousMod } = require('@expo/config-plugins');
 const fs = require('fs');
 const path = require('path');
 
+// Bu plugin Podfile post_install hook'unu Firebase + static frameworks
+// uyumluluğu için tweak'ler. RNFB target'larında (Auth, Messaging, Analytics,
+// Remote Config) Clang modüllerini kapatır, tüm pod'lar için non-modular
+// include'lara izin verir.
 const POST_INSTALL_BLOCK = `  post_install do |installer|
     installer.pods_project.targets.each do |target|
       target.build_configurations.each do |config|

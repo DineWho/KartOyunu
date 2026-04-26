@@ -1,9 +1,22 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { Platform } from 'react-native';
-import auth from '@react-native-firebase/auth';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import * as Crypto from 'expo-crypto';
 import * as WebBrowser from 'expo-web-browser';
+import {
+  createUserWithEmailAndPassword,
+  deleteUser,
+  EmailAuthProvider,
+  GoogleAuthProvider,
+  linkWithCredential,
+  OAuthProvider,
+  onIdTokenChanged,
+  sendPasswordResetEmail,
+  signInAnonymously,
+  signInWithCredential,
+  signInWithEmailAndPassword,
+  signOut as jsSignOut,
+} from 'firebase/auth';
+import { jsAuth } from '../lib/firebase';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -16,43 +29,38 @@ export const GOOGLE_WEB_CLIENT_ID =
 
 const AuthContext = createContext(null);
 
+// Firebase Auth user'ını React state'e koymak için sade bir snapshot.
+// linkWithCredential gibi mutasyonlardan sonra yeniden oluşturmak referans
+// karşılaştırmalarını çalıştırıyor.
+const snapshotUser = (firebaseUser) =>
+  firebaseUser
+    ? {
+        uid: firebaseUser.uid,
+        email: firebaseUser.email,
+        displayName: firebaseUser.displayName,
+        photoURL: firebaseUser.photoURL,
+        isAnonymous: firebaseUser.isAnonymous,
+        providerData: firebaseUser.providerData,
+        metadata: {
+          creationTime: firebaseUser.metadata?.creationTime,
+          lastSignInTime: firebaseUser.metadata?.lastSignInTime,
+        },
+      }
+    : null;
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  // authReady: Firebase bağlantısı kuruldu mu (true olunca uygulama açılır)
   const [authReady, setAuthReady] = useState(false);
 
-  // Firebase user objesi linkWithCredential sonrası referansı korur,
-  // bu yüzden React'i yeniden render ettirmek için yeni bir snapshot üretiyoruz.
-  const snapshotUser = (firebaseUser) =>
-    firebaseUser
-      ? {
-          uid: firebaseUser.uid,
-          email: firebaseUser.email,
-          displayName: firebaseUser.displayName,
-          photoURL: firebaseUser.photoURL,
-          isAnonymous: firebaseUser.isAnonymous,
-          providerData: firebaseUser.providerData,
-          metadata: {
-            creationTime: firebaseUser.metadata?.creationTime,
-            lastSignInTime: firebaseUser.metadata?.lastSignInTime,
-          },
-          linkWithCredential: firebaseUser.linkWithCredential?.bind(firebaseUser),
-          reload: firebaseUser.reload?.bind(firebaseUser),
-        }
-      : null;
-
   useEffect(() => {
-    // onIdTokenChanged hem sign-in/sign-out hem de linkWithCredential gibi
-    // credential değişikliklerinde tetiklenir. onAuthStateChanged tek başına
-    // linkleme sonrası fire etmez → React state stale kalırdı.
-    const unsubscribe = auth().onIdTokenChanged(async (firebaseUser) => {
+    const unsubscribe = onIdTokenChanged(jsAuth, async (firebaseUser) => {
       if (firebaseUser) {
         setUser(snapshotUser(firebaseUser));
         setAuthReady(true);
       } else {
         setAuthReady(true);
         try {
-          await auth().signInAnonymously();
+          await signInAnonymously(jsAuth);
         } catch {
           // Offline ise sorun değil, uygulama çalışmaya devam eder
         }
@@ -62,33 +70,31 @@ export function AuthProvider({ children }) {
   }, []);
 
   const refreshUser = () => {
-    const current = auth().currentUser;
-    if (current) setUser(snapshotUser(current));
+    if (jsAuth.currentUser) setUser(snapshotUser(jsAuth.currentUser));
   };
 
   const signInWithEmail = async (email, password) => {
-    const result = await auth().signInWithEmailAndPassword(email, password);
+    const result = await signInWithEmailAndPassword(jsAuth, email, password);
     refreshUser();
     return result;
   };
 
   const registerWithEmail = async (email, password) => {
-    const credential = auth.EmailAuthProvider.credential(email, password);
-    const current = auth().currentUser;
+    const credential = EmailAuthProvider.credential(email, password);
+    const current = jsAuth.currentUser;
     const result = current?.isAnonymous
-      ? await current.linkWithCredential(credential)
-      : await auth().createUserWithEmailAndPassword(email, password);
+      ? await linkWithCredential(current, credential)
+      : await createUserWithEmailAndPassword(jsAuth, email, password);
     refreshUser();
     return result;
   };
 
-  // LoginScreen'den expo-auth-session ile alınan Google id_token buraya gelir
   const signInWithGoogleIdToken = async (idToken) => {
-    const credential = auth.GoogleAuthProvider.credential(idToken);
-    const current = auth().currentUser;
+    const credential = GoogleAuthProvider.credential(idToken);
+    const current = jsAuth.currentUser;
     const result = current?.isAnonymous
-      ? await current.linkWithCredential(credential)
-      : await auth().signInWithCredential(credential);
+      ? await linkWithCredential(current, credential)
+      : await signInWithCredential(jsAuth, credential);
     refreshUser();
     return result;
   };
@@ -111,27 +117,30 @@ export function AuthProvider({ children }) {
     const { identityToken } = appleResult;
     if (!identityToken) throw new Error('Apple sign-in: no identity token');
 
-    const appleProvider = auth.AppleAuthProvider;
-    const credential = appleProvider.credential(identityToken, rawNonce);
+    const provider = new OAuthProvider('apple.com');
+    const credential = provider.credential({
+      idToken: identityToken,
+      rawNonce,
+    });
 
-    const current = auth().currentUser;
+    const current = jsAuth.currentUser;
     const result = current?.isAnonymous
-      ? await current.linkWithCredential(credential)
-      : await auth().signInWithCredential(credential);
+      ? await linkWithCredential(current, credential)
+      : await signInWithCredential(jsAuth, credential);
     refreshUser();
     return result;
   };
 
-  const signOut = () => auth().signOut();
+  const signOut = () => jsSignOut(jsAuth);
 
-  const sendPasswordReset = (email) => auth().sendPasswordResetEmail(email);
+  const sendPasswordReset = (email) => sendPasswordResetEmail(jsAuth, email);
 
   // 'auth/requires-recent-login' fırlatabilir → çağıran tarafı yakalayıp
   // kullanıcıyı yeniden giriş yapmaya yönlendirir.
   const deleteAccount = async () => {
-    const current = auth().currentUser;
+    const current = jsAuth.currentUser;
     if (!current) throw new Error('No current user');
-    await current.delete();
+    await deleteUser(current);
   };
 
   return (
@@ -150,7 +159,6 @@ export function AuthProvider({ children }) {
         GOOGLE_WEB_CLIENT_ID,
       }}
     >
-      {/* authReady olmasa da children render et — uygulama bloke olmaz */}
       {children}
     </AuthContext.Provider>
   );

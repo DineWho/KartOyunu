@@ -1,0 +1,41 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /users/{userId} {
+      // Sadece kendi UID'sine eşleşen, anonim olmayan kullanıcı erişebilir.
+      function isOwner() {
+        return request.auth != null
+          && request.auth.uid == userId
+          && request.auth.token.firebase.sign_in_provider != 'anonymous';
+      }
+
+      // İzin verilen alanlar (create); createdAt yalnızca ilk write'ta yazılır.
+      function createKeysOk() {
+        return request.resource.data.keys().hasOnly([
+          'firstName', 'birthDate', 'gender', 'city', 'countryCode',
+          'locale', 'schemaVersion', 'createdAt', 'updatedAt'
+        ]);
+      }
+
+      // İzin verilen alanlar (update); createdAt değiştirilemez.
+      function updateKeysOk() {
+        return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'firstName', 'birthDate', 'gender', 'city', 'countryCode',
+          'locale', 'schemaVersion', 'updatedAt'
+        ]);
+      }
+
+      allow read:   if isOwner();
+      allow create: if isOwner() && createKeysOk();
+      allow update: if isOwner() && updateKeysOk();
+      allow delete: if isOwner();
+    }
+
+    // Diğer tüm path'ler kapalı.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
