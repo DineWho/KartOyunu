@@ -3,6 +3,9 @@ import { Platform, PermissionsAndroid, AppState } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import messaging from '@react-native-firebase/messaging';
 import { safeNavigate } from '../lib/navigationRef';
+// getInitialNotification (cold-open push) burada DEĞİL App.js'te tüketiliyor:
+// NavigationContainer'ın initialState'i Bildirimler ekranıyla başlasın diye
+// Splash sırasında await edip ona göre route stack kuruluyor.
 
 const TOKEN_KEY = '@cardwho_fcm_token';
 const ENABLED_KEY = '@cardwho_notifications_enabled';
@@ -241,17 +244,9 @@ export function NotificationProvider({ children }) {
       safeNavigate('Notifications');
     });
 
-    messaging()
-      .getInitialNotification()
-      .then((remoteMessage) => {
-        if (remoteMessage) {
-          addNotification(remoteMessage, 'cold-open');
-          // Cold-open: app push'tan açıldı, NavigationContainer ready olana
-          // kadar safeNavigate retry yapacak.
-          safeNavigate('Notifications');
-        }
-      })
-      .catch(() => {});
+    // Cold-open (getInitialNotification) App.js'te ele alınıyor — buraya
+    // koyulursa NavigationContainer mount sonrası Home → Bildirimler
+    // geçişi görsel olarak titrer.
 
     // Arka planda gelen mesajlar index.js'teki setBackgroundMessageHandler ile
     // doğrudan AsyncStorage'a yazılır. Uygulama foreground'a geçtiğinde state

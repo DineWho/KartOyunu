@@ -1,6 +1,7 @@
 import * as Sentry from '@sentry/react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StatusBar } from 'react-native';
+import messaging from '@react-native-firebase/messaging';
 import { NavigationContainer } from '@react-navigation/native';
 import { navigationRef, flushPendingNavigation } from './src/lib/navigationRef';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -55,10 +56,34 @@ function MainTabs() {
 function AppShell() {
   const [splashDone, setSplashDone] = useState(false);
   const [onboardingDismissed, setOnboardingDismissed] = useState(false);
+  // Cold-open: NavigationContainer mount edilmeden önce push'tan açılıp
+  // açılmadığımıza karar vereceğiz; karar verilene kadar Splash sürer.
+  const [initialPushChecked, setInitialPushChecked] = useState(false);
+  const [initialPushTarget, setInitialPushTarget] = useState(null);
   const { theme, isDark } = useTheme();
-  const { onboardingStatus } = useNotifications();
+  const { onboardingStatus, addNotification } = useNotifications();
 
-  if (!splashDone) {
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const remoteMessage = await messaging().getInitialNotification();
+        if (!cancelled && remoteMessage) {
+          await addNotification(remoteMessage, 'cold-open');
+          setInitialPushTarget('Notifications');
+        }
+      } catch {
+        // Sessizce geç — initial state default kalır.
+      } finally {
+        if (!cancelled) setInitialPushChecked(true);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [addNotification]);
+
+  if (!splashDone || !initialPushChecked) {
     return <SplashScreen onFinish={() => setSplashDone(true)} />;
   }
 
@@ -66,13 +91,22 @@ function AppShell() {
     return <NotificationOnboardingScreen onFinish={() => setOnboardingDismissed(true)} />;
   }
 
+  // Cold-open push varsa stack: [MainTabs, Notifications] — geri tuşu Home'a düşürür.
+  const initialState = initialPushTarget === 'Notifications'
+    ? { routes: [{ name: 'MainTabs' }, { name: 'Notifications' }] }
+    : undefined;
+
   return (
     <>
       <StatusBar
         barStyle={isDark ? 'light-content' : 'dark-content'}
         backgroundColor={theme.colors.background}
       />
-      <NavigationContainer ref={navigationRef} onReady={flushPendingNavigation}>
+      <NavigationContainer
+        ref={navigationRef}
+        onReady={flushPendingNavigation}
+        initialState={initialState}
+      >
         <RootStack.Navigator screenOptions={{ headerShown: false }}>
           <RootStack.Screen name="MainTabs" component={MainTabs} />
           <RootStack.Screen name="Category" component={CategoryScreen} />
