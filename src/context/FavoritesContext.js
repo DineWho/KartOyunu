@@ -24,9 +24,15 @@ export function FavoritesProvider({ children }) {
     AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(favorites)).catch(() => {});
   }, [favorites]);
 
+  // Stable identity for a card across language switches and serialization.
+  // TR is always present (canonical) — multilingual cards: { tr, en, ... }.
+  // Backward compatible with legacy string-only favorites stored before i18n migration.
+  const cardKey = (q) => (typeof q === 'string' ? q : (q?.tr || ''));
+
   const addFavorite = (question, mod, catColor) => {
+    const key = cardKey(question);
     setFavorites(prev => {
-      if (prev.some(f => f.question === question && f.modId === mod.id)) return prev;
+      if (prev.some(f => cardKey(f.question) === key && f.modId === mod.id)) return prev;
       return [...prev, {
         question,
         modId: mod.id,
@@ -39,11 +45,14 @@ export function FavoritesProvider({ children }) {
   };
 
   const removeFavorite = (question, modId) => {
-    setFavorites(prev => prev.filter(f => !(f.question === question && f.modId === modId)));
+    const key = cardKey(question);
+    setFavorites(prev => prev.filter(f => !(cardKey(f.question) === key && f.modId === modId)));
   };
 
-  const isFavorite = (question, modId) =>
-    favorites.some(f => f.question === question && f.modId === modId);
+  const isFavorite = (question, modId) => {
+    const key = cardKey(question);
+    return favorites.some(f => cardKey(f.question) === key && f.modId === modId);
+  };
 
   const clearFavorites = () => setFavorites([]);
 

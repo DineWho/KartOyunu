@@ -92,15 +92,19 @@ function slugify(str) {
 // Yeni kategori eklendiğinde categories[] array'ine girdiği an rozet otomatik doğar.
 // CATEGORY_TITLES'a başlık eklemeyi unutma; yoksa "X Uzmanı" fallback kullanılır.
 export function buildCategoryBadges() {
-  return categories.map(cat => ({
-    id: `cat_${cat.id}`,
-    group: 'Kategoriler',
-    title: CATEGORY_TITLES[cat.id] || `${cat.name} Uzmanı`,
-    desc: `${cat.name} kategorisinden ilk modunu oynadın`,
-    icon: 'map-pin',
-    color: cat.color,
-    check: s => s.playedCategoryIds.has(cat.id),
-  }));
+  return categories.map(cat => {
+    // Badges are TR-locked for now (Phase 4 doesn't translate badge metadata).
+    const trName = cat.name?.tr || cat.name;
+    return {
+      id: `cat_${cat.id}`,
+      group: 'Kategoriler',
+      title: CATEGORY_TITLES[cat.id] || `${trName} Uzmanı`,
+      desc: `${trName} kategorisinden ilk modunu oynadın`,
+      icon: 'map-pin',
+      color: cat.color,
+      check: s => s.playedCategoryIds.has(cat.id),
+    };
+  });
 }
 
 export function buildLevelBadges() {

@@ -83,7 +83,7 @@ export function StatsProvider({ children }) {
       totalFavorited: stats.filter((s) => s.action === 'favorite').length,
       categoriesPlayed: new Set(playedMods.map((mod) => mod.categoryId)).size,
       modsPlayed: playedModIds.size,
-      levelsPlayed: new Set(playedMods.map((mod) => mod.level).filter(Boolean)).size,
+      levelsPlayed: new Set(playedMods.map((mod) => mod.level?.tr || mod.level).filter(Boolean)).size,
       questionsShared: stats.filter((s) => s.action === 'share').length,
     };
   };

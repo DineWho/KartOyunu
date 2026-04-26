@@ -8,7 +8,7 @@ import { Feather } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import * as Haptics from 'expo-haptics';
 import { useTranslation } from 'react-i18next';
-import { categories } from '../data';
+import { categories, useLocalize } from '../data';
 import { useTheme } from '../ThemeContext';
 import { useUpperT } from '../i18n/upper';
 import { rs, rf } from '../utils/responsive';
@@ -20,6 +20,7 @@ export default function ModScreen() {
   const { theme } = useTheme();
   const { t } = useTranslation();
   const tu = useUpperT();
+  const localize = useLocalize();
   const s = useMemo(() => makeStyles(theme), [theme]);
   const category = categories.find(c => c.id === mod.categoryId);
   const catColor = category?.color || theme.colors.primary;
@@ -49,13 +50,16 @@ export default function ModScreen() {
     navigation.navigate('Cards', { mod });
   };
 
-  const peopleVal = mod.people.replace(/\s*kişi$/i, '');
+  // Strip trailing unit (e.g. " kişi", " people", " Personen", " человек") so the stat box
+  // shows just the numeric range with the localized "PEOPLE" label below.
+  const peopleVal = String(localize(mod.people)).replace(/\s+\D+$/u, '').trim();
+  const durationVal = String(localize(mod.duration)).replace(/\s+\D+$/u, '').trim();
 
   const stats = [
     { value: String(mod.cardCount), label: tu('mod.section.card') },
-    { value: mod.duration, label: tu('mod.section.duration') },
+    { value: durationVal, label: tu('mod.section.duration') },
     { value: peopleVal, label: tu('mod.section.people') },
-    { value: mod.level, label: tu('mod.section.level') },
+    { value: localize(mod.level), label: tu('mod.section.level') },
   ];
 
   return (
@@ -67,13 +71,13 @@ export default function ModScreen() {
           <Text style={s.backBtnText}>{t('mod.back')}</Text>
         </TouchableOpacity>
         <Text style={s.headerEmoji}>{mod.emoji}</Text>
-        <Text style={s.headerTitle}>{mod.title}</Text>
+        <Text style={s.headerTitle}>{localize(mod.title)}</Text>
         <TouchableOpacity
           style={s.categoryPill}
           onPress={() => navigation.navigate('Category', { category })}
           activeOpacity={0.8}
         >
-          <Text style={s.categoryPillText}>{category?.icon}  {category?.name}</Text>
+          <Text style={s.categoryPillText}>{category?.icon}  {localize(category?.name)}</Text>
         </TouchableOpacity>
       </Animated.View>
 
@@ -96,15 +100,15 @@ export default function ModScreen() {
 
           <View style={s.section}>
             <Text style={s.sectionLabel}>{tu('mod.section.about')}</Text>
-            <Text style={s.description}>{mod.description}</Text>
+            <Text style={s.description}>{localize(mod.description)}</Text>
           </View>
 
-          {!!mod.expectation && (
+          {!!localize(mod.expectation) && (
             <View style={s.section}>
               <Text style={s.sectionLabel}>{tu('mod.section.expectation')}</Text>
               <View style={[s.quoteCard, { borderLeftColor: catColor }]}>
                 <Text style={[s.quoteChar, { color: catColor }]}>"</Text>
-                <Text style={s.quoteText}>{mod.expectation}</Text>
+                <Text style={s.quoteText}>{localize(mod.expectation)}</Text>
               </View>
             </View>
           )}

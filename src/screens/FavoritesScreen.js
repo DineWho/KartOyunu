@@ -8,6 +8,7 @@ import { Feather } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../ThemeContext';
+import { useLocalize } from '../data';
 import { useFavorites } from '../context/FavoritesContext';
 import { useStats } from '../context/StatsContext';
 import QuestionShareCard from '../components/QuestionShareCard';
@@ -20,6 +21,7 @@ const { width, height } = Dimensions.get('window');
 
 function CardModal({ visible, fav, onClose, onRemove, theme }) {
   const { t, i18n } = useTranslation();
+  const localize = useLocalize();
   const slideAnim = useRef(new Animated.Value(height)).current;
   const backdropAnim = useRef(new Animated.Value(0)).current;
   const cardRef = useRef(null);
@@ -63,15 +65,18 @@ function CardModal({ visible, fav, onClose, onRemove, theme }) {
   const handleShare = async () => {
     if (!fav) return;
 
+    const questionText = localize(fav.question);
     const didShare = await shareQuestionCard({
       cardRef,
-      message: t('favorites.shareMessage', { question: fav.question }),
+      message: t('favorites.shareMessage', { question: questionText }),
       title: 'CardWho',
       filename: t('favorites.shareFilename'),
     });
 
     if (didShare) {
-      addStat(`${fav.modId}-${fav.question}`, fav.modId, 'share');
+      // Stable identifier: TR canonical text (multilingual) or string (legacy).
+      const cardKey = typeof fav.question === 'string' ? fav.question : (fav.question?.tr || '');
+      addStat(`${fav.modId}-${cardKey}`, fav.modId, 'share');
     }
   };
 
@@ -139,17 +144,17 @@ function CardModal({ visible, fav, onClose, onRemove, theme }) {
           <View style={[styles.cardStripe, { backgroundColor: fav.catColor }]} />
           <View style={styles.cardInner}>
             <Text style={[styles.cardDeckLabel, { color: fav.catColor }]}>
-              {fav.modEmoji}  {upperLocale(fav.modTitle, i18n.language)}
+              {fav.modEmoji}  {upperLocale(localize(fav.modTitle), i18n.language)}
             </Text>
-            <Text style={styles.cardQuestion}>{fav.question}</Text>
+            <Text style={styles.cardQuestion}>{localize(fav.question)}</Text>
           </View>
         </View>
 
         <View style={styles.shareCaptureHost} pointerEvents="none">
           <QuestionShareCard
             ref={cardRef}
-            question={fav.question}
-            label={`${fav.modEmoji}  ${upperLocale(fav.modTitle, i18n.language)}`}
+            question={localize(fav.question)}
+            label={`${fav.modEmoji}  ${upperLocale(localize(fav.modTitle), i18n.language)}`}
             color={fav.catColor}
             minHeight={height * 0.34}
           />
@@ -426,6 +431,7 @@ export default function FavoritesScreen() {
   const navigation = useNavigation();
   const { theme } = useTheme();
   const { t } = useTranslation();
+  const localize = useLocalize();
   const s = useMemo(() => makeStyles(theme), [theme]);
   const { favorites, removeFavorite } = useFavorites();
   const [selectedFav, setSelectedFav] = useState(null);
@@ -499,7 +505,7 @@ export default function FavoritesScreen() {
                 <Text style={s.groupIcon}>{group.modEmoji}</Text>
               </View>
               <View style={s.groupMeta}>
-                <Text style={s.groupTitle}>{group.modTitle}</Text>
+                <Text style={s.groupTitle}>{localize(group.modTitle)}</Text>
                 <Text style={s.groupCount}>{t('favorites.modSubQuestion', { count: group.items.length })}</Text>
               </View>
             </View>
@@ -511,7 +517,7 @@ export default function FavoritesScreen() {
                 onPress={() => openCard(fav)}
                 activeOpacity={0.7}
               >
-                <Text style={s.favQuestion}>{fav.question}</Text>
+                <Text style={s.favQuestion}>{localize(fav.question)}</Text>
                 <Feather name="chevron-right" size={16} color={theme.colors.textMuted} />
               </TouchableOpacity>
             ))}

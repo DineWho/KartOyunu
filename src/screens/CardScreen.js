@@ -9,7 +9,7 @@ import * as Haptics from 'expo-haptics';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
-import { cards, categories } from '../data';
+import { cards, categories, useLocalize } from '../data';
 import { useTheme } from '../ThemeContext';
 import { useFavorites } from '../context/FavoritesContext';
 import { useStats } from '../context/StatsContext';
@@ -32,6 +32,7 @@ export default function CardScreen() {
   const { theme } = useTheme();
   const { t, i18n } = useTranslation();
   const tu = useUpperT();
+  const localize = useLocalize();
   const s = useMemo(() => makeStyles(theme), [theme]);
   const { addFavorite } = useFavorites();
   const { addStat, getTotalStats } = useStats();
@@ -262,7 +263,7 @@ export default function CardScreen() {
 
   const handleShare = async () => {
     const idx = currentIndexRef.current;
-    const question = modCards[idx];
+    const question = localize(modCards[idx]);
 
     const didShare = await shareQuestionCard({
       cardRef: shareCardRef,
@@ -321,7 +322,7 @@ export default function CardScreen() {
               {sessionFavorites.map((question, i) => (
                 <View key={i} style={[s.favItem, { borderLeftColor: catColor }]}>
                   <Text style={s.favItemNumber}>{i + 1}</Text>
-                  <Text style={s.favItemQuestion}>{question}</Text>
+                  <Text style={s.favItemQuestion}>{localize(question)}</Text>
                 </View>
               ))}
             </View>
@@ -360,8 +361,8 @@ export default function CardScreen() {
       <View style={s.shareCaptureHost} pointerEvents="none">
         <QuestionShareCard
           ref={shareCardRef}
-          question={currentCard}
-          label={`${mod.emoji}  ${upperLocale(mod.title, i18n.language)}`}
+          question={localize(currentCard)}
+          label={`${mod.emoji}  ${upperLocale(localize(mod.title), i18n.language)}`}
           color={catColor}
         />
       </View>
@@ -372,8 +373,8 @@ export default function CardScreen() {
           <Feather name="x" size={18} color={theme.colors.textSecondary} />
         </TouchableOpacity>
         <View style={s.headerCenter}>
-          <Text style={s.categoryName}>{category?.icon} {category?.name}</Text>
-          <Text style={s.deckSubtitle}>{mod.level} · {currentIndex + 1}/{totalCards}</Text>
+          <Text style={s.categoryName}>{category?.icon} {localize(category?.name)}</Text>
+          <Text style={s.deckSubtitle}>{localize(mod.level)} · {currentIndex + 1}/{totalCards}</Text>
         </View>
         <View style={{ width: 44 }} />
       </View>
@@ -406,9 +407,9 @@ export default function CardScreen() {
             <View style={[s.cardTopStripe, { backgroundColor: catColor, opacity: 0.65 }]} />
             <View style={s.cardInner}>
               <Text style={[s.cardCategory, { color: catColor }]}>
-                {mod.emoji}  {upperLocale(mod.title, i18n.language)}
+                {mod.emoji}  {upperLocale(localize(mod.title), i18n.language)}
               </Text>
-              <Text style={s.cardQuestion}>{nextCard}</Text>
+              <Text style={s.cardQuestion}>{localize(nextCard)}</Text>
             </View>
           </Animated.View>
         )}
@@ -454,9 +455,9 @@ export default function CardScreen() {
 
           <View style={s.cardInner}>
             <Text style={[s.cardCategory, { color: catColor }]}>
-              {mod.emoji}  {upperTR(mod.title)}
+              {mod.emoji}  {upperLocale(localize(mod.title), i18n.language)}
             </Text>
-            <Text style={s.cardQuestion}>{currentCard}</Text>
+            <Text style={s.cardQuestion}>{localize(currentCard)}</Text>
             <View style={s.hintRow}>
               <View style={s.hintPill}>
                 <Feather name="arrow-left" size={12} color="#E74C3C" />

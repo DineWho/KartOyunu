@@ -40,7 +40,7 @@ export function BadgesProvider({ children }) {
     return {
       ...totals,
       playedCategoryIds: new Set(playedMods.map(m => m.categoryId)),
-      playedLevelNames: new Set(playedMods.map(m => m.level).filter(Boolean)),
+      playedLevelNames: new Set(playedMods.map(m => m.level?.tr || m.level).filter(Boolean)),
       playedModIds,
       hasPremium: playedMods.some(m => m.isPremium),
     };

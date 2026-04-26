@@ -54,12 +54,14 @@ for (const mod of mods) {
   const seenInMod = new Set();
 
   for (let i = 0; i < modCards.length; i++) {
-    const q = modCards[i];
+    const raw = modCards[i];
+    // Çok dilli kart obj. {tr, en, ...} ya da legacy string.
+    const q = typeof raw === 'string' ? raw : raw?.tr;
     const label = `soru[${i + 1}]`;
 
     // Boş soru?
     if (!q || !q.trim()) {
-      err(mod.id, `${label}: boş veya sadece boşluk`);
+      err(mod.id, `${label}: boş veya sadece boşluk (TR)`);
       continue;
     }
 

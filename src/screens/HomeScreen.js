@@ -16,7 +16,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Feather } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { useTranslation } from "react-i18next";
-import { cards, categories, mods } from "../data";
+import { cards, categories, mods, useLocalize } from "../data";
 import { useTheme } from "../ThemeContext";
 import { useStats } from "../context/StatsContext";
 import QuestionShareCard from "../components/QuestionShareCard";
@@ -150,6 +150,7 @@ export default function HomeScreen() {
     getRecommendedByCategory,
     getRecommendedByFavorites,
   } = useStats();
+  const localize = useLocalize();
   const s = useMemo(() => makeStyles(theme), [theme]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -177,9 +178,9 @@ export default function HomeScreen() {
       return mods.filter((d) => {
         const cat = getCategory(d.categoryId);
         return (
-          d.title.toLowerCase().includes(q) ||
-          d.description.toLowerCase().includes(q) ||
-          cat?.name.toLowerCase().includes(q)
+          localize(d.title).toLowerCase().includes(q) ||
+          localize(d.description).toLowerCase().includes(q) ||
+          localize(cat?.name).toLowerCase().includes(q)
         );
       });
     }
@@ -300,7 +301,7 @@ export default function HomeScreen() {
 
     const didShare = await shareQuestionCard({
       cardRef: dailyQuestionCardRef,
-      message: t("home.shareDailyMessage", { question: dailyQuestion.question }),
+      message: t("home.shareDailyMessage", { question: localize(dailyQuestion.question) }),
       title: t("home.shareDailyTitle"),
       filename: t("home.shareDailyFilename"),
     });
@@ -314,7 +315,7 @@ export default function HomeScreen() {
     if (isSearchActive) return t("home.resultCount", { count: displayedMods.length });
     if (selectedCategory) {
       const cat = categories.find((c) => c.id === selectedCategory);
-      return t("home.categoryMods", { name: cat?.name ?? "" });
+      return t("home.categoryMods", { name: localize(cat?.name) });
     }
     return t("home.allMods");
   };
@@ -325,7 +326,7 @@ export default function HomeScreen() {
         <View style={s.shareCaptureHost} pointerEvents="none">
           <QuestionShareCard
             ref={dailyQuestionCardRef}
-            question={dailyQuestion.question}
+            question={localize(dailyQuestion.question)}
             label="GÜNÜN SORUSU"
             color={theme.colors.primary}
             minHeight={230}
@@ -362,7 +363,7 @@ export default function HomeScreen() {
             <View style={s.modalQuestionCard}>
               <View style={s.modalQuestionStripe} />
               <Text style={s.modalQuestionText}>
-                {dailyQuestion?.question}
+                {localize(dailyQuestion?.question)}
               </Text>
             </View>
 
@@ -477,7 +478,7 @@ export default function HomeScreen() {
             {categories.map((cat) => (
               <CategoryPill
                 key={cat.id}
-                label={`${cat.icon} ${cat.name}`}
+                label={`${cat.icon} ${localize(cat.name)}`}
                 isActive={selectedCategory === cat.id}
                 onPress={() =>
                   setSelectedCategory(
@@ -518,7 +519,7 @@ export default function HomeScreen() {
                 />
               </View>
               <Text style={s.dailyQuestion} numberOfLines={3}>
-                {dailyQuestion.question}
+                {localize(dailyQuestion.question)}
               </Text>
             </TouchableOpacity>
           </View>
@@ -559,19 +560,19 @@ export default function HomeScreen() {
                     )}
                     <View style={s.featuredCategoryChip}>
                       <Text style={s.featuredCategoryText}>
-                        {cat?.icon} {cat?.name}
+                        {cat?.icon} {localize(cat?.name)}
                       </Text>
                     </View>
                     <Text style={s.featuredEmoji}>{mod.emoji}</Text>
-                    <Text style={s.featuredTitle}>{mod.title}</Text>
+                    <Text style={s.featuredTitle}>{localize(mod.title)}</Text>
                     <Text style={s.featuredDesc} numberOfLines={2}>
-                      {mod.description}
+                      {localize(mod.description)}
                     </Text>
                     <View style={s.featuredDivider} />
                     <View style={s.featuredStats}>
                       <Text style={s.featuredStat}>{t("home.cardCount", { count: mod.cardCount })}</Text>
                       <Text style={s.featuredStatDot}>·</Text>
-                      <Text style={s.featuredStat}>{mod.duration}</Text>
+                      <Text style={s.featuredStat}>{localize(mod.duration)}</Text>
                     </View>
                   </TouchableOpacity>
                 );
@@ -615,19 +616,19 @@ export default function HomeScreen() {
                     )}
                     <View style={s.featuredCategoryChip}>
                       <Text style={s.featuredCategoryText}>
-                        {cat?.icon} {cat?.name}
+                        {cat?.icon} {localize(cat?.name)}
                       </Text>
                     </View>
                     <Text style={s.featuredEmoji}>{mod.emoji}</Text>
-                    <Text style={s.featuredTitle}>{mod.title}</Text>
+                    <Text style={s.featuredTitle}>{localize(mod.title)}</Text>
                     <Text style={s.featuredDesc} numberOfLines={2}>
-                      {mod.description}
+                      {localize(mod.description)}
                     </Text>
                     <View style={s.featuredDivider} />
                     <View style={s.featuredStats}>
                       <Text style={s.featuredStat}>{t("home.cardCount", { count: mod.cardCount })}</Text>
                       <Text style={s.featuredStatDot}>·</Text>
-                      <Text style={s.featuredStat}>{mod.duration}</Text>
+                      <Text style={s.featuredStat}>{localize(mod.duration)}</Text>
                     </View>
                   </TouchableOpacity>
                 );
@@ -677,19 +678,19 @@ export default function HomeScreen() {
                       )}
                       <View style={s.featuredCategoryChip}>
                         <Text style={s.featuredCategoryText}>
-                          {cat?.icon} {cat?.name}
+                          {cat?.icon} {localize(cat?.name)}
                         </Text>
                       </View>
                       <Text style={s.featuredEmoji}>{mod.emoji}</Text>
-                      <Text style={s.featuredTitle}>{mod.title}</Text>
+                      <Text style={s.featuredTitle}>{localize(mod.title)}</Text>
                       <Text style={s.featuredDesc} numberOfLines={2}>
-                        {mod.description}
+                        {localize(mod.description)}
                       </Text>
                       <View style={s.featuredDivider} />
                       <View style={s.featuredStats}>
                         <Text style={s.featuredStat}>{t("home.cardCount", { count: mod.cardCount })}</Text>
                         <Text style={s.featuredStatDot}>·</Text>
-                        <Text style={s.featuredStat}>{mod.duration}</Text>
+                        <Text style={s.featuredStat}>{localize(mod.duration)}</Text>
                       </View>
                     </TouchableOpacity>
                   </Animated.View>
@@ -750,7 +751,7 @@ export default function HomeScreen() {
                     </View>
                     <View style={s.deckItemContent}>
                       <View style={s.deckItemRow}>
-                        <Text style={s.deckItemTitle}>{mod.title}</Text>
+                        <Text style={s.deckItemTitle}>{localize(mod.title)}</Text>
                         {mod.isPremium && (
                           <View style={s.proBadge}>
                             <Text style={s.proText}>PRO</Text>
@@ -758,7 +759,7 @@ export default function HomeScreen() {
                         )}
                       </View>
                       <Text style={s.deckItemDesc} numberOfLines={1}>
-                        {mod.description}
+                        {localize(mod.description)}
                       </Text>
                       <View style={s.deckItemStats}>
                         <Text
@@ -767,12 +768,12 @@ export default function HomeScreen() {
                             { color: catColor, fontWeight: "600" },
                           ]}
                         >
-                          {cat?.icon} {cat?.name}
+                          {cat?.icon} {localize(cat?.name)}
                         </Text>
                         <Text style={s.deckItemStatDot}>·</Text>
                         <Text style={s.deckItemStat}>{t("home.cardCount", { count: mod.cardCount })}</Text>
                         <Text style={s.deckItemStatDot}>·</Text>
-                        <Text style={s.deckItemStat}>{mod.duration}</Text>
+                        <Text style={s.deckItemStat}>{localize(mod.duration)}</Text>
                       </View>
                     </View>
                     <Feather
