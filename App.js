@@ -13,6 +13,7 @@ import { AudioProvider } from './src/context/AudioContext';
 import { AuthProvider } from './src/context/AuthContext';
 import { RemoteConfigProvider } from './src/context/RemoteConfigContext';
 import { NotificationProvider, useNotifications } from './src/context/NotificationContext';
+import { UserProfileProvider } from './src/context/UserProfileContext';
 import BadgePopup from './src/components/BadgePopup';
 import SplashScreen from './src/screens/SplashScreen';
 import NotificationOnboardingScreen from './src/screens/NotificationOnboardingScreen';
@@ -23,6 +24,7 @@ import CardScreen from './src/screens/CardScreen';
 import FavoritesScreen from './src/screens/FavoritesScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
+import AccountInfoScreen from './src/screens/AccountInfoScreen';
 import LoginScreen from './src/screens/LoginScreen';
 import TabBar from './src/components/TabBar';
 
@@ -83,6 +85,7 @@ function AppShell() {
             component={LoginScreen}
             options={{ presentation: 'modal' }}
           />
+          <RootStack.Screen name="AccountInfo" component={AccountInfoScreen} />
         </RootStack.Navigator>
       </NavigationContainer>
       <BadgePopup />
@@ -95,19 +98,21 @@ function App() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemeProvider>
         <AuthProvider>
-          <RemoteConfigProvider>
-            <NotificationProvider>
-              <AudioProvider>
-                <StatsProvider>
-                  <FavoritesProvider>
-                    <BadgesProvider>
-                      <AppShell />
-                    </BadgesProvider>
-                  </FavoritesProvider>
-                </StatsProvider>
-              </AudioProvider>
-            </NotificationProvider>
-          </RemoteConfigProvider>
+          <UserProfileProvider>
+            <RemoteConfigProvider>
+              <NotificationProvider>
+                <AudioProvider>
+                  <StatsProvider>
+                    <FavoritesProvider>
+                      <BadgesProvider>
+                        <AppShell />
+                      </BadgesProvider>
+                    </FavoritesProvider>
+                  </StatsProvider>
+                </AudioProvider>
+              </NotificationProvider>
+            </RemoteConfigProvider>
+          </UserProfileProvider>
         </AuthProvider>
       </ThemeProvider>
     </GestureHandlerRootView>

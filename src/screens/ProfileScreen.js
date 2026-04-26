@@ -13,6 +13,8 @@ import { useFavorites } from '../context/FavoritesContext';
 import { useAuth } from '../context/AuthContext';
 import Toast from '../components/Toast';
 import ConfirmPanel from '../components/ConfirmPanel';
+import Greeting from '../components/Greeting';
+import { useUserProfile } from '../context/UserProfileContext';
 import { rs, rf } from '../utils/responsive';
 
 const GROUP_ORDER = ['İlerleme', 'Favoriler', 'Paylaşım', 'Keşif', 'Oyunlar', 'Çeşitlilik', 'Kategoriler', 'Seviyeler'];
@@ -49,6 +51,7 @@ export default function ProfileScreen() {
   const { earnedIds, allBadges, clearBadges } = useBadges();
   const { clearFavorites } = useFavorites();
   const { user, isAnonymous, signOut, deleteAccount } = useAuth();
+  const { profile: userProfile } = useUserProfile();
   const navigation = useNavigation();
 
   const [clearStatsVisible, setClearStatsVisible] = useState(false);
@@ -181,6 +184,7 @@ export default function ProfileScreen() {
 
         {/* Avatar & Name */}
         <View style={s.profileTop}>
+          {!isAnonymous && <Greeting name={userProfile?.firstName} />}
           <View style={s.avatarWrap}>
             <LinearGradient
               colors={isAnonymous ? guestAvatarColors : memberAvatarColors}
@@ -435,6 +439,16 @@ export default function ProfileScreen() {
           <View style={s.accountSection}>
             <Text style={s.sectionTitle}>HESAP</Text>
             <View style={[s.accountGroup, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
+              <TouchableOpacity
+                style={s.accountRow}
+                onPress={() => navigation.navigate('AccountInfo')}
+                activeOpacity={0.72}
+              >
+                <Feather name="user" size={18} color={theme.colors.textSecondary} />
+                <Text style={[s.accountRowText, { color: theme.colors.text, flex: 1 }]}>Hesap Bilgileri</Text>
+                <Feather name="chevron-right" size={18} color={theme.colors.textMuted} />
+              </TouchableOpacity>
+              <View style={[s.accountDivider, { backgroundColor: theme.colors.border }]} />
               {hasStats && (
                 <>
                   <TouchableOpacity
