@@ -9,89 +9,8 @@ import { useAudio } from '../context/AudioContext';
 import { useNotifications } from '../context/NotificationContext';
 import { rs, rf } from '../utils/responsive';
 import { openReview } from '../utils/reviewManager';
-
-function SettingRow({ icon, label, sublabel, right, onPress, theme }) {
-  const s = useMemo(() => rowStyles(theme), [theme]);
-  const Inner = (
-    <View style={s.row}>
-      <View style={[s.iconWrap, { backgroundColor: theme.colors.surfaceElevated }]}>
-        <Text style={s.icon}>{icon}</Text>
-      </View>
-      <View style={s.rowContent}>
-        <Text style={s.rowLabel}>{label}</Text>
-        {sublabel ? <Text style={s.rowSublabel}>{sublabel}</Text> : null}
-      </View>
-      {right && <View style={s.rowRight}>{right}</View>}
-    </View>
-  );
-
-  if (onPress) {
-    return (
-      <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
-        {Inner}
-      </TouchableOpacity>
-    );
-  }
-  return Inner;
-}
-
-const rowStyles = (theme) => StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: rs(16),
-    paddingVertical: rs(13),
-    gap: rs(12),
-  },
-  iconWrap: {
-    width: rs(38),
-    height: rs(38),
-    borderRadius: rs(11),
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  icon: { fontSize: rf(18) },
-  rowContent: { flex: 1 },
-  rowLabel: {
-    fontSize: rf(15),
-    fontWeight: '600',
-    color: theme.colors.text,
-  },
-  rowSublabel: {
-    fontSize: rf(12),
-    color: theme.colors.textMuted,
-    marginTop: 1,
-  },
-  rowRight: {},
-});
-
-function SettingsGroup({ title, children, theme }) {
-  return (
-    <View style={{ marginBottom: 24 }}>
-      {title && (
-        <Text style={{
-          fontSize: 11,
-          fontWeight: '700',
-          color: theme.colors.textMuted,
-          letterSpacing: 1.2,
-          marginBottom: 8,
-          marginLeft: 4,
-        }}>
-          {title}
-        </Text>
-      )}
-      <View style={{
-        backgroundColor: theme.colors.surface,
-        borderRadius: 18,
-        borderWidth: 1,
-        borderColor: theme.colors.border,
-        overflow: 'hidden',
-      }}>
-        {children}
-      </View>
-    </View>
-  );
-}
+import SettingsRow, { SettingsRowDivider } from '../components/SettingsRow';
+import SettingsGroup from '../components/SettingsGroup';
 
 function ThemeSelector({ theme, themeMode, setThemeMode }) {
   const options = [
@@ -141,25 +60,15 @@ function ThemeSelector({ theme, themeMode, setThemeMode }) {
 export default function SettingsScreen() {
   const { theme, themeMode, setThemeMode } = useTheme();
   const { soundEnabled, toggleSound } = useAudio();
-  const { permissionGranted, requestPermission } = useNotifications();
+  const { notificationsEnabled, permissionGranted, toggleNotifications } = useNotifications();
   const s = useMemo(() => makeStyles(theme), [theme]);
 
-  const handleNotificationsPress = async () => {
-    if (permissionGranted) {
+  const handleNotificationsToggle = async () => {
+    const wasEnabled = notificationsEnabled;
+    const result = await toggleNotifications();
+    if (!wasEnabled && !result && !permissionGranted) {
       Alert.alert(
-        'Bildirimler',
-        'Bildirimler zaten açık. Kapatmak için sistem ayarlarına gidebilirsin.',
-        [
-          { text: 'Vazgeç', style: 'cancel' },
-          { text: 'Ayarları Aç', onPress: () => Linking.openSettings() },
-        ]
-      );
-      return;
-    }
-    const granted = await requestPermission();
-    if (!granted) {
-      Alert.alert(
-        'İzin Reddedildi',
+        'İzin Gerekli',
         'Bildirim göndermek için izin gerekli. Sistem ayarlarından açabilirsin.',
         [
           { text: 'Vazgeç', style: 'cancel' },
@@ -177,14 +86,13 @@ export default function SettingsScreen() {
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
 
-        <SettingsGroup title="TERCİHLER" theme={theme}>
+        <SettingsGroup title="TERCİHLER">
           <ThemeSelector theme={theme} themeMode={themeMode} setThemeMode={setThemeMode} />
-          <View style={{ height: 1, backgroundColor: theme.colors.border, marginLeft: 66 }} />
-          <SettingRow
+          <SettingsRowDivider />
+          <SettingsRow
             icon={soundEnabled ? '🔊' : '🔇'}
             label="Ses Efektleri"
             sublabel={soundEnabled ? 'Açık' : 'Kapalı'}
-            theme={theme}
             right={
               <Switch
                 value={soundEnabled}
@@ -194,60 +102,60 @@ export default function SettingsScreen() {
               />
             }
           />
-          <View style={{ height: 1, backgroundColor: theme.colors.border, marginLeft: 66 }} />
-          <SettingRow
-            icon="🔔"
+          <SettingsRowDivider />
+          <SettingsRow
+            icon={notificationsEnabled ? '🔔' : '🔕'}
             label="Bildirimler"
-            sublabel={permissionGranted ? 'Açık' : 'Kapalı — yeni paketler ve hatırlatıcılar'}
-            theme={theme}
-            right={<Text style={{ color: theme.colors.textMuted, fontSize: 18 }}>›</Text>}
-            onPress={handleNotificationsPress}
+            sublabel={notificationsEnabled ? 'Açık' : 'Kapalı'}
+            right={
+              <Switch
+                value={notificationsEnabled}
+                onValueChange={handleNotificationsToggle}
+                trackColor={{ false: theme.colors.border, true: theme.colors.primary + '88' }}
+                thumbColor={notificationsEnabled ? theme.colors.primary : theme.colors.textMuted}
+              />
+            }
           />
         </SettingsGroup>
 
-        <SettingsGroup title="UYGULAMA" theme={theme}>
-          <SettingRow
+        <SettingsGroup title="UYGULAMA">
+          <SettingsRow
             icon="🎯"
             label="Nasıl Oynanır?"
             sublabel="Kısa rehber"
-            theme={theme}
             right={<Text style={{ color: theme.colors.textMuted, fontSize: 18 }}>›</Text>}
             onPress={() => {}}
           />
-          <View style={{ height: 1, backgroundColor: theme.colors.border, marginLeft: 66 }} />
-          <SettingRow
+          <SettingsRowDivider />
+          <SettingsRow
             icon="⭐"
             label="Uygulamayı Oyla"
             sublabel="App Store'da değerlendir"
-            theme={theme}
             right={<Text style={{ color: theme.colors.textMuted, fontSize: 18 }}>›</Text>}
             onPress={openReview}
           />
-          <View style={{ height: 1, backgroundColor: theme.colors.border, marginLeft: 66 }} />
-          <SettingRow
+          <SettingsRowDivider />
+          <SettingsRow
             icon="📣"
             label="Arkadaşına Anlat"
             sublabel="Paylaş ve kazan"
-            theme={theme}
             right={<Text style={{ color: theme.colors.textMuted, fontSize: 18 }}>›</Text>}
             onPress={() => {}}
           />
         </SettingsGroup>
 
-        <SettingsGroup title="DESTEK" theme={theme}>
-          <SettingRow
+        <SettingsGroup title="DESTEK">
+          <SettingsRow
             icon="✉️"
             label="Bize Ulaş"
             sublabel="destek@cardwho.app"
-            theme={theme}
             right={<Text style={{ color: theme.colors.textMuted, fontSize: 18 }}>›</Text>}
             onPress={() => {}}
           />
-          <View style={{ height: 1, backgroundColor: theme.colors.border, marginLeft: 66 }} />
-          <SettingRow
+          <SettingsRowDivider />
+          <SettingsRow
             icon="📄"
             label="Gizlilik Politikası"
-            theme={theme}
             right={<Text style={{ color: theme.colors.textMuted, fontSize: 18 }}>›</Text>}
             onPress={() => {}}
           />

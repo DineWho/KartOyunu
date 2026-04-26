@@ -4,6 +4,19 @@ Türkçe sohbet kartı oyunu. React Native / Expo ile yapılmış mobil uygulama
 
 ---
 
+## 🚧 Aktif Plan: Profil > Hesap (Bildirimler + Hesap Bilgileri + Greeting)
+
+**Plan dosyası:** `~/.claude/plans/profil-hesap-b-l-m-nde-reactive-hellman.md` — yeni session açtığında ilk bunu oku.
+
+**Faz sırası (Seçenek A — görünür özellik önce, altyapı sona):**
+F3 (refactor) → F4 (Hesap Bilgileri + Greeting) → F5 (Bildirimler) → F2 (Firestore) → F1 (i18n iskelesi) → F6 (mevcut ekranların EN çevirisi)
+
+**Devam ederken:** `git log` ile son `claude:` commit'ine bak, kaldığın faz oradan netleşir. Plan'dan sapma; sapman gerekirse önce sor.
+
+**İŞ BİTİNCE (F6 commit'inden sonra):** bu "Aktif Plan" bölümünü CLAUDE.md'den sil.
+
+---
+
 ## Çalışmadan Önce Oku
 
 | Görev | Oku |

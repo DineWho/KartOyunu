@@ -21,13 +21,35 @@ export function AuthProvider({ children }) {
   // authReady: Firebase bağlantısı kuruldu mu (true olunca uygulama açılır)
   const [authReady, setAuthReady] = useState(false);
 
+  // Firebase user objesi linkWithCredential sonrası referansı korur,
+  // bu yüzden React'i yeniden render ettirmek için yeni bir snapshot üretiyoruz.
+  const snapshotUser = (firebaseUser) =>
+    firebaseUser
+      ? {
+          uid: firebaseUser.uid,
+          email: firebaseUser.email,
+          displayName: firebaseUser.displayName,
+          photoURL: firebaseUser.photoURL,
+          isAnonymous: firebaseUser.isAnonymous,
+          providerData: firebaseUser.providerData,
+          metadata: {
+            creationTime: firebaseUser.metadata?.creationTime,
+            lastSignInTime: firebaseUser.metadata?.lastSignInTime,
+          },
+          linkWithCredential: firebaseUser.linkWithCredential?.bind(firebaseUser),
+          reload: firebaseUser.reload?.bind(firebaseUser),
+        }
+      : null;
+
   useEffect(() => {
-    const unsubscribe = auth().onAuthStateChanged(async (firebaseUser) => {
+    // onIdTokenChanged hem sign-in/sign-out hem de linkWithCredential gibi
+    // credential değişikliklerinde tetiklenir. onAuthStateChanged tek başına
+    // linkleme sonrası fire etmez → React state stale kalırdı.
+    const unsubscribe = auth().onIdTokenChanged(async (firebaseUser) => {
       if (firebaseUser) {
-        setUser(firebaseUser);
+        setUser(snapshotUser(firebaseUser));
         setAuthReady(true);
       } else {
-        // Anonim giriş başlat, ama uygulamanın açılmasını bekleme
         setAuthReady(true);
         try {
           await auth().signInAnonymously();
@@ -39,24 +61,36 @@ export function AuthProvider({ children }) {
     return unsubscribe;
   }, []);
 
-  const signInWithEmail = (email, password) =>
-    auth().signInWithEmailAndPassword(email, password);
+  const refreshUser = () => {
+    const current = auth().currentUser;
+    if (current) setUser(snapshotUser(current));
+  };
+
+  const signInWithEmail = async (email, password) => {
+    const result = await auth().signInWithEmailAndPassword(email, password);
+    refreshUser();
+    return result;
+  };
 
   const registerWithEmail = async (email, password) => {
     const credential = auth.EmailAuthProvider.credential(email, password);
-    if (user?.isAnonymous) {
-      return user.linkWithCredential(credential);
-    }
-    return auth().createUserWithEmailAndPassword(email, password);
+    const current = auth().currentUser;
+    const result = current?.isAnonymous
+      ? await current.linkWithCredential(credential)
+      : await auth().createUserWithEmailAndPassword(email, password);
+    refreshUser();
+    return result;
   };
 
   // LoginScreen'den expo-auth-session ile alınan Google id_token buraya gelir
   const signInWithGoogleIdToken = async (idToken) => {
     const credential = auth.GoogleAuthProvider.credential(idToken);
-    if (user?.isAnonymous) {
-      return user.linkWithCredential(credential);
-    }
-    return auth().signInWithCredential(credential);
+    const current = auth().currentUser;
+    const result = current?.isAnonymous
+      ? await current.linkWithCredential(credential)
+      : await auth().signInWithCredential(credential);
+    refreshUser();
+    return result;
   };
 
   const signInWithApple = async () => {
@@ -80,13 +114,25 @@ export function AuthProvider({ children }) {
     const appleProvider = auth.AppleAuthProvider;
     const credential = appleProvider.credential(identityToken, rawNonce);
 
-    if (user?.isAnonymous) {
-      return user.linkWithCredential(credential);
-    }
-    return auth().signInWithCredential(credential);
+    const current = auth().currentUser;
+    const result = current?.isAnonymous
+      ? await current.linkWithCredential(credential)
+      : await auth().signInWithCredential(credential);
+    refreshUser();
+    return result;
   };
 
   const signOut = () => auth().signOut();
+
+  const sendPasswordReset = (email) => auth().sendPasswordResetEmail(email);
+
+  // 'auth/requires-recent-login' fırlatabilir → çağıran tarafı yakalayıp
+  // kullanıcıyı yeniden giriş yapmaya yönlendirir.
+  const deleteAccount = async () => {
+    const current = auth().currentUser;
+    if (!current) throw new Error('No current user');
+    await current.delete();
+  };
 
   return (
     <AuthContext.Provider
@@ -99,6 +145,8 @@ export function AuthProvider({ children }) {
         signInWithGoogleIdToken,
         signInWithApple,
         signOut,
+        sendPasswordReset,
+        deleteAccount,
         GOOGLE_WEB_CLIENT_ID,
       }}
     >

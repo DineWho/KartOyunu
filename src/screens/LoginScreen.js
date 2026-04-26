@@ -15,7 +15,7 @@ export default function LoginScreen({ route }) {
   const { theme } = useTheme();
   const s = useMemo(() => makeStyles(theme), [theme]);
   const navigation = useNavigation();
-  const { signInWithEmail, registerWithEmail, signInWithGoogleIdToken, signInWithApple, GOOGLE_WEB_CLIENT_ID } = useAuth();
+  const { signInWithEmail, registerWithEmail, signInWithGoogleIdToken, signInWithApple, sendPasswordReset, GOOGLE_WEB_CLIENT_ID } = useAuth();
 
   const initialMode = route?.params?.mode ?? 'login';
   const [mode, setMode] = useState(initialMode);
@@ -23,6 +23,7 @@ export default function LoginScreen({ route }) {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
 
   const [googleRequest, googleResponse, googlePrompt] = Google.useAuthRequest({
     iosClientId: '953093478907-8851vo8vkt2mfdvmh6fate6kcu4bn691.apps.googleusercontent.com',
@@ -46,9 +47,29 @@ export default function LoginScreen({ route }) {
   const handleWithLoading = async (fn) => {
     setLoading(true);
     setError(null);
+    setSuccessMessage(null);
     try {
       await fn();
       navigation.goBack();
+    } catch (e) {
+      setError(friendlyError(e.code));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!email.trim()) {
+      setSuccessMessage(null);
+      setError('Önce e-posta adresini gir.');
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    setSuccessMessage(null);
+    try {
+      await sendPasswordReset(email.trim());
+      setSuccessMessage('Sıfırlama bağlantısı e-posta adresine gönderildi.');
     } catch (e) {
       setError(friendlyError(e.code));
     } finally {
@@ -148,7 +169,19 @@ export default function LoginScreen({ route }) {
           editable={!loading}
         />
 
+        {mode === 'login' && (
+          <TouchableOpacity
+            style={s.forgotBtn}
+            onPress={handleForgotPassword}
+            disabled={loading}
+            activeOpacity={0.7}
+          >
+            <Text style={[s.forgotText, { color: theme.colors.primary }]}>Şifremi Unuttum</Text>
+          </TouchableOpacity>
+        )}
+
         {error && <Text style={s.errorText}>{error}</Text>}
+        {successMessage && <Text style={s.successText}>{successMessage}</Text>}
 
         <TouchableOpacity
           style={[s.submitBtn, { backgroundColor: theme.colors.primary }]}
@@ -167,7 +200,7 @@ export default function LoginScreen({ route }) {
         {/* Toggle mode */}
         <TouchableOpacity
           style={s.toggleBtn}
-          onPress={() => { setMode(mode === 'login' ? 'register' : 'login'); setError(null); }}
+          onPress={() => { setMode(mode === 'login' ? 'register' : 'login'); setError(null); setSuccessMessage(null); }}
         >
           <Text style={[s.toggleText, { color: theme.colors.textSecondary }]}>
             {mode === 'login' ? 'Hesabın yok mu? ' : 'Zaten hesabın var mı? '}
@@ -238,6 +271,14 @@ const makeStyles = (theme) => StyleSheet.create({
     color: theme.colors.danger, fontSize: rf(13), fontWeight: '600',
     marginBottom: rs(12), textAlign: 'center',
   },
+  successText: {
+    color: theme.colors.success, fontSize: rf(13), fontWeight: '600',
+    marginBottom: rs(12), textAlign: 'center',
+  },
+  forgotBtn: {
+    alignSelf: 'flex-end', paddingVertical: rs(4), paddingHorizontal: rs(2), marginBottom: rs(8),
+  },
+  forgotText: { fontSize: rf(13), fontWeight: '600' },
   submitBtn: {
     height: rs(52), borderRadius: rs(14), alignItems: 'center',
     justifyContent: 'center', marginBottom: rs(16),

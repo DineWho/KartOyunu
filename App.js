@@ -12,9 +12,10 @@ import { BadgesProvider } from './src/context/BadgesContext';
 import { AudioProvider } from './src/context/AudioContext';
 import { AuthProvider } from './src/context/AuthContext';
 import { RemoteConfigProvider } from './src/context/RemoteConfigContext';
-import { NotificationProvider } from './src/context/NotificationContext';
+import { NotificationProvider, useNotifications } from './src/context/NotificationContext';
 import BadgePopup from './src/components/BadgePopup';
 import SplashScreen from './src/screens/SplashScreen';
+import NotificationOnboardingScreen from './src/screens/NotificationOnboardingScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import CategoryScreen from './src/screens/CategoryScreen';
 import ModScreen from './src/screens/ModScreen';
@@ -49,10 +50,16 @@ function MainTabs() {
 
 function AppShell() {
   const [splashDone, setSplashDone] = useState(false);
+  const [onboardingDismissed, setOnboardingDismissed] = useState(false);
   const { theme, isDark } = useTheme();
+  const { onboardingStatus } = useNotifications();
 
   if (!splashDone) {
     return <SplashScreen onFinish={() => setSplashDone(true)} />;
+  }
+
+  if (!onboardingDismissed && onboardingStatus === 'pending') {
+    return <NotificationOnboardingScreen onFinish={() => setOnboardingDismissed(true)} />;
   }
 
   return (

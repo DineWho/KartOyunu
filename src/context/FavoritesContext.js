@@ -45,8 +45,10 @@ export function FavoritesProvider({ children }) {
   const isFavorite = (question, modId) =>
     favorites.some(f => f.question === question && f.modId === modId);
 
+  const clearFavorites = () => setFavorites([]);
+
   return (
-    <FavoritesContext.Provider value={{ favorites, addFavorite, removeFavorite, isFavorite }}>
+    <FavoritesContext.Provider value={{ favorites, addFavorite, removeFavorite, isFavorite, clearFavorites }}>
       {children}
     </FavoritesContext.Provider>
   );

@@ -66,8 +66,15 @@ export function BadgesProvider({ children }) {
     setBadgeQueue(prev => prev.slice(1));
   }, []);
 
+  const clearBadges = useCallback(() => {
+    earnedIdsRef.current = new Set();
+    setEarnedIds(new Set());
+    setBadgeQueue([]);
+    AsyncStorage.removeItem(STORAGE_KEY).catch(() => {});
+  }, []);
+
   return (
-    <BadgesContext.Provider value={{ earnedIds, badgeQueue, dismissTopBadge, allBadges: ALL_BADGES }}>
+    <BadgesContext.Provider value={{ earnedIds, badgeQueue, dismissTopBadge, clearBadges, allBadges: ALL_BADGES }}>
       {children}
     </BadgesContext.Provider>
   );

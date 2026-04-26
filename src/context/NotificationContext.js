@@ -4,17 +4,40 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import messaging from '@react-native-firebase/messaging';
 
 const TOKEN_KEY = '@cardwho_fcm_token';
+const ENABLED_KEY = '@cardwho_notifications_enabled';
+const ONBOARDED_KEY = '@cardwho_notif_onboarded';
 
 const NotificationContext = createContext({
   fcmToken: null,
   permissionGranted: false,
+  notificationsEnabled: false,
+  onboardingStatus: 'loading', // 'loading' | 'pending' | 'done'
   requestPermission: async () => false,
+  toggleNotifications: async () => false,
+  setNotificationsEnabled: () => {},
+  completeOnboarding: async () => {},
 });
 
 export function NotificationProvider({ children }) {
   const [fcmToken, setFcmToken] = useState(null);
   const [permissionGranted, setPermissionGranted] = useState(false);
+  const [notificationsEnabled, setNotificationsEnabledState] = useState(false);
+  const [onboardingStatus, setOnboardingStatus] = useState('loading');
   const initRan = useRef(false);
+
+  const persistEnabled = async (value) => {
+    setNotificationsEnabledState(value);
+    try {
+      await AsyncStorage.setItem(ENABLED_KEY, value ? '1' : '0');
+    } catch {}
+  };
+
+  const completeOnboarding = async () => {
+    setOnboardingStatus('done');
+    try {
+      await AsyncStorage.setItem(ONBOARDED_KEY, '1');
+    } catch {}
+  };
 
   const persistToken = async (token) => {
     if (!token) return;
@@ -59,6 +82,22 @@ export function NotificationProvider({ children }) {
     }
   };
 
+  const toggleNotifications = async () => {
+    if (notificationsEnabled) {
+      await persistEnabled(false);
+      return false;
+    }
+    if (!permissionGranted) {
+      const granted = await requestPermission();
+      if (!granted) {
+        await persistEnabled(false);
+        return false;
+      }
+    }
+    await persistEnabled(true);
+    return true;
+  };
+
   useEffect(() => {
     if (initRan.current) return;
     initRan.current = true;
@@ -68,14 +107,31 @@ export function NotificationProvider({ children }) {
         const cached = await AsyncStorage.getItem(TOKEN_KEY);
         if (cached) setFcmToken(cached);
 
+        const storedEnabled = await AsyncStorage.getItem(ENABLED_KEY);
+        const storedOnboarded = await AsyncStorage.getItem(ONBOARDED_KEY);
+
         const status = await messaging().hasPermission();
         const granted =
           status === messaging.AuthorizationStatus.AUTHORIZED ||
           status === messaging.AuthorizationStatus.PROVISIONAL;
         setPermissionGranted(granted);
 
+        if (storedEnabled === null) {
+          setNotificationsEnabledState(granted);
+        } else {
+          setNotificationsEnabledState(storedEnabled === '1' && granted);
+        }
+
         if (granted) await fetchAndStoreToken();
-      } catch {}
+
+        if (storedOnboarded === '1' || granted) {
+          setOnboardingStatus('done');
+        } else {
+          setOnboardingStatus('pending');
+        }
+      } catch {
+        setOnboardingStatus('done');
+      }
     })();
 
     const unsubRefresh = messaging().onTokenRefresh(persistToken);
@@ -104,7 +160,18 @@ export function NotificationProvider({ children }) {
   }, []);
 
   return (
-    <NotificationContext.Provider value={{ fcmToken, permissionGranted, requestPermission }}>
+    <NotificationContext.Provider
+      value={{
+        fcmToken,
+        permissionGranted,
+        notificationsEnabled,
+        onboardingStatus,
+        requestPermission,
+        toggleNotifications,
+        setNotificationsEnabled: persistEnabled,
+        completeOnboarding,
+      }}
+    >
       {children}
     </NotificationContext.Provider>
   );
