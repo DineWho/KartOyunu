@@ -3031,15 +3031,15 @@ export const cards = {
     'Bilim insanı topluma karşı hangi sorumluluğu taşır?',
     'Hayvanlar, çevre ve insanlar arasında araştırma dengesi nasıl kurulmalı?',
     'Bir buluşun kime ait olduğu kadar kime hizmet ettiği de önemli mi?',
-    'Bilimsel ilerleme yavaşlasın diye bazı sınırlar konmalı mı?',
+    'Bilimsel ilerleme yavaşlasın diye sınırlar konmalı mı sence — hangi alanda?',
     'Bir sağlık bilgisini halka açıklarken umut ve gerçeklik nasıl dengelenir?',
     'Yapay zekâ, genetik veya veri alanında seni en çok hangi etik soru düşündürür?',
     'Bir araştırmada şeffaflık güveni nasıl değiştirir?',
-    '“Doğru bilgi” yanlış zamanda paylaşılırsa zarar verebilir mi?'
+    '“Doğru bilgi” yanlış zamanda paylaşılırsa nasıl zarar verebilir?'
   ],
   bilim_buyuk_sorular: [
     'Evreni anlamaya çalışmak insana kendini küçük mü, güçlü mü hissettirir?',
-    'Bilincin nasıl ortaya çıktığını bilsek kendimize bakışımız değişir mi?',
+    'Bilincin nasıl ortaya çıktığını bilsek kendimize bakışımız nasıl değişirdi?',
     'Zamanı sadece saatle değil deneyimle düşünürsen ne fark edersin?',
     'Yaşamın başka yerde olma ihtimali insanlığın hikâyesini nasıl değiştirir?',
     'Doğadaki düzen sana tesadüfü mü, sistemi mi düşündürür?',
