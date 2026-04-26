@@ -3054,7 +3054,7 @@ export const cards = {
   dogruluk_cesaret_komik_tur: [
     'Doğruluk: Son zamanlarda kendine bile güldüğün en küçük sakarlık neydi?',
     'Cesaret: Gruptaki biri için 10 saniyelik komik bir haber sunumu yap.',
-    'Doğruluk: Bir şeyi çok biliyormuş gibi yapıp sonradan yakalandığın oldu mu?',
+    'Doğruluk: Bir şeyi çok biliyormuş gibi yapıp sonradan yakalandığın o an hangisiydi?',
     'Cesaret: Şu anki ruh halini bir reklam sloganı gibi söyle.',
     'Doğruluk: Telefonunda en çok kullandığın uygulama seni nasıl ele verir?',
     'Cesaret: Gruptan seçilen bir kelimeyi aşırı ciddi bir şiir gibi oku.',
@@ -3076,7 +3076,7 @@ export const cards = {
     'Cesaret: 20 saniye boyunca hayali bir yarışmayı sun.',
     'Doğruluk: Başkalarının yanında en kolay hangi yönünü saklarsın?',
     'Cesaret: Bir günlük olayı çok destansı bir macera gibi anlat.',
-    'Doğruluk: İnsanları güldürmek için bilerek abarttığın bir huyun var mı?',
+    'Doğruluk: İnsanları güldürmek için bilerek abarttığın huyun ne?',
     'Cesaret: Masadaki bir kişiye güvenli ve komik bir film karakteri rolü ver.'
   ],
   dogruluk_cesaret_durust_masa: [
