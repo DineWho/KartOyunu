@@ -3,8 +3,10 @@ import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
   SafeAreaView, Switch,
 } from 'react-native';
+import { Linking, Alert } from 'react-native';
 import { useTheme } from '../ThemeContext';
 import { useAudio } from '../context/AudioContext';
+import { useNotifications } from '../context/NotificationContext';
 import { rs, rf } from '../utils/responsive';
 import { openReview } from '../utils/reviewManager';
 
@@ -91,10 +93,81 @@ function SettingsGroup({ title, children, theme }) {
   );
 }
 
+function ThemeSelector({ theme, themeMode, setThemeMode }) {
+  const options = [
+    { value: 'system', label: 'Sistem', icon: '⚙' },
+    { value: 'light', label: 'Açık', icon: '☀' },
+    { value: 'dark', label: 'Koyu', icon: '☽' },
+  ];
+
+  const currentIcon = '🎨';
+
+  return (
+    <View style={{ paddingHorizontal: rs(16), paddingTop: rs(13), paddingBottom: rs(12), gap: rs(10) }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: rs(12) }}>
+        <View style={{
+          width: rs(38), height: rs(38), borderRadius: rs(11),
+          alignItems: 'center', justifyContent: 'center',
+          backgroundColor: theme.colors.surfaceElevated,
+        }}>
+          <Text style={{ fontSize: rf(18) }}>{currentIcon}</Text>
+        </View>
+        <Text style={{ fontSize: rf(15), fontWeight: '600', color: theme.colors.text }}>Tema</Text>
+      </View>
+      <View style={{ flexDirection: 'row', gap: rs(6) }}>
+        {options.map(opt => (
+          <TouchableOpacity
+            key={opt.value}
+            onPress={() => setThemeMode(opt.value)}
+            activeOpacity={0.7}
+            style={{
+              flex: 1,
+              paddingVertical: rs(8),
+              borderRadius: rs(10),
+              alignItems: 'center',
+              backgroundColor: themeMode === opt.value ? theme.colors.primary : theme.colors.surfaceElevated,
+            }}
+          >
+            <Text style={{ fontSize: rf(13), fontWeight: '600', color: themeMode === opt.value ? '#fff' : theme.colors.textMuted }}>
+              {opt.icon} {opt.label}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+    </View>
+  );
+}
+
 export default function SettingsScreen() {
-  const { theme, isDark, toggleTheme } = useTheme();
+  const { theme, themeMode, setThemeMode } = useTheme();
   const { soundEnabled, toggleSound } = useAudio();
+  const { permissionGranted, requestPermission } = useNotifications();
   const s = useMemo(() => makeStyles(theme), [theme]);
+
+  const handleNotificationsPress = async () => {
+    if (permissionGranted) {
+      Alert.alert(
+        'Bildirimler',
+        'Bildirimler zaten açık. Kapatmak için sistem ayarlarına gidebilirsin.',
+        [
+          { text: 'Vazgeç', style: 'cancel' },
+          { text: 'Ayarları Aç', onPress: () => Linking.openSettings() },
+        ]
+      );
+      return;
+    }
+    const granted = await requestPermission();
+    if (!granted) {
+      Alert.alert(
+        'İzin Reddedildi',
+        'Bildirim göndermek için izin gerekli. Sistem ayarlarından açabilirsin.',
+        [
+          { text: 'Vazgeç', style: 'cancel' },
+          { text: 'Ayarları Aç', onPress: () => Linking.openSettings() },
+        ]
+      );
+    }
+  };
 
   return (
     <SafeAreaView style={s.container}>
@@ -104,21 +177,8 @@ export default function SettingsScreen() {
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
 
-        <SettingsGroup title="GÖRÜNÜM" theme={theme}>
-          <SettingRow
-            icon={isDark ? '☀' : '☽'}
-            label="Karanlık Mod"
-            sublabel={isDark ? 'Açık' : 'Kapalı'}
-            theme={theme}
-            right={
-              <Switch
-                value={isDark}
-                onValueChange={toggleTheme}
-                trackColor={{ false: theme.colors.border, true: theme.colors.primary + '88' }}
-                thumbColor={isDark ? theme.colors.primary : theme.colors.textMuted}
-              />
-            }
-          />
+        <SettingsGroup title="TERCİHLER" theme={theme}>
+          <ThemeSelector theme={theme} themeMode={themeMode} setThemeMode={setThemeMode} />
           <View style={{ height: 1, backgroundColor: theme.colors.border, marginLeft: 66 }} />
           <SettingRow
             icon={soundEnabled ? '🔊' : '🔇'}
@@ -133,6 +193,15 @@ export default function SettingsScreen() {
                 thumbColor={soundEnabled ? theme.colors.primary : theme.colors.textMuted}
               />
             }
+          />
+          <View style={{ height: 1, backgroundColor: theme.colors.border, marginLeft: 66 }} />
+          <SettingRow
+            icon="🔔"
+            label="Bildirimler"
+            sublabel={permissionGranted ? 'Açık' : 'Kapalı — yeni paketler ve hatırlatıcılar'}
+            theme={theme}
+            right={<Text style={{ color: theme.colors.textMuted, fontSize: 18 }}>›</Text>}
+            onPress={handleNotificationsPress}
           />
         </SettingsGroup>
 

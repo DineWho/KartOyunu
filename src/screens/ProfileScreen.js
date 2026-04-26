@@ -5,9 +5,11 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../ThemeContext';
 import { useStats } from '../context/StatsContext';
 import { useBadges } from '../context/BadgesContext';
+import { useAuth } from '../context/AuthContext';
 import Toast from '../components/Toast';
 import { rs, rf, MODAL_MAX_WIDTH } from '../utils/responsive';
 
@@ -19,6 +21,8 @@ export default function ProfileScreen() {
   const s = useMemo(() => makeStyles(theme), [theme]);
   const { getTotalStats, clearStats } = useStats();
   const { earnedIds, allBadges } = useBadges();
+  const { user, isAnonymous, signOut } = useAuth();
+  const navigation = useNavigation();
   const [confirmVisible, setConfirmVisible] = useState(false);
   const [toastVisible, setToastVisible] = useState(false);
   const scaleAnim = useRef(new Animated.Value(0.88)).current;
@@ -119,18 +123,27 @@ export default function ProfileScreen() {
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
 
-        {/* Avatar & Name Placeholder */}
+        {/* Avatar & Name */}
         <View style={s.profileTop}>
           <View style={s.avatarWrap}>
             <LinearGradient
               colors={isDark ? ['#2A2758', '#131340'] : ['#EDE9FF', '#D8D3EE']}
               style={s.avatar}
             >
-              <Text style={s.avatarIcon}>◎</Text>
+              <Text style={s.avatarIcon}>{isAnonymous ? '◎' : '✓'}</Text>
             </LinearGradient>
           </View>
-          <Text style={s.guestName}>Misafir</Text>
-          <Text style={s.guestSub}>Hesap oluşturarak ilerlemeni kaydet</Text>
+          <Text style={s.guestName}>
+            {isAnonymous ? 'Misafir' : (user?.displayName || user?.email || 'Üye')}
+          </Text>
+          <Text style={s.guestSub}>
+            {isAnonymous ? 'Hesap oluşturarak ilerlemeni kaydet' : 'Hesabına bağlısın'}
+          </Text>
+          {!isAnonymous && (
+            <TouchableOpacity style={s.signOutBtn} onPress={signOut} activeOpacity={0.7}>
+              <Text style={[s.signOutText, { color: theme.colors.textMuted }]}>Çıkış Yap</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         {/* Stats */}
@@ -206,38 +219,44 @@ export default function ProfileScreen() {
           ))}
         </View>
 
-        {/* Auth CTA */}
-        <View style={s.authCard}>
-          <LinearGradient
-            colors={isDark ? ['#1A1A52', '#0D0D28'] : ['#EDE9FF', '#F5F3FF']}
-            style={StyleSheet.absoluteFill}
-          />
-          <Text style={s.authTitle}>Hesabını Oluştur</Text>
-          <Text style={s.authDesc}>
-            Favorilerini ve istatistiklerini tüm cihazlarında sakla. Üyelik tamamen ücretsiz.
-          </Text>
-
-          <TouchableOpacity
-            style={[s.authBtn, { backgroundColor: theme.colors.primary }]}
-            activeOpacity={0.84}
-            onPress={() => {}}
-          >
-            <Text style={s.authBtnText}>Üye Ol</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={s.loginBtn} onPress={() => {}} activeOpacity={0.7}>
-            <Text style={[s.loginBtnText, { color: theme.colors.primary }]}>
-              Zaten hesabım var → Giriş Yap
+        {/* Auth CTA — yalnızca misafir kullanıcılara göster */}
+        {isAnonymous && (
+          <View style={s.authCard}>
+            <LinearGradient
+              colors={isDark ? ['#1A1A52', '#0D0D28'] : ['#EDE9FF', '#F5F3FF']}
+              style={StyleSheet.absoluteFill}
+            />
+            <Text style={s.authTitle}>Hesabını Oluştur</Text>
+            <Text style={s.authDesc}>
+              Hesap oluşturarak ilerlemeni ve favorilerini kalıcı olarak kaydet. Üyelik tamamen ücretsiz.
             </Text>
-          </TouchableOpacity>
-        </View>
+
+            <TouchableOpacity
+              style={[s.authBtn, { backgroundColor: theme.colors.primary }]}
+              activeOpacity={0.84}
+              onPress={() => navigation.navigate('Login', { mode: 'register' })}
+            >
+              <Text style={s.authBtnText}>Üye Ol</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={s.loginBtn}
+              onPress={() => navigation.navigate('Login', { mode: 'login' })}
+              activeOpacity={0.7}
+            >
+              <Text style={[s.loginBtnText, { color: theme.colors.primary }]}>
+                Zaten hesabım var → Giriş Yap
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         {/* Features list */}
         <View style={s.featureList}>
           {[
             { icon: '♥', text: 'Favori sorularını kaydet' },
             { icon: '📊', text: 'İstatistikleri takip et' },
-            { icon: '🔄', text: 'Tüm cihazlarda senkronize' },
+            { icon: '🔄', text: 'İlerlemeni kalıcı olarak sakla' },
             { icon: '🔓', text: 'Premium modlara erişim' },
           ].map((f, i) => (
             <View key={i} style={s.featureRow}>
@@ -306,6 +325,15 @@ const makeStyles = (theme) => StyleSheet.create({
     fontSize: rf(13),
     color: theme.colors.textSecondary,
     textAlign: 'center',
+  },
+  signOutBtn: {
+    marginTop: rs(10),
+    paddingVertical: rs(6),
+    paddingHorizontal: rs(16),
+  },
+  signOutText: {
+    fontSize: rf(13),
+    fontWeight: '600',
   },
   confirmOverlay: {
     flex: 1,

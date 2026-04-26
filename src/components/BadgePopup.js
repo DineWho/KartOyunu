@@ -116,30 +116,33 @@ export default function BadgePopup() {
             },
           ]}
         >
-          {/* Accent strip */}
+          {/* Accent strip — flush to top, clipped by panel borderRadius */}
           <View style={[styles.strip, { backgroundColor: badge.color }]} />
 
-          {/* Icon + sparkles container */}
-          <View style={styles.iconContainer}>
-            {SPARKLE_ANGLES.map((angle, i) => (
-              <SparkleParticle key={angle} angle={angle} color={badge.color} anim={sparkleAnims[i]} />
-            ))}
-            <Animated.View
-              style={[
-                styles.iconCircle,
-                { backgroundColor: badge.color + '20', borderColor: badge.color + '55' },
-                { transform: [{ scale: iconScaleAnim }] },
-              ]}
-            >
-              <Feather name={badge.icon} size={34} color={badge.color} />
+          {/* Content with horizontal padding */}
+          <View style={styles.panelContent}>
+            {/* Icon + sparkles container */}
+            <View style={styles.iconContainer}>
+              {SPARKLE_ANGLES.map((angle, i) => (
+                <SparkleParticle key={angle} angle={angle} color={badge.color} anim={sparkleAnims[i]} />
+              ))}
+              <Animated.View
+                style={[
+                  styles.iconCircle,
+                  { backgroundColor: badge.color + '20', borderColor: badge.color + '55' },
+                  { transform: [{ scale: iconScaleAnim }] },
+                ]}
+              >
+                <Feather name={badge.icon} size={34} color={badge.color} />
+              </Animated.View>
+            </View>
+
+            <Animated.View style={{ transform: [{ translateY: textSlideAnim }], opacity: textOpacityAnim }}>
+              <Text style={[styles.label, { color: theme.colors.textMuted }]}>YENİ ROZET</Text>
+              <Text style={[styles.title, { color: theme.colors.text }]}>{badge.title}</Text>
+              <Text style={[styles.desc, { color: theme.colors.textSecondary }]}>{badge.desc}</Text>
             </Animated.View>
           </View>
-
-          <Animated.View style={{ transform: [{ translateY: textSlideAnim }], opacity: textOpacityAnim }}>
-            <Text style={[styles.label, { color: theme.colors.textMuted }]}>YENİ ROZET</Text>
-            <Text style={[styles.title, { color: theme.colors.text }]}>{badge.title}</Text>
-            <Text style={[styles.desc, { color: theme.colors.textSecondary }]}>{badge.desc}</Text>
-          </Animated.View>
         </Animated.View>
       </Animated.View>
     </Modal>
@@ -158,9 +161,8 @@ const styles = StyleSheet.create({
     width: '100%',
     borderRadius: 24,
     borderWidth: 1,
-    overflow: 'visible',
+    overflow: 'hidden',
     alignItems: 'center',
-    paddingHorizontal: 24,
     paddingBottom: 28,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 20 },
@@ -169,12 +171,14 @@ const styles = StyleSheet.create({
     elevation: 24,
   },
   strip: {
-    height: 4,
+    height: 6,
     alignSelf: 'stretch',
-    marginHorizontal: -24,
     marginBottom: 26,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
+  },
+  panelContent: {
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    alignSelf: 'stretch',
   },
   iconContainer: {
     width: 76,

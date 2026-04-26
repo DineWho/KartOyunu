@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/react-native';
 import React, { useState } from 'react';
 import { StatusBar } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
@@ -9,6 +10,9 @@ import { FavoritesProvider } from './src/context/FavoritesContext';
 import { StatsProvider } from './src/context/StatsContext';
 import { BadgesProvider } from './src/context/BadgesContext';
 import { AudioProvider } from './src/context/AudioContext';
+import { AuthProvider } from './src/context/AuthContext';
+import { RemoteConfigProvider } from './src/context/RemoteConfigContext';
+import { NotificationProvider } from './src/context/NotificationContext';
 import BadgePopup from './src/components/BadgePopup';
 import SplashScreen from './src/screens/SplashScreen';
 import HomeScreen from './src/screens/HomeScreen';
@@ -18,7 +22,13 @@ import CardScreen from './src/screens/CardScreen';
 import FavoritesScreen from './src/screens/FavoritesScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
+import LoginScreen from './src/screens/LoginScreen';
 import TabBar from './src/components/TabBar';
+
+Sentry.init({
+  dsn: 'https://d16a2e5547169720bfb1be9b6cb5dfd1@o4511281614487552.ingest.de.sentry.io/4511281616257104',
+  tracesSampleRate: 1.0,
+});
 
 const RootStack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -61,6 +71,11 @@ function AppShell() {
             component={CardScreen}
             options={{ gestureEnabled: false }}
           />
+          <RootStack.Screen
+            name="Login"
+            component={LoginScreen}
+            options={{ presentation: 'modal' }}
+          />
         </RootStack.Navigator>
       </NavigationContainer>
       <BadgePopup />
@@ -68,20 +83,28 @@ function AppShell() {
   );
 }
 
-export default function App() {
+function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemeProvider>
-        <AudioProvider>
-          <StatsProvider>
-            <FavoritesProvider>
-              <BadgesProvider>
-                <AppShell />
-              </BadgesProvider>
-            </FavoritesProvider>
-          </StatsProvider>
-        </AudioProvider>
+        <AuthProvider>
+          <RemoteConfigProvider>
+            <NotificationProvider>
+              <AudioProvider>
+                <StatsProvider>
+                  <FavoritesProvider>
+                    <BadgesProvider>
+                      <AppShell />
+                    </BadgesProvider>
+                  </FavoritesProvider>
+                </StatsProvider>
+              </AudioProvider>
+            </NotificationProvider>
+          </RemoteConfigProvider>
+        </AuthProvider>
       </ThemeProvider>
     </GestureHandlerRootView>
   );
 }
+
+export default Sentry.wrap(App);

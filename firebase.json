@@ -1,0 +1,6 @@
+{
+  "react-native": {
+    "messaging_android_notification_color": "@color/colorPrimary",
+    "messaging_ios_foreground_auto_presentation": true
+  }
+}

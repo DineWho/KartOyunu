@@ -526,7 +526,7 @@ export default function HomeScreen() {
         {!selectedCategory && !isSearchActive && categoryRecs.length > 0 && (
           <>
             <View style={s.sectionHeader}>
-              <Text style={s.sectionTitle}>Senin kategorin</Text>
+              <Text style={s.sectionTitle}>Senin Kategorin</Text>
               <View style={s.sectionLine} />
             </View>
             <ScrollView
@@ -582,7 +582,7 @@ export default function HomeScreen() {
         {!selectedCategory && !isSearchActive && favoriteRecs.length > 0 && (
           <>
             <View style={s.sectionHeader}>
-              <Text style={s.sectionTitle}>Favorilerine göre</Text>
+              <Text style={s.sectionTitle}>Favorilerine Göre</Text>
               <View style={s.sectionLine} />
             </View>
             <ScrollView

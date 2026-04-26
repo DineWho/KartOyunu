@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "953093478907",
+    "project_id": "cardwho",
+    "storage_bucket": "cardwho.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:953093478907:android:897226c05215372d97935e",
+        "android_client_info": {
+          "package_name": "com.erikmedya.cardwho"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "953093478907-0rcm7no4djkundi1npbb0lu88gtjcs75.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.erikmedya.cardwho",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "953093478907-r82poh07p24a9s9o9ltupdvok5e7brr4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyASyiShL6vRclbol9Lrh0n6OiDi1nMNVd4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "953093478907-r82poh07p24a9s9o9ltupdvok5e7brr4.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "953093478907-8851vo8vkt2mfdvmh6fate6kcu4bn691.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.erikmedya.cardwho"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

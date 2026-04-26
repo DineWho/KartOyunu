@@ -159,3 +159,18 @@ const { totalCards, totalFavorited, modsPlayed } = getTotalStats();
 **Storage keys:**
 - `@cardwho_favorites` — Favoriler
 - `@cardwho_stats` — İstatistikler (JSON array)
+
+---
+
+## Release Sonrası Kontrol Listesi
+
+**Her yeni sürüm yayınlandıktan sonra Claude otomatik olarak şunları yapar:**
+
+1. **Sentry kontrolü** — `mcp__claude_ai_Sentry__search_issues` ile son 7 gündeki yeni/unresolved hataları çek
+   - Org: `erik-medya`, Project: `cardwho`, Region: `https://de.sentry.io`
+   - Kritik hata varsa → öncelikli düzelt
+   - Küçük hatalar varsa → raporla, sonraki sprint'e ekle
+2. **Crash-free rate** — Sentry Insights'ta sessions/users oranına bak
+3. Hata yoksa kullanıcıya kısaca bildir: "Sentry temiz, sorun yok"
+
+> Bu adım kullanıcı "release yaptık" veya "yeni sürüm çıktı" dediğinde otomatik devreye girer. Ayrıca sormaya gerek yok.

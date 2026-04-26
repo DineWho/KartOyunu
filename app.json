@@ -14,10 +14,20 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.erikmedya.cardwho"
+      "bundleIdentifier": "com.erikmedya.cardwho",
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "usesAppleSignIn": true,
+      "entitlements": {
+        "aps-environment": "development"
+      },
+      "infoPlist": {
+        "UIBackgroundModes": ["remote-notification", "fetch"]
+      }
     },
     "android": {
       "package": "com.erikmedya.cardwho",
+      "googleServicesFile": "./google-services.json",
+      "permissions": ["POST_NOTIFICATIONS"],
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#7B35CC"
@@ -26,6 +36,37 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      [
+        "@sentry/react-native",
+        {
+          "url": "https://de.sentry.io",
+          "project": "cardwho",
+          "organization": "erik-medya"
+        }
+      ],
+      "@react-native-firebase/app",
+      "@react-native-firebase/auth",
+      [
+        "@react-native-firebase/messaging",
+        {
+          "ios": {
+            "requestPermissions": false
+          }
+        }
+      ],
+      "expo-apple-authentication",
+      "expo-web-browser",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "static"
+          }
+        }
+      ],
+      "./plugins/withFirebasePodfileFix"
+    ]
   }
 }

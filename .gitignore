@@ -33,6 +33,9 @@ yarn-error.*
 # local env files
 .env*.local
 
+# Sentry auth token (secret - do not commit)
+sentry.properties
+
 # typescript
 *.tsbuildinfo
 

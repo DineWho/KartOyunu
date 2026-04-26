@@ -5,30 +5,34 @@ import { darkTheme, lightTheme } from './theme';
 
 const STORAGE_KEY = '@cardwho_theme';
 
-const ThemeContext = createContext({ theme: darkTheme, isDark: true, toggleTheme: () => {} });
+const ThemeContext = createContext({ theme: darkTheme, isDark: true, themeMode: 'dark', setThemeMode: () => {} });
 
 export function ThemeProvider({ children }) {
   const systemScheme = useColorScheme();
-  const [isDark, setIsDark] = useState(systemScheme !== 'light');
+  const [themeMode, setThemeModeState] = useState('system');
 
   useEffect(() => {
     AsyncStorage.getItem(STORAGE_KEY).then((saved) => {
-      if (saved !== null) setIsDark(saved === 'dark');
+      if (saved === 'dark' || saved === 'light' || saved === 'system') {
+        setThemeModeState(saved);
+      } else if (saved !== null) {
+        // eski kayıt: 'dark' veya 'light' dışında bir şey gelirse system'e çek
+        setThemeModeState('system');
+      }
     }).catch(() => {});
   }, []);
 
-  const toggleTheme = () => {
-    setIsDark(prev => {
-      const next = !prev;
-      AsyncStorage.setItem(STORAGE_KEY, next ? 'dark' : 'light').catch(() => {});
-      return next;
-    });
+  const setThemeMode = (mode) => {
+    setThemeModeState(mode);
+    AsyncStorage.setItem(STORAGE_KEY, mode).catch(() => {});
   };
 
+  const systemIsDark = systemScheme === 'dark';
+  const isDark = themeMode === 'system' ? systemIsDark : themeMode === 'dark';
   const theme = isDark ? darkTheme : lightTheme;
 
   return (
-    <ThemeContext.Provider value={{ theme, isDark, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, isDark, themeMode, setThemeMode }}>
       {children}
     </ThemeContext.Provider>
   );
