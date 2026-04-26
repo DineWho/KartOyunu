@@ -130,6 +130,20 @@ Soru eklemeden önce bu kriterleri kontrol et:
 
 ---
 
+## Türkçe Yazım Kuralları
+
+Aşama 3 sonunda standardize edilen kurallar. Yeni soru/metin yazarken bunlara uy:
+
+- **Vurgu için tırnak**: Türkçe akıllı çift tırnak `"..."` (`U+201C`/`U+201D`). ASCII düz `"..."` ya da kıvrık tek `'...'` kullanma.
+- **Türkçe ek için kesme işareti**: `'` (`U+2019`). Örn: `red flag'i`, `Venüs'ünde`, `2000'lerin`.
+- **Soru cümlesi**: `?` ile biter. Tarama soruları (Doğruluk Cesaret pack'lerindeki gibi) emir kipiyle de bitebilir.
+- **İki nokta üst üste sonrası**: Büyük harfle başlar. Örn: `"Mutfakla aran nasıl: Hiç girmez misin..."`. Liste de olsa kural geçerli.
+- **`upperTR()` kullanımı**: Section label'lar (`KART`, `SÜRE`, `KİŞİ` vb.) için Türkçe `i → İ` dönüşümü. CSS `text-transform: uppercase` kullanma.
+- **"sen / siz" hitabı**: Kategori bağlamına göre kullanılır — Çiftler ve İlk Buluşma "sen", Aile/Grup "siz" ağırlıklı, Arkadaşlar karışık (kart bireysel ya da grup yöneliyorsa).
+- **Evet/hayır kapanışı**: Soru evet/hayır ile kapanmıyor — ya açık uçlu ya da doğal devam soru üretir. Tartışma pack'lerinde alternatif (`mı / yoksa mı?`) yapısı doğal devam sayılır.
+
+---
+
 ## Yasak ve Riskli Soru Tipleri
 
 Aşağıdaki soru tiplerini **kesinlikle yazma:**
