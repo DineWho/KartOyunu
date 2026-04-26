@@ -25,6 +25,7 @@ import FavoritesScreen from './src/screens/FavoritesScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import AccountInfoScreen from './src/screens/AccountInfoScreen';
+import NotificationsScreen from './src/screens/NotificationsScreen';
 import LoginScreen from './src/screens/LoginScreen';
 import TabBar from './src/components/TabBar';
 
@@ -86,6 +87,7 @@ function AppShell() {
             options={{ presentation: 'modal' }}
           />
           <RootStack.Screen name="AccountInfo" component={AccountInfoScreen} />
+          <RootStack.Screen name="Notifications" component={NotificationsScreen} />
         </RootStack.Navigator>
       </NavigationContainer>
       <BadgePopup />

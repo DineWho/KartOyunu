@@ -1,29 +1,120 @@
-import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
-import { Platform, PermissionsAndroid } from 'react-native';
+import React, { createContext, useContext, useEffect, useState, useRef, useCallback } from 'react';
+import { Platform, PermissionsAndroid, AppState } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import messaging from '@react-native-firebase/messaging';
 
 const TOKEN_KEY = '@cardwho_fcm_token';
 const ENABLED_KEY = '@cardwho_notifications_enabled';
 const ONBOARDED_KEY = '@cardwho_notif_onboarded';
+const HISTORY_KEY = '@cardwho_notifications';
+const HISTORY_MAX = 100;
 
 const NotificationContext = createContext({
   fcmToken: null,
   permissionGranted: false,
   notificationsEnabled: false,
   onboardingStatus: 'loading', // 'loading' | 'pending' | 'done'
+  notifications: [],
+  unreadCount: 0,
   requestPermission: async () => false,
   toggleNotifications: async () => false,
   setNotificationsEnabled: () => {},
   completeOnboarding: async () => {},
+  refreshNotifications: async () => {},
+  removeNotification: async () => {},
+  clearNotifications: async () => {},
+  markAllRead: async () => {},
 });
+
+function makeNotificationRecord(remoteMessage, source) {
+  const id =
+    remoteMessage?.messageId ||
+    `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+  const title =
+    remoteMessage?.notification?.title ||
+    remoteMessage?.data?.title ||
+    null;
+  const body =
+    remoteMessage?.notification?.body ||
+    remoteMessage?.data?.body ||
+    null;
+  const data = remoteMessage?.data ? { ...remoteMessage.data } : {};
+  return {
+    id,
+    title,
+    body,
+    data,
+    receivedAt: Date.now(),
+    read: source === 'opened' || source === 'cold-open',
+    source: source || 'foreground',
+  };
+}
+
+async function persistAppendNotification(record) {
+  try {
+    const raw = await AsyncStorage.getItem(HISTORY_KEY);
+    const list = raw ? JSON.parse(raw) : [];
+    // Aynı id varsa güncelleme: mevcutu çıkar
+    const filtered = Array.isArray(list) ? list.filter((n) => n.id !== record.id) : [];
+    filtered.unshift(record);
+    const capped = filtered.slice(0, HISTORY_MAX);
+    await AsyncStorage.setItem(HISTORY_KEY, JSON.stringify(capped));
+    return capped;
+  } catch {
+    return null;
+  }
+}
 
 export function NotificationProvider({ children }) {
   const [fcmToken, setFcmToken] = useState(null);
   const [permissionGranted, setPermissionGranted] = useState(false);
   const [notificationsEnabled, setNotificationsEnabledState] = useState(false);
   const [onboardingStatus, setOnboardingStatus] = useState('loading');
+  const [notifications, setNotifications] = useState([]);
   const initRan = useRef(false);
+
+  const loadNotifications = useCallback(async () => {
+    try {
+      const raw = await AsyncStorage.getItem(HISTORY_KEY);
+      if (!raw) {
+        setNotifications([]);
+        return;
+      }
+      const parsed = JSON.parse(raw);
+      setNotifications(Array.isArray(parsed) ? parsed : []);
+    } catch {
+      setNotifications([]);
+    }
+  }, []);
+
+  const addNotification = useCallback(async (remoteMessage, source) => {
+    const record = makeNotificationRecord(remoteMessage, source);
+    const next = await persistAppendNotification(record);
+    if (next) setNotifications(next);
+  }, []);
+
+  const removeNotification = useCallback(async (id) => {
+    setNotifications((prev) => {
+      const next = prev.filter((n) => n.id !== id);
+      AsyncStorage.setItem(HISTORY_KEY, JSON.stringify(next)).catch(() => {});
+      return next;
+    });
+  }, []);
+
+  const clearNotifications = useCallback(async () => {
+    setNotifications([]);
+    try {
+      await AsyncStorage.removeItem(HISTORY_KEY);
+    } catch {}
+  }, []);
+
+  const markAllRead = useCallback(async () => {
+    setNotifications((prev) => {
+      const next = prev.map((n) => (n.read ? n : { ...n, read: true }));
+      AsyncStorage.setItem(HISTORY_KEY, JSON.stringify(next)).catch(() => {});
+      return next;
+    });
+  }, []);
 
   const persistEnabled = async (value) => {
     setNotificationsEnabledState(value);
@@ -132,32 +223,43 @@ export function NotificationProvider({ children }) {
       } catch {
         setOnboardingStatus('done');
       }
+
+      await loadNotifications();
     })();
 
     const unsubRefresh = messaging().onTokenRefresh(persistToken);
 
-    const unsubForeground = messaging().onMessage(async () => {
-      // Foreground'da gelen mesaj — şimdilik no-op,
-      // gelecekte in-app banner gösterimi için.
+    const unsubForeground = messaging().onMessage(async (remoteMessage) => {
+      addNotification(remoteMessage, 'foreground');
     });
 
-    const unsubOpened = messaging().onNotificationOpenedApp(() => {
-      // Arka planda açılmış uygulamaya bildirimle dönüş — deep link burada.
+    const unsubOpened = messaging().onNotificationOpenedApp((remoteMessage) => {
+      addNotification(remoteMessage, 'opened');
     });
 
     messaging()
       .getInitialNotification()
-      .then(() => {
-        // Uygulama tamamen kapalıyken bildirimden açıldı.
+      .then((remoteMessage) => {
+        if (remoteMessage) addNotification(remoteMessage, 'cold-open');
       })
       .catch(() => {});
+
+    // Arka planda gelen mesajlar index.js'teki setBackgroundMessageHandler ile
+    // doğrudan AsyncStorage'a yazılır. Uygulama foreground'a geçtiğinde state
+    // tazeleyebilmek için AppState dinleyicisi var.
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') loadNotifications();
+    });
 
     return () => {
       unsubRefresh();
       unsubForeground();
       unsubOpened();
+      sub.remove();
     };
-  }, []);
+  }, [loadNotifications, addNotification]);
+
+  const unreadCount = notifications.reduce((acc, n) => acc + (n.read ? 0 : 1), 0);
 
   return (
     <NotificationContext.Provider
@@ -166,10 +268,16 @@ export function NotificationProvider({ children }) {
         permissionGranted,
         notificationsEnabled,
         onboardingStatus,
+        notifications,
+        unreadCount,
         requestPermission,
         toggleNotifications,
         setNotificationsEnabled: persistEnabled,
         completeOnboarding,
+        refreshNotifications: loadNotifications,
+        removeNotification,
+        clearNotifications,
+        markAllRead,
       }}
     >
       {children}

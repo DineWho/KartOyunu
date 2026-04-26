@@ -15,6 +15,7 @@ import Toast from '../components/Toast';
 import ConfirmPanel from '../components/ConfirmPanel';
 import Greeting from '../components/Greeting';
 import { useUserProfile } from '../context/UserProfileContext';
+import { useNotifications } from '../context/NotificationContext';
 import { rs, rf } from '../utils/responsive';
 
 const GROUP_ORDER = ['İlerleme', 'Favoriler', 'Paylaşım', 'Keşif', 'Oyunlar', 'Çeşitlilik', 'Kategoriler', 'Seviyeler'];
@@ -52,6 +53,7 @@ export default function ProfileScreen() {
   const { clearFavorites } = useFavorites();
   const { user, isAnonymous, signOut, deleteAccount } = useAuth();
   const { profile: userProfile } = useUserProfile();
+  const { unreadCount } = useNotifications();
   const navigation = useNavigation();
 
   const [clearStatsVisible, setClearStatsVisible] = useState(false);
@@ -439,6 +441,21 @@ export default function ProfileScreen() {
           <View style={s.accountSection}>
             <Text style={s.sectionTitle}>HESAP</Text>
             <View style={[s.accountGroup, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
+              <TouchableOpacity
+                style={s.accountRow}
+                onPress={() => navigation.navigate('Notifications')}
+                activeOpacity={0.72}
+              >
+                <Feather name="bell" size={18} color={theme.colors.textSecondary} />
+                <Text style={[s.accountRowText, { color: theme.colors.text, flex: 1 }]}>Bildirimler</Text>
+                {unreadCount > 0 && (
+                  <View style={[s.unreadBadge, { backgroundColor: theme.colors.danger }]}>
+                    <Text style={s.unreadBadgeText}>{unreadCount > 99 ? '99+' : unreadCount}</Text>
+                  </View>
+                )}
+                <Feather name="chevron-right" size={18} color={theme.colors.textMuted} />
+              </TouchableOpacity>
+              <View style={[s.accountDivider, { backgroundColor: theme.colors.border }]} />
               <TouchableOpacity
                 style={s.accountRow}
                 onPress={() => navigation.navigate('AccountInfo')}
@@ -861,5 +878,19 @@ const makeStyles = (theme) => StyleSheet.create({
   accountDivider: {
     height: StyleSheet.hairlineWidth,
     marginLeft: rs(46),
+  },
+  unreadBadge: {
+    minWidth: rs(20),
+    height: rs(20),
+    borderRadius: rs(10),
+    paddingHorizontal: rs(6),
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: rs(2),
+  },
+  unreadBadgeText: {
+    color: '#FFFFFF',
+    fontSize: rf(11),
+    fontWeight: '800',
   },
 });
