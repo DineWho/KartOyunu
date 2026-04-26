@@ -4,25 +4,26 @@ import {
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../ThemeContext';
 import { useNotifications } from '../context/NotificationContext';
 import ScreenHeader from '../components/ScreenHeader';
 import ConfirmPanel from '../components/ConfirmPanel';
 import { rs, rf } from '../utils/responsive';
 
-function relativeTime(ts) {
+function relativeTime(ts, t, language) {
   if (!ts) return '';
   const diff = Date.now() - ts;
   const sec = Math.round(diff / 1000);
-  if (sec < 60) return 'şimdi';
+  if (sec < 60) return t('time.now');
   const min = Math.round(sec / 60);
-  if (min < 60) return `${min} dk önce`;
+  if (min < 60) return t('time.minAgo', { count: min });
   const hr = Math.round(min / 60);
-  if (hr < 24) return `${hr} sa önce`;
+  if (hr < 24) return t('time.hourAgo', { count: hr });
   const day = Math.round(hr / 24);
-  if (day < 7) return `${day} gün önce`;
+  if (day < 7) return t('time.dayAgo', { count: day });
   try {
-    return new Date(ts).toLocaleDateString(undefined, {
+    return new Date(ts).toLocaleDateString(language || undefined, {
       day: 'numeric', month: 'short', year: 'numeric',
     });
   } catch {
@@ -32,6 +33,7 @@ function relativeTime(ts) {
 
 export default function NotificationsScreen() {
   const { theme } = useTheme();
+  const { t } = useTranslation();
   const s = useMemo(() => makeStyles(theme), [theme]);
   const {
     notifications, refreshNotifications, removeNotification, clearNotifications, markAllRead,
@@ -68,7 +70,7 @@ export default function NotificationsScreen() {
   return (
     <SafeAreaView style={s.container}>
       <ScreenHeader
-        title="Bildirimler"
+        title={t('notifications.title')}
         right={
           isEmpty ? null : (
             <TouchableOpacity
@@ -87,10 +89,8 @@ export default function NotificationsScreen() {
           <View style={[s.emptyIconWrap, { backgroundColor: theme.colors.surfaceElevated }]}>
             <Feather name="bell" size={36} color={theme.colors.textMuted} />
           </View>
-          <Text style={s.emptyTitle}>Henüz bildirim yok</Text>
-          <Text style={s.emptyDesc}>
-            Yeni içerikler ve duyurular burada görünecek.
-          </Text>
+          <Text style={s.emptyTitle}>{t('notifications.emptyTitle')}</Text>
+          <Text style={s.emptyDesc}>{t('notifications.emptyDesc')}</Text>
         </View>
       ) : (
         <FlatList
@@ -110,9 +110,9 @@ export default function NotificationsScreen() {
         iconName="trash-2"
         iconColor={theme.colors.danger}
         stripColor={theme.colors.danger}
-        title="Tüm bildirimleri sil"
-        description={'Tüm bildirim geçmişin silinecek.\n\nBu işlem geri alınamaz.'}
-        confirmLabel="Evet, Tümünü Sil"
+        title={t('notifications.clearTitle')}
+        description={t('notifications.clearDesc')}
+        confirmLabel={t('notifications.clearBtn')}
         confirmDanger
         onConfirm={handleClearAll}
       />
@@ -122,15 +122,16 @@ export default function NotificationsScreen() {
 
 function NotificationItem({ item, onDelete }) {
   const { theme } = useTheme();
+  const { t, i18n } = useTranslation();
   const s = useMemo(() => makeStyles(theme), [theme]);
 
   const onPressDelete = () => {
     Alert.alert(
-      'Bildirimi sil',
-      'Bu bildirimi silmek istediğine emin misin?',
+      t('notifications.deleteTitle'),
+      t('notifications.deleteDesc'),
       [
-        { text: 'Vazgeç', style: 'cancel' },
-        { text: 'Sil', style: 'destructive', onPress: () => onDelete(item.id) },
+        { text: t('common.cancel'), style: 'cancel' },
+        { text: t('common.delete'), style: 'destructive', onPress: () => onDelete(item.id) },
       ]
     );
   };
@@ -146,9 +147,9 @@ function NotificationItem({ item, onDelete }) {
       <View style={s.itemContent}>
         <View style={s.itemTopLine}>
           <Text style={s.itemTitle} numberOfLines={1}>
-            {item.title || 'Bildirim'}
+            {item.title || t('notifications.defaultTitle')}
           </Text>
-          <Text style={s.itemTime}>{relativeTime(item.receivedAt)}</Text>
+          <Text style={s.itemTime}>{relativeTime(item.receivedAt, t, i18n.language)}</Text>
         </View>
         {item.body ? (
           <Text style={s.itemBody} numberOfLines={3}>

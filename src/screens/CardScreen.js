@@ -8,6 +8,7 @@ import { Feather } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import { cards, categories } from '../data';
 import { useTheme } from '../ThemeContext';
 import { useFavorites } from '../context/FavoritesContext';
@@ -17,19 +18,20 @@ import { useAudio } from '../context/AudioContext';
 import QuestionShareCard from '../components/QuestionShareCard';
 import { shareQuestionCard } from '../utils/shareQuestionCard';
 import Confetti from '../components/Confetti';
+import { upperLocale, useUpperT } from '../i18n/upper';
 import { rs, rf, isTablet, CARD_MAX_WIDTH } from '../utils/responsive';
 
 const { width, height } = Dimensions.get('window');
 const SWIPE_THRESHOLD = 100;
 const LEFT_EDGE_ZONE = 22;
 
-const upperTR = (str) => str.replace(/i/g, 'İ').toUpperCase();
-
 export default function CardScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const { mod } = route.params;
   const { theme } = useTheme();
+  const { t, i18n } = useTranslation();
+  const tu = useUpperT();
   const s = useMemo(() => makeStyles(theme), [theme]);
   const { addFavorite } = useFavorites();
   const { addStat, getTotalStats } = useStats();
@@ -264,9 +266,9 @@ export default function CardScreen() {
 
     const didShare = await shareQuestionCard({
       cardRef: shareCardRef,
-      message: `"${question}"\n\n— CardWho ile oynuyoruz 🎴`,
+      message: t('card.shareMessage', { question }),
       title: 'CardWho',
-      filename: 'cardwho-soru',
+      filename: t('card.shareFilename'),
     });
 
     if (didShare) {
@@ -300,18 +302,18 @@ export default function CardScreen() {
               />
               <Text style={s.finishedBadgeEmoji}>🎉</Text>
             </View>
-            <Text style={s.finishedTitle}>Mod Tamamlandı</Text>
+            <Text style={s.finishedTitle}>{t('card.finishedTitle')}</Text>
             <Text style={s.finishedSub}>
               {sessionFavorites.length > 0
-                ? `${sessionFavorites.length} soruyu favorilediniz`
-                : 'Tüm kartları tamamladınız'}
+                ? t('card.finishedSubFavorited', { count: sessionFavorites.length })
+                : t('card.finishedSubAll')}
             </Text>
           </View>
 
           {sessionFavorites.length > 0 && (
             <View style={s.favSection}>
               <View style={s.favSectionHeader}>
-                <Text style={s.favSectionTitle}>Favorilenen Sorular</Text>
+                <Text style={s.favSectionTitle}>{t('card.favoritedQuestions')}</Text>
                 <View style={[s.favCount, { backgroundColor: catColor + '22', borderColor: catColor + '44' }]}>
                   <Text style={[s.favCountText, { color: catColor }]}>{sessionFavorites.length}</Text>
                 </View>
@@ -333,7 +335,7 @@ export default function CardScreen() {
                 end={{ x: 1, y: 0 }}
                 style={s.finishedBtn}
               >
-                <Text style={s.finishedBtnText}>Tekrar Oyna</Text>
+                <Text style={s.finishedBtnText}>{t('card.playAgain')}</Text>
               </LinearGradient>
             </TouchableOpacity>
             <TouchableOpacity
@@ -341,7 +343,7 @@ export default function CardScreen() {
               onPress={() => navigation.navigate('MainTabs', { screen: 'Home' })}
               activeOpacity={0.75}
             >
-              <Text style={[s.finishedBtnText, { color: theme.colors.text }]}>Ana Sayfa</Text>
+              <Text style={[s.finishedBtnText, { color: theme.colors.text }]}>{t('card.home')}</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -359,7 +361,7 @@ export default function CardScreen() {
         <QuestionShareCard
           ref={shareCardRef}
           question={currentCard}
-          label={`${mod.emoji}  ${upperTR(mod.title)}`}
+          label={`${mod.emoji}  ${upperLocale(mod.title, i18n.language)}`}
           color={catColor}
         />
       </View>
@@ -404,7 +406,7 @@ export default function CardScreen() {
             <View style={[s.cardTopStripe, { backgroundColor: catColor, opacity: 0.65 }]} />
             <View style={s.cardInner}>
               <Text style={[s.cardCategory, { color: catColor }]}>
-                {mod.emoji}  {upperTR(mod.title)}
+                {mod.emoji}  {upperLocale(mod.title, i18n.language)}
               </Text>
               <Text style={s.cardQuestion}>{nextCard}</Text>
             </View>
@@ -442,12 +444,12 @@ export default function CardScreen() {
 
           <Animated.View style={[s.swipeLabel, s.skipLabel, { opacity: skipOpacity }]}>
             <View style={[s.swipeLabelBg, { backgroundColor: '#E74C3C18', borderColor: '#E74C3C' }]} />
-            <Text style={[s.swipeLabelText, { color: '#E74C3C' }]}>GEÇ</Text>
+            <Text style={[s.swipeLabelText, { color: '#E74C3C' }]}>{tu('card.skip')}</Text>
           </Animated.View>
 
           <Animated.View style={[s.swipeLabel, s.favLabel, { opacity: favoriteOpacity }]}>
             <View style={[s.swipeLabelBg, { backgroundColor: '#27AE6018', borderColor: '#27AE60' }]} />
-            <Text style={[s.swipeLabelText, { color: '#27AE60' }]}>FAVORİ</Text>
+            <Text style={[s.swipeLabelText, { color: '#27AE60' }]}>{tu('card.favorite')}</Text>
           </Animated.View>
 
           <View style={s.cardInner}>
@@ -458,11 +460,11 @@ export default function CardScreen() {
             <View style={s.hintRow}>
               <View style={s.hintPill}>
                 <Feather name="arrow-left" size={12} color="#E74C3C" />
-                <Text style={[s.hintPillText, { color: '#E74C3C' }]}>Geç</Text>
+                <Text style={[s.hintPillText, { color: '#E74C3C' }]}>{t('card.skipHint')}</Text>
               </View>
               <View style={s.hintDot} />
               <View style={s.hintPill}>
-                <Text style={[s.hintPillText, { color: '#27AE60' }]}>Favorile</Text>
+                <Text style={[s.hintPillText, { color: '#27AE60' }]}>{t('card.favoriteHint')}</Text>
                 <Feather name="arrow-right" size={12} color="#27AE60" />
               </View>
             </View>
@@ -484,7 +486,7 @@ export default function CardScreen() {
           </View>
           <TouchableOpacity style={s.shareBtn} onPress={handleShare} activeOpacity={0.75}>
             <Feather name="share-2" size={15} color={theme.colors.textSecondary} />
-            <Text style={s.shareBtnText}>Paylaş</Text>
+            <Text style={s.shareBtnText}>{t('card.share')}</Text>
           </TouchableOpacity>
         </View>
 

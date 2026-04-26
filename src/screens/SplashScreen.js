@@ -1,12 +1,14 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Animated, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useTranslation } from 'react-i18next';
 
 const { width: screenWidth } = Dimensions.get('window');
 const GLOW_SIZE = screenWidth * 0.75;
 const CARD_SCALE = Math.min(screenWidth / 390, 1.45);
 
 export default function SplashScreen({ onFinish }) {
+  const { t } = useTranslation();
   const cardsOpacity = useRef(new Animated.Value(0)).current;
   const cardsScale = useRef(new Animated.Value(0.65)).current;
   const logoOpacity = useRef(new Animated.Value(0)).current;
@@ -70,7 +72,7 @@ export default function SplashScreen({ onFinish }) {
       </Animated.Text>
 
       <Animated.Text style={[styles.tagline, { opacity: taglineOpacity }]}>
-        Sessizliği bitiren modlar
+        {t('splash.tagline')}
       </Animated.Text>
     </Animated.View>
   );

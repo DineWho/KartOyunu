@@ -8,6 +8,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { ThemeProvider, useTheme } from './src/ThemeContext';
+import { initI18n } from './src/i18n';
 import { FavoritesProvider } from './src/context/FavoritesContext';
 import { StatsProvider } from './src/context/StatsContext';
 import { BadgesProvider } from './src/context/BadgesContext';
@@ -36,6 +37,9 @@ Sentry.init({
   tracesSampleRate: 1.0,
 });
 
+// Modül yüklenir yüklenmez init başlat — Splash render'ından önce promise akıyor olur.
+const i18nReadyPromise = initI18n().catch(() => {});
+
 const RootStack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -60,8 +64,19 @@ function AppShell() {
   // açılmadığımıza karar vereceğiz; karar verilene kadar Splash sürer.
   const [initialPushChecked, setInitialPushChecked] = useState(false);
   const [initialPushTarget, setInitialPushTarget] = useState(null);
+  const [i18nReady, setI18nReady] = useState(false);
   const { theme, isDark } = useTheme();
   const { onboardingStatus, addNotification } = useNotifications();
+
+  useEffect(() => {
+    let cancelled = false;
+    i18nReadyPromise.finally(() => {
+      if (!cancelled) setI18nReady(true);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -83,7 +98,7 @@ function AppShell() {
     };
   }, [addNotification]);
 
-  if (!splashDone || !initialPushChecked) {
+  if (!splashDone || !initialPushChecked || !i18nReady) {
     return <SplashScreen onFinish={() => setSplashDone(true)} />;
   }
 

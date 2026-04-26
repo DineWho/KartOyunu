@@ -6,6 +6,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../ThemeContext';
 import { useStats } from '../context/StatsContext';
 import { useBadges } from '../context/BadgesContext';
@@ -16,29 +17,31 @@ import ConfirmPanel from '../components/ConfirmPanel';
 import Greeting from '../components/Greeting';
 import { useUserProfile } from '../context/UserProfileContext';
 import { useNotifications } from '../context/NotificationContext';
+import { useUpperT } from '../i18n/upper';
 import { rs, rf } from '../utils/responsive';
 
+// Badge.group field'ı data'dan TR string olarak geliyor (Aşama 4'te çevrilecek).
 const GROUP_ORDER = ['İlerleme', 'Favoriler', 'Paylaşım', 'Keşif', 'Oyunlar', 'Çeşitlilik', 'Kategoriler', 'Seviyeler'];
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
-function providerInfo(user) {
+function providerInfo(user, t) {
   const id = user?.providerData?.[0]?.providerId;
   switch (id) {
-    case 'google.com': return { label: 'Google ile bağlı', icon: 'G', color: '#4285F4' };
-    case 'apple.com':  return { label: 'Apple ile bağlı', icon: 'A', color: '#111111' };
-    case 'password':   return { label: 'E-posta ile bağlı', icon: '@', color: null };
+    case 'google.com': return { label: t('profile.providerGoogle'), icon: 'G', color: '#4285F4' };
+    case 'apple.com':  return { label: t('profile.providerApple'), icon: 'A', color: '#111111' };
+    case 'password':   return { label: t('profile.providerEmail'), icon: '@', color: null };
     default:           return null;
   }
 }
 
-function formatJoinDate(creationTime) {
+function formatJoinDate(creationTime, language) {
   if (!creationTime) return null;
   try {
     const d = new Date(creationTime);
-    return d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+    return d.toLocaleDateString(language || undefined, { day: 'numeric', month: 'long', year: 'numeric' });
   } catch {
     return null;
   }
@@ -46,6 +49,8 @@ function formatJoinDate(creationTime) {
 
 export default function ProfileScreen() {
   const { theme, isDark } = useTheme();
+  const { t, i18n } = useTranslation();
+  const tu = useUpperT();
   const { width } = useWindowDimensions();
   const s = useMemo(() => makeStyles(theme), [theme]);
   const { getTotalStats, clearStats } = useStats();
@@ -66,9 +71,9 @@ export default function ProfileScreen() {
   const stats = getTotalStats();
   const cellWidth = (width - 40) / 4;
 
-  const provider = !isAnonymous ? providerInfo(user) : null;
-  const joinDate = !isAnonymous ? formatJoinDate(user?.metadata?.creationTime) : null;
-  const displayName = user?.displayName || user?.email || 'Üye';
+  const provider = !isAnonymous ? providerInfo(user, t) : null;
+  const joinDate = !isAnonymous ? formatJoinDate(user?.metadata?.creationTime, i18n.language) : null;
+  const displayName = user?.displayName || user?.email || t('profile.fallbackName');
 
   const badgeGroups = useMemo(() => {
     const map = {};
@@ -80,12 +85,12 @@ export default function ProfileScreen() {
   }, [allBadges]);
 
   const statItems = [
-    { value: stats.totalGames, label: 'Oynanan Oyun' },
-    { value: stats.totalFavorited, label: 'Favori' },
-    { value: stats.categoriesPlayed, label: 'Oynanan Kategori' },
-    { value: stats.modsPlayed, label: 'Oynanan Mod' },
-    { value: stats.levelsPlayed, label: 'Oynanan Seviye' },
-    { value: stats.questionsShared, label: 'Paylaşılan Soru' },
+    { value: stats.totalGames, label: t('profile.stats.games') },
+    { value: stats.totalFavorited, label: t('profile.stats.favorites') },
+    { value: stats.categoriesPlayed, label: t('profile.stats.categories') },
+    { value: stats.modsPlayed, label: t('profile.stats.mods') },
+    { value: stats.levelsPlayed, label: t('profile.stats.levels') },
+    { value: stats.questionsShared, label: t('profile.stats.shared') },
   ];
   const hasStats = stats.totalCards > 0 || stats.questionsShared > 0;
 
@@ -97,7 +102,7 @@ export default function ProfileScreen() {
   const handleClearStats = () => {
     clearStats();
     setClearStatsVisible(false);
-    setTimeout(() => showToast('İstatistikler sıfırlandı'), 250);
+    setTimeout(() => showToast(t('profile.confirm.statsResetToast')), 250);
   };
 
   const handleSignOut = async () => {
@@ -117,18 +122,18 @@ export default function ProfileScreen() {
     } catch (e) {
       if (e?.code === 'auth/requires-recent-login') {
         Alert.alert(
-          'Yeniden giriş gerekli',
-          'Güvenlik için hesabını silmeden önce yeniden giriş yapman gerekiyor.',
+          t('profile.reauthTitle'),
+          t('profile.reauthDesc'),
           [
-            { text: 'Vazgeç', style: 'cancel' },
-            { text: 'Giriş Yap', onPress: async () => {
+            { text: t('common.cancel'), style: 'cancel' },
+            { text: t('profile.reauthLogin'), onPress: async () => {
                 try { await signOut(); } catch {}
                 navigation.navigate('Login', { mode: 'login' });
               } },
           ]
         );
       } else {
-        Alert.alert('Hata', 'Hesap silinemedi. Lütfen tekrar dene.');
+        Alert.alert(t('profile.deleteFailedTitle'), t('profile.deleteFailedDesc'));
       }
     }
   };
@@ -149,9 +154,9 @@ export default function ProfileScreen() {
         iconName="trash-2"
         iconColor={theme.colors.danger}
         stripColor={theme.colors.danger}
-        title="İstatistikleri Sıfırla"
-        description={`İstatistiklerinizin tamamı silinecek.\n\nBu işlem geri alınamaz.`}
-        confirmLabel="Evet, Sıfırla"
+        title={t('profile.confirm.clearStatsTitle')}
+        description={t('profile.confirm.clearStatsDesc')}
+        confirmLabel={t('profile.confirm.clearStatsBtn')}
         confirmDanger
         onConfirm={handleClearStats}
       />
@@ -162,9 +167,9 @@ export default function ProfileScreen() {
         iconName="log-out"
         iconColor={theme.colors.primary}
         stripColor={theme.colors.primary}
-        title="Çıkış yapmak istediğine emin misin?"
-        description="Hesabına yeniden giriş yaparak içeriklerine ulaşabilirsin."
-        confirmLabel="Evet, Çıkış Yap"
+        title={t('profile.confirm.signOutTitle')}
+        description={t('profile.confirm.signOutDesc')}
+        confirmLabel={t('profile.confirm.signOutBtn')}
         confirmDanger={false}
         onConfirm={handleSignOut}
       />
@@ -175,9 +180,9 @@ export default function ProfileScreen() {
         iconName="trash-2"
         iconColor={theme.colors.danger}
         stripColor={theme.colors.danger}
-        title="Hesabını silmek istediğine emin misin?"
-        description={`Tüm hesap bilgileriniz kalıcı olarak silinecek.`}
-        confirmLabel="Evet, Hesabımı Sil"
+        title={t('profile.confirm.deleteTitle')}
+        description={t('profile.confirm.deleteDesc')}
+        confirmLabel={t('profile.confirm.deleteBtn')}
         confirmDanger
         onConfirm={handleDeleteAccount}
       />
@@ -200,16 +205,16 @@ export default function ProfileScreen() {
             </LinearGradient>
             {!isAnonymous && (
               <View style={[s.memberChip, { backgroundColor: theme.colors.success }]}>
-                <Text style={s.memberChipText}>ÜYE</Text>
+                <Text style={s.memberChipText}>{t('profile.memberBadge')}</Text>
               </View>
             )}
           </View>
           <Text style={s.guestName}>
-            {isAnonymous ? 'Misafir' : displayName}
+            {isAnonymous ? t('profile.guest') : displayName}
           </Text>
 
           {isAnonymous ? (
-            <Text style={s.guestSub}>Hesap oluşturarak ilerlemeni kaydet</Text>
+            <Text style={s.guestSub}>{t('profile.guestSub')}</Text>
           ) : (
             <View style={s.memberMeta}>
               {provider && (
@@ -222,7 +227,7 @@ export default function ProfileScreen() {
               )}
               {joinDate && (
                 <Text style={[s.joinDate, { color: theme.colors.textMuted }]}>
-                  {joinDate} tarihinden beri üye
+                  {t('profile.memberSince', { date: joinDate })}
                 </Text>
               )}
             </View>
@@ -234,7 +239,7 @@ export default function ProfileScreen() {
           <View style={isAnonymous ? s.lockedContent : null} pointerEvents={isAnonymous ? 'none' : 'auto'}>
             {/* Stats */}
             <View style={s.statsSection}>
-              <Text style={s.sectionTitle}>İSTATİSTİKLER</Text>
+              <Text style={s.sectionTitle}>{tu('profile.statsTitle')}</Text>
               <View style={s.statsGrid}>
                 {statItems.map((stat, i) => (
                   <View
@@ -256,7 +261,7 @@ export default function ProfileScreen() {
                   onPress={() => setClearStatsVisible(true)}
                   activeOpacity={0.72}
                 >
-                  <Text style={s.clearStatsText}>İstatistikleri Sıfırla</Text>
+                  <Text style={s.clearStatsText}>{t('profile.clearStats')}</Text>
                 </TouchableOpacity>
               )}
             </View>
@@ -264,7 +269,7 @@ export default function ProfileScreen() {
             {/* Badges (collapsible w/ peek) */}
             <View style={s.badgesSection}>
               <View style={s.badgesHeader}>
-                <Text style={s.sectionTitle}>ROZETLER</Text>
+                <Text style={s.sectionTitle}>{tu('profile.badgesTitle')}</Text>
                 <Text style={[s.badgesCount, { color: theme.colors.textMuted }]}>
                   {earnedIds.size} / {allBadges.length}
                 </Text>
@@ -359,7 +364,7 @@ export default function ProfileScreen() {
                 disabled={isAnonymous}
               >
                 <Text style={[s.badgesToggleText, { color: theme.colors.primary }]}>
-                  {badgesExpanded ? 'Daralt' : `Tüm rozetleri göster (${allBadges.length})`}
+                  {badgesExpanded ? t('profile.badgesCollapse') : t('profile.badgesShowAll', { count: allBadges.length })}
                 </Text>
                 <Feather
                   name={badgesExpanded ? 'chevron-up' : 'chevron-down'}
@@ -380,8 +385,8 @@ export default function ProfileScreen() {
                 <View style={[s.lockIconWrap, { backgroundColor: theme.colors.primary + '14', borderColor: theme.colors.primary + '38' }]}>
                   <Feather name="lock" size={22} color={theme.colors.primary} />
                 </View>
-                <Text style={[s.lockTitle, { color: theme.colors.text }]}>İstatistikler ve rozetler üyelere özel</Text>
-                <Text style={[s.lockCta, { color: theme.colors.primary }]}>Görmek için üye ol →</Text>
+                <Text style={[s.lockTitle, { color: theme.colors.text }]}>{t('profile.lockTitle')}</Text>
+                <Text style={[s.lockCta, { color: theme.colors.primary }]}>{t('profile.lockCta')}</Text>
               </View>
             </TouchableOpacity>
           )}
@@ -394,9 +399,9 @@ export default function ProfileScreen() {
               colors={isDark ? ['#1A1A52', '#0D0D28'] : ['#EDE9FF', '#F5F3FF']}
               style={StyleSheet.absoluteFill}
             />
-            <Text style={s.authTitle}>Hesabını Oluştur</Text>
+            <Text style={s.authTitle}>{t('profile.createAccountTitle')}</Text>
             <Text style={s.authDesc}>
-              Hesap oluşturarak ilerlemeni ve favorilerini kalıcı olarak kaydet. Üyelik tamamen ücretsiz.
+              {t('profile.createAccountDesc')}
             </Text>
 
             <TouchableOpacity
@@ -404,7 +409,7 @@ export default function ProfileScreen() {
               activeOpacity={0.84}
               onPress={() => navigation.navigate('Login', { mode: 'register' })}
             >
-              <Text style={s.authBtnText}>Üye Ol</Text>
+              <Text style={s.authBtnText}>{t('profile.register')}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -413,7 +418,7 @@ export default function ProfileScreen() {
               activeOpacity={0.7}
             >
               <Text style={[s.loginBtnText, { color: theme.colors.primary }]}>
-                Zaten hesabım var → Giriş Yap
+                {t('profile.haveAccount')}
               </Text>
             </TouchableOpacity>
           </View>
@@ -423,10 +428,10 @@ export default function ProfileScreen() {
         {isAnonymous && (
           <View style={s.featureList}>
             {[
-              { icon: '♥', text: 'Favori sorularını kaydet' },
-              { icon: '📊', text: 'İstatistikleri takip et' },
-              { icon: '🔄', text: 'İlerlemeni kalıcı olarak sakla' },
-              { icon: '🔓', text: 'Premium modlara erişim' },
+              { icon: '♥', text: t('profile.feature.favorites') },
+              { icon: '📊', text: t('profile.feature.stats') },
+              { icon: '🔄', text: t('profile.feature.save') },
+              { icon: '🔓', text: t('profile.feature.premium') },
             ].map((f, i) => (
               <View key={i} style={s.featureRow}>
                 <Text style={s.featureIcon}>{f.icon}</Text>
@@ -439,7 +444,7 @@ export default function ProfileScreen() {
         {/* HESAP — sadece üye */}
         {!isAnonymous && (
           <View style={s.accountSection}>
-            <Text style={s.sectionTitle}>HESAP</Text>
+            <Text style={s.sectionTitle}>{tu('profile.accountTitle')}</Text>
             <View style={[s.accountGroup, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
               <TouchableOpacity
                 style={s.accountRow}
@@ -447,7 +452,7 @@ export default function ProfileScreen() {
                 activeOpacity={0.72}
               >
                 <Feather name="bell" size={18} color={theme.colors.textSecondary} />
-                <Text style={[s.accountRowText, { color: theme.colors.text, flex: 1 }]}>Bildirimler</Text>
+                <Text style={[s.accountRowText, { color: theme.colors.text, flex: 1 }]}>{t('profile.notifications')}</Text>
                 {unreadCount > 0 && (
                   <View style={[s.unreadBadge, { backgroundColor: theme.colors.danger }]}>
                     <Text style={s.unreadBadgeText}>{unreadCount > 99 ? '99+' : unreadCount}</Text>
@@ -462,7 +467,7 @@ export default function ProfileScreen() {
                 activeOpacity={0.72}
               >
                 <Feather name="user" size={18} color={theme.colors.textSecondary} />
-                <Text style={[s.accountRowText, { color: theme.colors.text, flex: 1 }]}>Hesap Bilgileri</Text>
+                <Text style={[s.accountRowText, { color: theme.colors.text, flex: 1 }]}>{t('profile.accountInfo')}</Text>
                 <Feather name="chevron-right" size={18} color={theme.colors.textMuted} />
               </TouchableOpacity>
               <View style={[s.accountDivider, { backgroundColor: theme.colors.border }]} />
@@ -474,7 +479,7 @@ export default function ProfileScreen() {
                     activeOpacity={0.72}
                   >
                     <Feather name="rotate-ccw" size={18} color={theme.colors.textSecondary} />
-                    <Text style={[s.accountRowText, { color: theme.colors.text }]}>İstatistikleri Sıfırla</Text>
+                    <Text style={[s.accountRowText, { color: theme.colors.text }]}>{t('profile.clearStats')}</Text>
                   </TouchableOpacity>
                   <View style={[s.accountDivider, { backgroundColor: theme.colors.border }]} />
                 </>
@@ -485,7 +490,7 @@ export default function ProfileScreen() {
                 activeOpacity={0.72}
               >
                 <Feather name="log-out" size={18} color={theme.colors.textSecondary} />
-                <Text style={[s.accountRowText, { color: theme.colors.text }]}>Çıkış Yap</Text>
+                <Text style={[s.accountRowText, { color: theme.colors.text }]}>{t('profile.signOut')}</Text>
               </TouchableOpacity>
               <View style={[s.accountDivider, { backgroundColor: theme.colors.border }]} />
               <TouchableOpacity
@@ -494,7 +499,7 @@ export default function ProfileScreen() {
                 activeOpacity={0.72}
               >
                 <Feather name="trash-2" size={18} color={theme.colors.danger} />
-                <Text style={[s.accountRowText, { color: theme.colors.danger }]}>Hesabımı Sil</Text>
+                <Text style={[s.accountRowText, { color: theme.colors.danger }]}>{t('profile.deleteAccount')}</Text>
               </TouchableOpacity>
             </View>
           </View>

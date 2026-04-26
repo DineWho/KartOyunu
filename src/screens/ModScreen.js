@@ -7,8 +7,10 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import * as Haptics from 'expo-haptics';
+import { useTranslation } from 'react-i18next';
 import { categories } from '../data';
 import { useTheme } from '../ThemeContext';
+import { useUpperT } from '../i18n/upper';
 import { rs, rf } from '../utils/responsive';
 
 export default function ModScreen() {
@@ -16,6 +18,8 @@ export default function ModScreen() {
   const route = useRoute();
   const { mod } = route.params;
   const { theme } = useTheme();
+  const { t } = useTranslation();
+  const tu = useUpperT();
   const s = useMemo(() => makeStyles(theme), [theme]);
   const category = categories.find(c => c.id === mod.categoryId);
   const catColor = category?.color || theme.colors.primary;
@@ -48,10 +52,10 @@ export default function ModScreen() {
   const peopleVal = mod.people.replace(/\s*kişi$/i, '');
 
   const stats = [
-    { value: String(mod.cardCount), label: 'KART' },
-    { value: mod.duration, label: 'SÜRE' },
-    { value: peopleVal, label: 'KİŞİ' },
-    { value: mod.level, label: 'SEVİYE' },
+    { value: String(mod.cardCount), label: tu('mod.section.card') },
+    { value: mod.duration, label: tu('mod.section.duration') },
+    { value: peopleVal, label: tu('mod.section.people') },
+    { value: mod.level, label: tu('mod.section.level') },
   ];
 
   return (
@@ -60,7 +64,7 @@ export default function ModScreen() {
       <Animated.View style={[s.header, { opacity: headerAnim }]}>
         <TouchableOpacity style={s.backBtn} onPress={() => navigation.goBack()} activeOpacity={0.8}>
           <Feather name="arrow-left" size={16} color="rgba(255,255,255,0.9)" />
-          <Text style={s.backBtnText}>Geri</Text>
+          <Text style={s.backBtnText}>{t('mod.back')}</Text>
         </TouchableOpacity>
         <Text style={s.headerEmoji}>{mod.emoji}</Text>
         <Text style={s.headerTitle}>{mod.title}</Text>
@@ -91,13 +95,13 @@ export default function ModScreen() {
           </View>
 
           <View style={s.section}>
-            <Text style={s.sectionLabel}>HAKKINDA</Text>
+            <Text style={s.sectionLabel}>{tu('mod.section.about')}</Text>
             <Text style={s.description}>{mod.description}</Text>
           </View>
 
           {!!mod.expectation && (
             <View style={s.section}>
-              <Text style={s.sectionLabel}>NE BEKLEMELİ?</Text>
+              <Text style={s.sectionLabel}>{tu('mod.section.expectation')}</Text>
               <View style={[s.quoteCard, { borderLeftColor: catColor }]}>
                 <Text style={[s.quoteChar, { color: catColor }]}>"</Text>
                 <Text style={s.quoteText}>{mod.expectation}</Text>
@@ -115,10 +119,8 @@ export default function ModScreen() {
                 <View style={s.premiumIconWrap}>
                   <Feather name="lock" size={26} color="#D4A843" />
                 </View>
-                <Text style={s.premiumTitle}>Premium Mod</Text>
-                <Text style={s.premiumDesc}>
-                  Bu moda erişmek için Premium'a geç. Tüm premium modlara sınırsız erişim.
-                </Text>
+                <Text style={s.premiumTitle}>{t('mod.premiumTitle')}</Text>
+                <Text style={s.premiumDesc}>{t('mod.premiumDesc')}</Text>
               </View>
             </View>
           )}
@@ -131,7 +133,7 @@ export default function ModScreen() {
             {mod.isPremium ? (
               <View style={[s.startButton, s.startButtonLocked]}>
                 <Feather name="lock" size={17} color={theme.colors.textMuted} />
-                <Text style={s.startButtonTextLocked}>Premium Gerekli</Text>
+                <Text style={s.startButtonTextLocked}>{t('mod.premiumRequired')}</Text>
               </View>
             ) : (
               <LinearGradient
@@ -140,7 +142,7 @@ export default function ModScreen() {
                 end={{ x: 1, y: 0 }}
                 style={s.startButton}
               >
-                <Text style={s.startButtonText}>Başlat  →</Text>
+                <Text style={s.startButtonText}>{t('mod.start')}</Text>
               </LinearGradient>
             )}
           </TouchableOpacity>

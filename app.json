@@ -21,13 +21,18 @@
         "aps-environment": "development"
       },
       "infoPlist": {
-        "UIBackgroundModes": ["remote-notification", "fetch"]
+        "UIBackgroundModes": [
+          "remote-notification",
+          "fetch"
+        ]
       }
     },
     "android": {
       "package": "com.erikmedya.cardwho",
       "googleServicesFile": "./google-services.json",
-      "permissions": ["POST_NOTIFICATIONS"],
+      "permissions": [
+        "POST_NOTIFICATIONS"
+      ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#7B35CC"
@@ -65,7 +70,8 @@
           }
         }
       ],
-      "./plugins/withFirebasePodfileFix"
+      "./plugins/withFirebasePodfileFix",
+      "expo-localization"
     ]
   }
 }

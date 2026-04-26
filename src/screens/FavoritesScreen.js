@@ -6,19 +6,20 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../ThemeContext';
 import { useFavorites } from '../context/FavoritesContext';
 import { useStats } from '../context/StatsContext';
 import QuestionShareCard from '../components/QuestionShareCard';
 import { shareQuestionCard } from '../utils/shareQuestionCard';
 import Toast from '../components/Toast';
+import { upperLocale } from '../i18n/upper';
 import { rs, rf, MODAL_MAX_WIDTH } from '../utils/responsive';
 
 const { width, height } = Dimensions.get('window');
 
-const upperTR = (str) => str.replace(/i/g, 'İ').toUpperCase();
-
 function CardModal({ visible, fav, onClose, onRemove, theme }) {
+  const { t, i18n } = useTranslation();
   const slideAnim = useRef(new Animated.Value(height)).current;
   const backdropAnim = useRef(new Animated.Value(0)).current;
   const cardRef = useRef(null);
@@ -64,9 +65,9 @@ function CardModal({ visible, fav, onClose, onRemove, theme }) {
 
     const didShare = await shareQuestionCard({
       cardRef,
-      message: `"${fav.question}"\n\n— CardWho ile oynuyoruz 🎴`,
+      message: t('favorites.shareMessage', { question: fav.question }),
       title: 'CardWho',
-      filename: 'cardwho-favori-soru',
+      filename: t('favorites.shareFilename'),
     });
 
     if (didShare) {
@@ -138,7 +139,7 @@ function CardModal({ visible, fav, onClose, onRemove, theme }) {
           <View style={[styles.cardStripe, { backgroundColor: fav.catColor }]} />
           <View style={styles.cardInner}>
             <Text style={[styles.cardDeckLabel, { color: fav.catColor }]}>
-              {fav.modEmoji}  {upperTR(fav.modTitle)}
+              {fav.modEmoji}  {upperLocale(fav.modTitle, i18n.language)}
             </Text>
             <Text style={styles.cardQuestion}>{fav.question}</Text>
           </View>
@@ -148,7 +149,7 @@ function CardModal({ visible, fav, onClose, onRemove, theme }) {
           <QuestionShareCard
             ref={cardRef}
             question={fav.question}
-            label={`${fav.modEmoji}  ${upperTR(fav.modTitle)}`}
+            label={`${fav.modEmoji}  ${upperLocale(fav.modTitle, i18n.language)}`}
             color={fav.catColor}
             minHeight={height * 0.34}
           />
@@ -166,7 +167,7 @@ function CardModal({ visible, fav, onClose, onRemove, theme }) {
               activeOpacity={0.75}
             >
               <Feather name="trash-2" size={18} color={theme.colors.danger} />
-              <Text style={[styles.actionBtnText, { color: theme.colors.danger }]}>Kaldır</Text>
+              <Text style={[styles.actionBtnText, { color: theme.colors.danger }]}>{t('favorites.removeBtn')}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -181,7 +182,7 @@ function CardModal({ visible, fav, onClose, onRemove, theme }) {
                 style={styles.shareBtnGradient}
               >
                 <Feather name="share-2" size={18} color="#FFFFFF" />
-                <Text style={styles.shareBtnText}>Paylaş</Text>
+                <Text style={styles.shareBtnText}>{t('home.share')}</Text>
               </LinearGradient>
             </TouchableOpacity>
           </View>
@@ -202,10 +203,10 @@ function CardModal({ visible, fav, onClose, onRemove, theme }) {
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={[styles.confirmRemoveTitle, { color: theme.colors.text }]}>
-                  Favorilerden kaldır?
+                  {t('favorites.removeConfirmTitle')}
                 </Text>
                 <Text style={[styles.confirmRemoveQuestion, { color: theme.colors.textMuted }]}>
-                  Emin misiniz? Bu işlem geri alınamaz.
+                  {t('favorites.removeConfirmDesc')}
                 </Text>
               </View>
             </View>
@@ -220,7 +221,7 @@ function CardModal({ visible, fav, onClose, onRemove, theme }) {
                 activeOpacity={0.72}
               >
                 <Text style={[styles.confirmRemoveBtnText, { color: theme.colors.textSecondary }]}>
-                  Vazgeç
+                  {t('common.cancel')}
                 </Text>
               </TouchableOpacity>
 
@@ -232,7 +233,7 @@ function CardModal({ visible, fav, onClose, onRemove, theme }) {
                 activeOpacity={0.82}
               >
                 <Feather name="trash-2" size={14} color="#FFFFFF" />
-                <Text style={[styles.confirmRemoveBtnText, { color: '#FFFFFF' }]}>Kaldır</Text>
+                <Text style={[styles.confirmRemoveBtnText, { color: '#FFFFFF' }]}>{t('favorites.removeBtn')}</Text>
               </TouchableOpacity>
             </View>
           </Animated.View>
@@ -424,6 +425,7 @@ const styles = StyleSheet.create({
 export default function FavoritesScreen() {
   const navigation = useNavigation();
   const { theme } = useTheme();
+  const { t } = useTranslation();
   const s = useMemo(() => makeStyles(theme), [theme]);
   const { favorites, removeFavorite } = useFavorites();
   const [selectedFav, setSelectedFav] = useState(null);
@@ -463,21 +465,19 @@ export default function FavoritesScreen() {
     return (
       <SafeAreaView style={s.container}>
         <View style={s.header}>
-          <Text style={s.headerTitle}>Favoriler</Text>
-          <Text style={s.headerSub}>Beğendiğin soruları burada bul</Text>
+          <Text style={s.headerTitle}>{t('favorites.title')}</Text>
+          <Text style={s.headerSub}>{t('favorites.subtitleEmpty')}</Text>
         </View>
         <View style={s.emptyState}>
           <Feather name="heart" size={52} color={theme.colors.primary} style={{ marginBottom: 20 }} />
-          <Text style={s.emptyTitle}>Henüz favori yok</Text>
-          <Text style={s.emptyDesc}>
-            Kart oynarken sağa kaydır — soru bu ekranda görünür.
-          </Text>
+          <Text style={s.emptyTitle}>{t('favorites.emptyTitle')}</Text>
+          <Text style={s.emptyDesc}>{t('favorites.emptyDesc')}</Text>
           <TouchableOpacity
             style={[s.emptyBtn, { backgroundColor: theme.colors.primary }]}
             onPress={() => navigation.navigate('Home')}
             activeOpacity={0.84}
           >
-            <Text style={s.emptyBtnText}>Oynamaya Başla</Text>
+            <Text style={s.emptyBtnText}>{t('favorites.playNow')}</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -487,8 +487,8 @@ export default function FavoritesScreen() {
   return (
     <SafeAreaView style={s.container}>
       <View style={s.header}>
-        <Text style={s.headerTitle}>Favoriler</Text>
-        <Text style={s.headerSub}>{favorites.length} favori soru</Text>
+        <Text style={s.headerTitle}>{t('favorites.title')}</Text>
+        <Text style={s.headerSub}>{t('favorites.subtitle', { count: favorites.length })}</Text>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
@@ -500,7 +500,7 @@ export default function FavoritesScreen() {
               </View>
               <View style={s.groupMeta}>
                 <Text style={s.groupTitle}>{group.modTitle}</Text>
-                <Text style={s.groupCount}>{group.items.length} soru</Text>
+                <Text style={s.groupCount}>{t('favorites.modSubQuestion', { count: group.items.length })}</Text>
               </View>
             </View>
 
@@ -530,7 +530,7 @@ export default function FavoritesScreen() {
 
       <Toast
         visible={toastVisible}
-        message="Favorilerden kaldırıldı"
+        message={t('favorites.removedToast')}
         onHide={() => setToastVisible(false)}
       />
     </SafeAreaView>

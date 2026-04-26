@@ -2,12 +2,14 @@ import React, { useMemo } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, SafeAreaView,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../ThemeContext';
 import { useNotifications } from '../context/NotificationContext';
 import { rs, rf } from '../utils/responsive';
 
 export default function NotificationOnboardingScreen({ onFinish }) {
   const { theme } = useTheme();
+  const { t } = useTranslation();
   const { requestPermission, setNotificationsEnabled, completeOnboarding } = useNotifications();
   const s = useMemo(() => makeStyles(theme), [theme]);
 
@@ -31,26 +33,23 @@ export default function NotificationOnboardingScreen({ onFinish }) {
           <Text style={s.icon}>🔔</Text>
         </View>
 
-        <Text style={s.title}>Bildirimleri açalım mı?</Text>
+        <Text style={s.title}>{t('notifOnboard.title')}</Text>
 
-        <Text style={s.subtitle}>
-          Yeni paketler, sürpriz modlar ve hatırlatıcılar için bildirim gönderelim.
-          İstediğin zaman Ayarlar'dan kapatabilirsin.
-        </Text>
+        <Text style={s.subtitle}>{t('notifOnboard.subtitle')}</Text>
 
         <View style={s.bullets}>
-          <Bullet theme={theme} icon="✨" text="Yeni paket ve modlar çıktığında ilk sen bil" />
-          <Bullet theme={theme} icon="🎯" text="Haftalık hatırlatıcılar ve özel etkinlikler" />
-          <Bullet theme={theme} icon="🔒" text="Spam yok, sadece önemli olanlar" />
+          <Bullet theme={theme} icon="✨" text={t('notifOnboard.bullet1')} />
+          <Bullet theme={theme} icon="🎯" text={t('notifOnboard.bullet2')} />
+          <Bullet theme={theme} icon="🔒" text={t('notifOnboard.bullet3')} />
         </View>
       </View>
 
       <View style={s.actions}>
         <TouchableOpacity style={s.primaryBtn} onPress={handleAllow} activeOpacity={0.85}>
-          <Text style={s.primaryBtnText}>Bildirimlere İzin Ver</Text>
+          <Text style={s.primaryBtnText}>{t('notifOnboard.allow')}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={s.secondaryBtn} onPress={handleSkip} activeOpacity={0.7}>
-          <Text style={s.secondaryBtnText}>Şimdi Değil</Text>
+          <Text style={s.secondaryBtnText}>{t('notifOnboard.later')}</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

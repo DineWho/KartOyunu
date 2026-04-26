@@ -15,6 +15,7 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { Feather } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { useTranslation } from "react-i18next";
 import { cards, categories, mods } from "../data";
 import { useTheme } from "../ThemeContext";
 import { useStats } from "../context/StatsContext";
@@ -141,6 +142,7 @@ const pillStyles = StyleSheet.create({
 export default function HomeScreen() {
   const navigation = useNavigation();
   const { theme, isDark } = useTheme();
+  const { t } = useTranslation();
   const {
     addStat,
     getCompletedModsCount,
@@ -298,9 +300,9 @@ export default function HomeScreen() {
 
     const didShare = await shareQuestionCard({
       cardRef: dailyQuestionCardRef,
-      message: `Günün Sorusu:\n\n"${dailyQuestion.question}"\n\nCardWho`,
-      title: "CardWho - Günün Sorusu",
-      filename: "cardwho-gunun-sorusu",
+      message: t("home.shareDailyMessage", { question: dailyQuestion.question }),
+      title: t("home.shareDailyTitle"),
+      filename: t("home.shareDailyFilename"),
     });
 
     if (didShare) {
@@ -309,12 +311,12 @@ export default function HomeScreen() {
   };
 
   const sectionTitle = () => {
-    if (isSearchActive) return `${displayedMods.length} sonuç`;
-    if (selectedCategory)
-      return (
-        categories.find((c) => c.id === selectedCategory)?.name + " Modları"
-      );
-    return "Tüm Modlar";
+    if (isSearchActive) return t("home.resultCount", { count: displayedMods.length });
+    if (selectedCategory) {
+      const cat = categories.find((c) => c.id === selectedCategory);
+      return t("home.categoryMods", { name: cat?.name ?? "" });
+    }
+    return t("home.allMods");
   };
 
   return (
@@ -354,7 +356,7 @@ export default function HomeScreen() {
 
             <View style={s.modalBadge}>
               <Feather name="star" size={14} color={theme.colors.primary} />
-              <Text style={s.modalBadgeText}>Günün Sorusu</Text>
+              <Text style={s.modalBadgeText}>{t("home.dailyQuestionBadge")}</Text>
             </View>
 
             <View style={s.modalQuestionCard}>
@@ -372,7 +374,7 @@ export default function HomeScreen() {
                 style={s.modalShareBtn}
               >
                 <Feather name="share-2" size={18} color="#FFFFFF" />
-                <Text style={s.modalShareBtnText}>Paylaş</Text>
+                <Text style={s.modalShareBtnText}>{t("home.share")}</Text>
               </LinearGradient>
             </TouchableOpacity>
           </View>
@@ -401,7 +403,7 @@ export default function HomeScreen() {
                 </Text>
                 <Text style={s.appTitle}>CardWho</Text>
               </View>
-              <Text style={s.tagline}>Sessizliği bitiren modlar</Text>
+              <Text style={s.tagline}>{t("home.tagline")}</Text>
             </View>
           </View>
 
@@ -430,7 +432,7 @@ export default function HomeScreen() {
             />
             <TextInput
               style={[s.searchInput, { color: theme.colors.text }]}
-              placeholder="Mod veya kategori ara..."
+              placeholder={t("home.searchPlaceholder")}
               placeholderTextColor={theme.colors.textMuted}
               value={searchQuery}
               onChangeText={setSearchQuery}
@@ -466,7 +468,7 @@ export default function HomeScreen() {
             contentContainerStyle={s.categoryScroll}
           >
             <CategoryPill
-              label="Tümü"
+              label={t("home.all")}
               isActive={!selectedCategory}
               onPress={() => setSelectedCategory(null)}
               theme={theme}
@@ -507,7 +509,7 @@ export default function HomeScreen() {
               <View style={s.dailyHeaderRow}>
                 <View style={s.dailyBadge}>
                   <Feather name="star" size={13} color={theme.colors.primary} />
-                  <Text style={s.dailyBadgeText}>Günün Sorusu</Text>
+                  <Text style={s.dailyBadgeText}>{t("home.dailyQuestionBadge")}</Text>
                 </View>
                 <Feather
                   name="chevron-right"
@@ -526,7 +528,7 @@ export default function HomeScreen() {
         {!selectedCategory && !isSearchActive && categoryRecs.length > 0 && (
           <>
             <View style={s.sectionHeader}>
-              <Text style={s.sectionTitle}>Senin Kategorin</Text>
+              <Text style={s.sectionTitle}>{t("home.yourCategory")}</Text>
               <View style={s.sectionLine} />
             </View>
             <ScrollView
@@ -567,7 +569,7 @@ export default function HomeScreen() {
                     </Text>
                     <View style={s.featuredDivider} />
                     <View style={s.featuredStats}>
-                      <Text style={s.featuredStat}>{mod.cardCount} kart</Text>
+                      <Text style={s.featuredStat}>{t("home.cardCount", { count: mod.cardCount })}</Text>
                       <Text style={s.featuredStatDot}>·</Text>
                       <Text style={s.featuredStat}>{mod.duration}</Text>
                     </View>
@@ -582,7 +584,7 @@ export default function HomeScreen() {
         {!selectedCategory && !isSearchActive && favoriteRecs.length > 0 && (
           <>
             <View style={s.sectionHeader}>
-              <Text style={s.sectionTitle}>Favorilerine Göre</Text>
+              <Text style={s.sectionTitle}>{t("home.byFavorites")}</Text>
               <View style={s.sectionLine} />
             </View>
             <ScrollView
@@ -623,7 +625,7 @@ export default function HomeScreen() {
                     </Text>
                     <View style={s.featuredDivider} />
                     <View style={s.featuredStats}>
-                      <Text style={s.featuredStat}>{mod.cardCount} kart</Text>
+                      <Text style={s.featuredStat}>{t("home.cardCount", { count: mod.cardCount })}</Text>
                       <Text style={s.featuredStatDot}>·</Text>
                       <Text style={s.featuredStat}>{mod.duration}</Text>
                     </View>
@@ -638,7 +640,7 @@ export default function HomeScreen() {
         {!selectedCategory && !isSearchActive && (
           <>
             <View style={s.sectionHeader}>
-              <Text style={s.sectionTitle}>Öne Çıkanlar</Text>
+              <Text style={s.sectionTitle}>{t("home.featured")}</Text>
               <View style={s.sectionLine} />
             </View>
             <ScrollView
@@ -685,7 +687,7 @@ export default function HomeScreen() {
                       </Text>
                       <View style={s.featuredDivider} />
                       <View style={s.featuredStats}>
-                        <Text style={s.featuredStat}>{mod.cardCount} kart</Text>
+                        <Text style={s.featuredStat}>{t("home.cardCount", { count: mod.cardCount })}</Text>
                         <Text style={s.featuredStatDot}>·</Text>
                         <Text style={s.featuredStat}>{mod.duration}</Text>
                       </View>
@@ -712,9 +714,9 @@ export default function HomeScreen() {
               color={theme.colors.textMuted}
               style={{ marginBottom: 14 }}
             />
-            <Text style={s.emptySearchTitle}>Sonuç bulunamadı</Text>
+            <Text style={s.emptySearchTitle}>{t("home.noResultsTitle")}</Text>
             <Text style={s.emptySearchDesc}>
-              "{searchQuery}" için eşleşen mod yok.{"\n"}Farklı bir kelime dene.
+              {t("home.noResultsDesc", { query: searchQuery })}
             </Text>
           </View>
         ) : (
@@ -768,7 +770,7 @@ export default function HomeScreen() {
                           {cat?.icon} {cat?.name}
                         </Text>
                         <Text style={s.deckItemStatDot}>·</Text>
-                        <Text style={s.deckItemStat}>{mod.cardCount} kart</Text>
+                        <Text style={s.deckItemStat}>{t("home.cardCount", { count: mod.cardCount })}</Text>
                         <Text style={s.deckItemStatDot}>·</Text>
                         <Text style={s.deckItemStat}>{mod.duration}</Text>
                       </View>

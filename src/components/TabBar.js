@@ -4,6 +4,7 @@ import {
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../ThemeContext';
 import { useFavorites } from '../context/FavoritesContext';
 
@@ -13,13 +14,14 @@ const TAB_COUNT = 4;
 const INDICATOR_WIDTH = TAB_BAR_WIDTH / TAB_COUNT - 8;
 
 const TABS = [
-  { key: 'Home',      label: 'Ana Sayfa', icon: 'home' },
-  { key: 'Favorites', label: 'Favoriler', icon: 'heart' },
-  { key: 'Settings',  label: 'Ayarlar',   icon: 'settings' },
-  { key: 'Profile',   label: 'Profil',    icon: 'user' },
+  { key: 'Home',      labelKey: 'tabs.home',      icon: 'home' },
+  { key: 'Favorites', labelKey: 'tabs.favorites', icon: 'heart' },
+  { key: 'Settings',  labelKey: 'tabs.settings',  icon: 'settings' },
+  { key: 'Profile',   labelKey: 'tabs.profile',   icon: 'user' },
 ];
 
 export default function TabBar({ state, navigation }) {
+  const { t } = useTranslation();
   const { theme, isDark } = useTheme();
   const { favorites } = useFavorites();
   const indicatorAnim = useRef(new Animated.Value(0)).current;
@@ -104,7 +106,7 @@ export default function TabBar({ state, navigation }) {
                   { color: isActive ? activeColor : inactiveColor },
                   isActive && styles.tabLabelActive,
                 ]}>
-                  {tab.label}
+                  {t(tab.labelKey)}
                 </Text>
               </TouchableOpacity>
             </Animated.View>

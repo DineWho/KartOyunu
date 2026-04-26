@@ -7,12 +7,14 @@ import { Feather } from '@expo/vector-icons';
 import * as Google from 'expo-auth-session/providers/google';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { rs, rf } from '../utils/responsive';
 
 export default function LoginScreen({ route }) {
   const { theme } = useTheme();
+  const { t } = useTranslation();
   const s = useMemo(() => makeStyles(theme), [theme]);
   const navigation = useNavigation();
   const { signInWithEmail, registerWithEmail, signInWithGoogleIdToken, signInWithApple, sendPasswordReset, GOOGLE_WEB_CLIENT_ID } = useAuth();
@@ -37,10 +39,10 @@ export default function LoginScreen({ route }) {
       if (idToken) {
         handleWithLoading(() => signInWithGoogleIdToken(idToken));
       } else {
-        setError('Google ile giriş başarısız oldu.');
+        setError(t('login.errors.googleFail'));
       }
     } else if (googleResponse?.type === 'error') {
-      setError('Google ile giriş başarısız oldu.');
+      setError(t('login.errors.googleFail'));
     }
   }, [googleResponse]);
 
@@ -52,7 +54,7 @@ export default function LoginScreen({ route }) {
       await fn();
       navigation.goBack();
     } catch (e) {
-      setError(friendlyError(e.code));
+      setError(friendlyError(e.code, t));
     } finally {
       setLoading(false);
     }
@@ -61,7 +63,7 @@ export default function LoginScreen({ route }) {
   const handleForgotPassword = async () => {
     if (!email.trim()) {
       setSuccessMessage(null);
-      setError('Önce e-posta adresini gir.');
+      setError(t('login.errors.emailRequired'));
       return;
     }
     setLoading(true);
@@ -69,9 +71,9 @@ export default function LoginScreen({ route }) {
     setSuccessMessage(null);
     try {
       await sendPasswordReset(email.trim());
-      setSuccessMessage('Sıfırlama bağlantısı e-posta adresine gönderildi.');
+      setSuccessMessage(t('login.resetSent'));
     } catch (e) {
-      setError(friendlyError(e.code));
+      setError(friendlyError(e.code, t));
     } finally {
       setLoading(false);
     }
@@ -79,14 +81,14 @@ export default function LoginScreen({ route }) {
 
   const handleEmailSubmit = () => {
     if (!email.trim() || !password.trim()) {
-      setError('E-posta ve şifre gerekli.');
+      setError(t('login.errors.credsRequired'));
       return;
     }
     if (mode === 'login') {
       handleWithLoading(() => signInWithEmail(email.trim(), password));
     } else {
       if (password.length < 6) {
-        setError('Şifre en az 6 karakter olmalı.');
+        setError(t('login.errors.passwordTooShort'));
         return;
       }
       handleWithLoading(() => registerWithEmail(email.trim(), password));
@@ -107,12 +109,10 @@ export default function LoginScreen({ route }) {
         </TouchableOpacity>
 
         <Text style={s.title}>
-          {mode === 'login' ? 'Giriş Yap' : 'Hesap Oluştur'}
+          {mode === 'login' ? t('login.loginTitle') : t('login.registerTitle')}
         </Text>
         <Text style={s.subtitle}>
-          {mode === 'login'
-            ? 'İlerlemenize devam edin'
-            : 'Favorilerinizi ve istatistiklerinizi kaydedin'}
+          {mode === 'login' ? t('login.loginSub') : t('login.registerSub')}
         </Text>
 
         {/* Social sign-in */}
@@ -123,7 +123,7 @@ export default function LoginScreen({ route }) {
           activeOpacity={0.78}
         >
           <Text style={s.googleIcon}>G</Text>
-          <Text style={[s.socialBtnText, { color: theme.colors.text }]}>Google ile devam et</Text>
+          <Text style={[s.socialBtnText, { color: theme.colors.text }]}>{t('login.google')}</Text>
         </TouchableOpacity>
 
         {Platform.OS === 'ios' && (
@@ -143,14 +143,14 @@ export default function LoginScreen({ route }) {
         {/* Divider */}
         <View style={s.divider}>
           <View style={[s.dividerLine, { backgroundColor: theme.colors.border }]} />
-          <Text style={[s.dividerText, { color: theme.colors.textMuted }]}>veya</Text>
+          <Text style={[s.dividerText, { color: theme.colors.textMuted }]}>{t('common.or')}</Text>
           <View style={[s.dividerLine, { backgroundColor: theme.colors.border }]} />
         </View>
 
         {/* Email/password */}
         <TextInput
           style={[s.input, { borderColor: theme.colors.border, backgroundColor: theme.colors.surface, color: theme.colors.text }]}
-          placeholder="E-posta"
+          placeholder={t('login.emailPlaceholder')}
           placeholderTextColor={theme.colors.textMuted}
           value={email}
           onChangeText={setEmail}
@@ -161,7 +161,7 @@ export default function LoginScreen({ route }) {
         />
         <TextInput
           style={[s.input, { borderColor: theme.colors.border, backgroundColor: theme.colors.surface, color: theme.colors.text }]}
-          placeholder="Şifre"
+          placeholder={t('login.passwordPlaceholder')}
           placeholderTextColor={theme.colors.textMuted}
           value={password}
           onChangeText={setPassword}
@@ -176,7 +176,7 @@ export default function LoginScreen({ route }) {
             disabled={loading}
             activeOpacity={0.7}
           >
-            <Text style={[s.forgotText, { color: theme.colors.primary }]}>Şifremi Unuttum</Text>
+            <Text style={[s.forgotText, { color: theme.colors.primary }]}>{t('login.forgot')}</Text>
           </TouchableOpacity>
         )}
 
@@ -192,7 +192,7 @@ export default function LoginScreen({ route }) {
           {loading
             ? <ActivityIndicator color="#fff" />
             : <Text style={s.submitBtnText}>
-                {mode === 'login' ? 'Giriş Yap' : 'Hesap Oluştur'}
+                {mode === 'login' ? t('login.loginTitle') : t('login.registerTitle')}
               </Text>
           }
         </TouchableOpacity>
@@ -203,9 +203,9 @@ export default function LoginScreen({ route }) {
           onPress={() => { setMode(mode === 'login' ? 'register' : 'login'); setError(null); setSuccessMessage(null); }}
         >
           <Text style={[s.toggleText, { color: theme.colors.textSecondary }]}>
-            {mode === 'login' ? 'Hesabın yok mu? ' : 'Zaten hesabın var mı? '}
+            {mode === 'login' ? t('login.noAccount') : t('login.hasAccount')}
             <Text style={{ color: theme.colors.primary, fontWeight: '700' }}>
-              {mode === 'login' ? 'Kayıt Ol' : 'Giriş Yap'}
+              {mode === 'login' ? t('login.register') : t('login.login')}
             </Text>
           </Text>
         </TouchableOpacity>
@@ -214,25 +214,25 @@ export default function LoginScreen({ route }) {
   );
 }
 
-function friendlyError(code) {
+function friendlyError(code, t) {
   switch (code) {
     case 'auth/user-not-found':
     case 'auth/wrong-password':
     case 'auth/invalid-credential':
-      return 'E-posta veya şifre hatalı.';
+      return t('login.errors.wrongCreds');
     case 'auth/email-already-in-use':
-      return 'Bu e-posta zaten kullanımda.';
+      return t('login.errors.emailInUse');
     case 'auth/invalid-email':
-      return 'Geçersiz e-posta adresi.';
+      return t('login.errors.invalidEmail');
     case 'auth/too-many-requests':
-      return 'Çok fazla deneme. Lütfen bekleyin.';
+      return t('login.errors.tooManyRequests');
     case 'auth/credential-already-in-use':
-      return 'Bu hesap başka bir kullanıcıya bağlı.';
+      return t('login.errors.credentialInUse');
     default:
       // Bilinmeyen hatalarda code'u UI'a yansıt; debug ve teşhis kolaylaşsın.
       return code
-        ? `Bir hata oluştu (${code}). Tekrar deneyin.`
-        : 'Bir hata oluştu. Tekrar deneyin.';
+        ? t('login.errors.unknownWithCode', { code })
+        : t('login.errors.unknown');
   }
 }
 

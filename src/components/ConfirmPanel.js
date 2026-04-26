@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Modal, Animated } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../ThemeContext';
 import { rs, rf, MODAL_MAX_WIDTH } from '../utils/responsive';
 
@@ -15,9 +16,11 @@ export default function ConfirmPanel({
   confirmLabel,
   confirmDanger,
   onConfirm,
-  cancelLabel = 'Vazgeç',
+  cancelLabel,
 }) {
   const { theme } = useTheme();
+  const { t } = useTranslation();
+  const resolvedCancelLabel = cancelLabel ?? t('common.cancel');
   const s = useMemo(() => makeStyles(theme), [theme]);
 
   const scaleAnim = useRef(new Animated.Value(0.88)).current;
@@ -74,7 +77,7 @@ export default function ConfirmPanel({
             onPress={onClose}
             activeOpacity={0.72}
           >
-            <Text style={[s.cancelBtnText, { color: theme.colors.textSecondary }]}>{cancelLabel}</Text>
+            <Text style={[s.cancelBtnText, { color: theme.colors.textSecondary }]}>{resolvedCancelLabel}</Text>
           </TouchableOpacity>
         </Animated.View>
       </Animated.View>

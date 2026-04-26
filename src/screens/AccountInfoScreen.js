@@ -4,6 +4,7 @@ import {
   ScrollView, Modal, FlatList, ActivityIndicator, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../ThemeContext';
 import { useUserProfile } from '../context/UserProfileContext';
 import { COUNTRIES, findCountry } from '../data/countries';
@@ -11,18 +12,14 @@ import ScreenHeader from '../components/ScreenHeader';
 import SettingsRow, { SettingsRowDivider } from '../components/SettingsRow';
 import SettingsGroup from '../components/SettingsGroup';
 import Toast from '../components/Toast';
+import { useUpperT } from '../i18n/upper';
 import { rs, rf } from '../utils/responsive';
 
-const GENDER_OPTIONS = [
-  { value: 'female', label: 'Kadın' },
-  { value: 'male', label: 'Erkek' },
-  { value: 'other', label: 'Diğer' },
-  { value: 'prefer_not', label: 'Belirtmek istemiyorum' },
-];
-
-const MONTHS_TR = [
-  'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
-  'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık',
+const GENDER_OPTION_KEYS = [
+  { value: 'female', i18nKey: 'accountInfo.genderOptions.female' },
+  { value: 'male', i18nKey: 'accountInfo.genderOptions.male' },
+  { value: 'other', i18nKey: 'accountInfo.genderOptions.other' },
+  { value: 'prefer_not', i18nKey: 'accountInfo.genderOptions.preferNot' },
 ];
 
 function pad(n) { return String(n).padStart(2, '0'); }
@@ -38,16 +35,23 @@ function formatDate(year, month, day) {
   return `${year}-${pad(month)}-${pad(day)}`;
 }
 
-function formatDateDisplay(str) {
+function formatDateDisplay(str, language) {
   const p = parseDate(str);
   if (!p) return null;
-  // Locale-aware (cihaz). i18n F1'de geldiğinde i18n.language ile değiştirilir.
   try {
-    return new Date(p.year, p.month - 1, p.day).toLocaleDateString(undefined, {
+    return new Date(p.year, p.month - 1, p.day).toLocaleDateString(language || undefined, {
       day: 'numeric', month: 'long', year: 'numeric',
     });
   } catch {
     return `${pad(p.day)}.${pad(p.month)}.${p.year}`;
+  }
+}
+
+function monthLabel(monthNum, language) {
+  try {
+    return new Date(2000, monthNum - 1, 1).toLocaleDateString(language || undefined, { month: 'long' });
+  } catch {
+    return String(monthNum);
   }
 }
 
@@ -57,6 +61,8 @@ function daysInMonth(year, month) {
 
 export default function AccountInfoScreen() {
   const { theme } = useTheme();
+  const { t, i18n } = useTranslation();
+  const tu = useUpperT();
   const { profile, loading, updateProfile } = useUserProfile();
   const s = useMemo(() => makeStyles(theme), [theme]);
 
@@ -108,29 +114,29 @@ export default function AccountInfoScreen() {
         city: city.trim() || null,
         countryCode: countryCode || null,
       });
-      showToast('Kaydedildi');
+      showToast(t('accountInfo.savedToast'));
     } catch {
-      showToast('Kaydedilemedi, tekrar dene');
+      showToast(t('accountInfo.saveFailedToast'));
     } finally {
       setSaving(false);
     }
   };
 
   const genderLabel = useMemo(() => {
-    const opt = GENDER_OPTIONS.find((g) => g.value === gender);
-    return opt ? opt.label : null;
-  }, [gender]);
+    const opt = GENDER_OPTION_KEYS.find((g) => g.value === gender);
+    return opt ? t(opt.i18nKey) : null;
+  }, [gender, t]);
 
   const countryLabel = useMemo(() => {
     const c = findCountry(countryCode);
     return c ? c.name : null;
   }, [countryCode]);
 
-  const birthLabel = useMemo(() => formatDateDisplay(birthDate), [birthDate]);
+  const birthLabel = useMemo(() => formatDateDisplay(birthDate, i18n.language), [birthDate, i18n.language]);
 
   return (
     <SafeAreaView style={s.container}>
-      <ScreenHeader title="Hesap Bilgileri" />
+      <ScreenHeader title={t('accountInfo.title')} />
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -142,17 +148,17 @@ export default function AccountInfoScreen() {
           showsVerticalScrollIndicator={false}
         >
           <Text style={s.intro}>
-            Bilgiler opsiyonel. Sadece girmek istediklerini doldur.
+            {t('accountInfo.intro')}
           </Text>
 
-          <SettingsGroup title="KİŞİSEL">
+          <SettingsGroup title={tu('accountInfo.personalGroup')}>
             <View style={s.fieldRow}>
-              <Text style={s.fieldLabel}>İsim</Text>
+              <Text style={s.fieldLabel}>{t('accountInfo.firstName')}</Text>
               <TextInput
                 style={s.input}
                 value={firstName}
                 onChangeText={setFirstName}
-                placeholder="İsmin"
+                placeholder={t('accountInfo.firstNamePlaceholder')}
                 placeholderTextColor={theme.colors.textMuted}
                 maxLength={40}
                 autoCapitalize="words"
@@ -162,29 +168,29 @@ export default function AccountInfoScreen() {
             <SettingsRowDivider />
             <SettingsRow
               icon="🎂"
-              label="Doğum Tarihi"
-              sublabel={birthLabel || 'Belirtilmedi'}
+              label={t('accountInfo.birthDate')}
+              sublabel={birthLabel || t('common.notSpecified')}
               right={<Feather name="chevron-right" size={18} color={theme.colors.textMuted} />}
               onPress={() => setDatePickerVisible(true)}
             />
             <SettingsRowDivider />
             <SettingsRow
               icon="👤"
-              label="Cinsiyet"
-              sublabel={genderLabel || 'Belirtilmedi'}
+              label={t('accountInfo.gender')}
+              sublabel={genderLabel || t('common.notSpecified')}
               right={<Feather name="chevron-right" size={18} color={theme.colors.textMuted} />}
               onPress={() => setGenderPickerVisible(true)}
             />
           </SettingsGroup>
 
-          <SettingsGroup title="KONUM">
+          <SettingsGroup title={tu('accountInfo.locationGroup')}>
             <View style={s.fieldRow}>
-              <Text style={s.fieldLabel}>Şehir</Text>
+              <Text style={s.fieldLabel}>{t('accountInfo.city')}</Text>
               <TextInput
                 style={s.input}
                 value={city}
                 onChangeText={setCity}
-                placeholder="Şehrin"
+                placeholder={t('accountInfo.cityPlaceholder')}
                 placeholderTextColor={theme.colors.textMuted}
                 maxLength={60}
                 autoCapitalize="words"
@@ -194,8 +200,8 @@ export default function AccountInfoScreen() {
             <SettingsRowDivider />
             <SettingsRow
               icon="🌍"
-              label="Ülke"
-              sublabel={countryLabel || 'Belirtilmedi'}
+              label={t('accountInfo.country')}
+              sublabel={countryLabel || t('common.notSpecified')}
               right={<Feather name="chevron-right" size={18} color={theme.colors.textMuted} />}
               onPress={() => setCountryPickerVisible(true)}
             />
@@ -213,7 +219,7 @@ export default function AccountInfoScreen() {
             {saving ? (
               <ActivityIndicator color="#FFFFFF" />
             ) : (
-              <Text style={s.saveBtnText}>Kaydet</Text>
+              <Text style={s.saveBtnText}>{t('accountInfo.save')}</Text>
             )}
           </TouchableOpacity>
 
@@ -233,8 +239,8 @@ export default function AccountInfoScreen() {
 
       <OptionPickerModal
         visible={genderPickerVisible}
-        title="Cinsiyet"
-        options={GENDER_OPTIONS.map((g) => ({ value: g.value, label: g.label }))}
+        title={t('accountInfo.gender')}
+        options={GENDER_OPTION_KEYS.map((g) => ({ value: g.value, label: t(g.i18nKey) }))}
         selected={gender}
         onClose={() => setGenderPickerVisible(false)}
         onSelect={(v) => {
@@ -276,6 +282,7 @@ export default function AccountInfoScreen() {
 // ─────────────────────────────────────────────
 function DatePickerModal({ visible, initial, onClose, onSelect }) {
   const { theme } = useTheme();
+  const { t, i18n } = useTranslation();
   const s = useMemo(() => makeStyles(theme), [theme]);
 
   const today = new Date();
@@ -325,20 +332,25 @@ function DatePickerModal({ visible, initial, onClose, onSelect }) {
         <TouchableOpacity style={StyleSheet.absoluteFill} onPress={onClose} activeOpacity={1} />
         <View style={s.pickerSheet}>
           <View style={s.pickerHandle} />
-          <Text style={s.pickerTitle}>Doğum Tarihi</Text>
+          <Text style={s.pickerTitle}>{t('accountInfo.birthDate')}</Text>
 
           <View style={s.wheelRow}>
             <Wheel data={days} value={d} onChange={setD} />
-            <Wheel data={Array.from({ length: 12 }, (_, i) => i + 1)} value={m} onChange={setM} formatter={(v) => MONTHS_TR[v - 1]} />
+            <Wheel
+              data={Array.from({ length: 12 }, (_, i) => i + 1)}
+              value={m}
+              onChange={setM}
+              formatter={(v) => monthLabel(v, i18n.language)}
+            />
             <Wheel data={years} value={y} onChange={setY} />
           </View>
 
           <View style={s.pickerActions}>
             <TouchableOpacity onPress={onClose} style={[s.pickerBtn, s.pickerBtnGhost, { borderColor: theme.colors.borderLight }]} activeOpacity={0.72}>
-              <Text style={[s.pickerBtnGhostText, { color: theme.colors.textSecondary }]}>Vazgeç</Text>
+              <Text style={[s.pickerBtnGhostText, { color: theme.colors.textSecondary }]}>{t('common.cancel')}</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={handleConfirm} style={[s.pickerBtn, { backgroundColor: theme.colors.primary }]} activeOpacity={0.84}>
-              <Text style={s.pickerBtnPrimaryText}>Tamam</Text>
+              <Text style={s.pickerBtnPrimaryText}>{t('common.ok')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -406,6 +418,7 @@ function Wheel({ data, value, onChange, formatter }) {
 // ─────────────────────────────────────────────
 function OptionPickerModal({ visible, title, options, selected, onClose, onSelect, clearable, onClear }) {
   const { theme } = useTheme();
+  const { t } = useTranslation();
   const s = useMemo(() => makeStyles(theme), [theme]);
 
   return (
@@ -441,7 +454,7 @@ function OptionPickerModal({ visible, title, options, selected, onClose, onSelec
               style={[s.pickerBtn, s.pickerBtnGhost, { borderColor: theme.colors.borderLight, marginTop: rs(12) }]}
               activeOpacity={0.72}
             >
-              <Text style={[s.pickerBtnGhostText, { color: theme.colors.textSecondary }]}>Seçimi Temizle</Text>
+              <Text style={[s.pickerBtnGhostText, { color: theme.colors.textSecondary }]}>{t('common.clearSelection')}</Text>
             </TouchableOpacity>
           ) : null}
         </View>
@@ -455,6 +468,7 @@ function OptionPickerModal({ visible, title, options, selected, onClose, onSelec
 // ─────────────────────────────────────────────
 function CountryPickerModal({ visible, selected, onClose, onSelect, onClear }) {
   const { theme } = useTheme();
+  const { t, i18n } = useTranslation();
   const s = useMemo(() => makeStyles(theme), [theme]);
   const [query, setQuery] = useState('');
 
@@ -463,10 +477,11 @@ function CountryPickerModal({ visible, selected, onClose, onSelect, onClear }) {
   }, [visible]);
 
   const filtered = useMemo(() => {
-    const q = query.trim().toLocaleLowerCase('tr');
+    const lang = i18n.language || 'tr';
+    const q = query.trim().toLocaleLowerCase(lang);
     if (!q) return COUNTRIES;
-    return COUNTRIES.filter((c) => c.name.toLocaleLowerCase('tr').includes(q));
-  }, [query]);
+    return COUNTRIES.filter((c) => c.name.toLocaleLowerCase(lang).includes(q));
+  }, [query, i18n.language]);
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
@@ -474,13 +489,13 @@ function CountryPickerModal({ visible, selected, onClose, onSelect, onClear }) {
         <TouchableOpacity style={StyleSheet.absoluteFill} onPress={onClose} activeOpacity={1} />
         <View style={[s.pickerSheet, { maxHeight: '78%' }]}>
           <View style={s.pickerHandle} />
-          <Text style={s.pickerTitle}>Ülke</Text>
+          <Text style={s.pickerTitle}>{t('accountInfo.country')}</Text>
 
           <TextInput
             style={[s.input, { marginHorizontal: 0, marginBottom: rs(8) }]}
             value={query}
             onChangeText={setQuery}
-            placeholder="Ara"
+            placeholder={t('accountInfo.countrySearch')}
             placeholderTextColor={theme.colors.textMuted}
             autoCorrect={false}
             autoCapitalize="none"
@@ -508,7 +523,7 @@ function CountryPickerModal({ visible, selected, onClose, onSelect, onClear }) {
             }}
             ListEmptyComponent={
               <Text style={[s.optText, { textAlign: 'center', color: theme.colors.textMuted, marginTop: rs(20) }]}>
-                Sonuç yok
+                {t('common.noResults')}
               </Text>
             }
           />
@@ -519,7 +534,7 @@ function CountryPickerModal({ visible, selected, onClose, onSelect, onClear }) {
               style={[s.pickerBtn, s.pickerBtnGhost, { borderColor: theme.colors.borderLight, marginTop: rs(12) }]}
               activeOpacity={0.72}
             >
-              <Text style={[s.pickerBtnGhostText, { color: theme.colors.textSecondary }]}>Seçimi Temizle</Text>
+              <Text style={[s.pickerBtnGhostText, { color: theme.colors.textSecondary }]}>{t('common.clearSelection')}</Text>
             </TouchableOpacity>
           ) : null}
         </View>

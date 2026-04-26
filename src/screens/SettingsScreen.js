@@ -1,9 +1,11 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
-  SafeAreaView, Switch,
+  SafeAreaView, Switch, Modal, FlatList,
 } from 'react-native';
 import { Linking, Alert } from 'react-native';
+import { Feather } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../ThemeContext';
 import { useAudio } from '../context/AudioContext';
 import { useNotifications } from '../context/NotificationContext';
@@ -11,12 +13,14 @@ import { rs, rf } from '../utils/responsive';
 import { openReview } from '../utils/reviewManager';
 import SettingsRow, { SettingsRowDivider } from '../components/SettingsRow';
 import SettingsGroup from '../components/SettingsGroup';
+import { setLanguage, SUPPORTED_LANGUAGES } from '../i18n';
+import { useUpperT } from '../i18n/upper';
 
-function ThemeSelector({ theme, themeMode, setThemeMode }) {
+function ThemeSelector({ theme, themeMode, setThemeMode, t }) {
   const options = [
-    { value: 'system', label: 'Sistem', icon: '⚙' },
-    { value: 'light', label: 'Açık', icon: '☀' },
-    { value: 'dark', label: 'Koyu', icon: '☽' },
+    { value: 'system', label: t('settings.theme.system'), icon: '⚙' },
+    { value: 'light', label: t('settings.theme.light'), icon: '☀' },
+    { value: 'dark', label: t('settings.theme.dark'), icon: '☽' },
   ];
 
   const currentIcon = '🎨';
@@ -31,7 +35,7 @@ function ThemeSelector({ theme, themeMode, setThemeMode }) {
         }}>
           <Text style={{ fontSize: rf(18) }}>{currentIcon}</Text>
         </View>
-        <Text style={{ fontSize: rf(15), fontWeight: '600', color: theme.colors.text }}>Tema</Text>
+        <Text style={{ fontSize: rf(15), fontWeight: '600', color: theme.colors.text }}>{t('settings.themeLabel')}</Text>
       </View>
       <View style={{ flexDirection: 'row', gap: rs(6) }}>
         {options.map(opt => (
@@ -57,42 +61,89 @@ function ThemeSelector({ theme, themeMode, setThemeMode }) {
   );
 }
 
+function LanguagePickerModal({ visible, current, onClose, onSelect, t, theme }) {
+  const s = useMemo(() => makePickerStyles(theme), [theme]);
+
+  return (
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+      <View style={s.overlay}>
+        <TouchableOpacity style={StyleSheet.absoluteFill} onPress={onClose} activeOpacity={1} />
+        <View style={s.sheet}>
+          <View style={s.handle} />
+          <Text style={s.title}>{t('settings.languagePickerTitle')}</Text>
+          <FlatList
+            data={SUPPORTED_LANGUAGES}
+            keyExtractor={(code) => code}
+            renderItem={({ item }) => {
+              const sel = item === current;
+              return (
+                <TouchableOpacity
+                  onPress={() => onSelect(item)}
+                  activeOpacity={0.72}
+                  style={[s.row, sel && { backgroundColor: theme.colors.primary + '14' }]}
+                >
+                  <Text style={[s.rowText, { color: theme.colors.text }, sel && { fontWeight: '700' }]}>
+                    {t(`languages.${item}`)}
+                  </Text>
+                  {sel ? <Feather name="check" size={18} color={theme.colors.primary} /> : null}
+                </TouchableOpacity>
+              );
+            }}
+          />
+        </View>
+      </View>
+    </Modal>
+  );
+}
+
 export default function SettingsScreen() {
   const { theme, themeMode, setThemeMode } = useTheme();
+  const { t, i18n } = useTranslation();
+  const tu = useUpperT();
   const { soundEnabled, toggleSound } = useAudio();
   const { notificationsEnabled, permissionGranted, toggleNotifications, fcmToken } = useNotifications();
   const s = useMemo(() => makeStyles(theme), [theme]);
+  const [languagePickerVisible, setLanguagePickerVisible] = useState(false);
 
   const handleNotificationsToggle = async () => {
     const wasEnabled = notificationsEnabled;
     const result = await toggleNotifications();
     if (!wasEnabled && !result && !permissionGranted) {
       Alert.alert(
-        'İzin Gerekli',
-        'Bildirim göndermek için izin gerekli. Sistem ayarlarından açabilirsin.',
+        t('settings.notificationPermissionTitle'),
+        t('settings.notificationPermissionDesc'),
         [
-          { text: 'Vazgeç', style: 'cancel' },
-          { text: 'Ayarları Aç', onPress: () => Linking.openSettings() },
+          { text: t('common.cancel'), style: 'cancel' },
+          { text: t('settings.openSettings'), onPress: () => Linking.openSettings() },
         ]
       );
     }
   };
 
+  const handleLanguageSelect = async (code) => {
+    setLanguagePickerVisible(false);
+    if (code !== i18n.language) {
+      await setLanguage(code);
+    }
+  };
+
+  const currentLanguageLabel = t(`languages.${i18n.language}`, { defaultValue: i18n.language });
+
   return (
     <SafeAreaView style={s.container}>
       <View style={s.header}>
-        <Text style={s.headerTitle}>Ayarlar</Text>
+        <Text style={s.headerTitle}>{t('settings.title')}</Text>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
 
-        <SettingsGroup title="TERCİHLER">
-          <ThemeSelector theme={theme} themeMode={themeMode} setThemeMode={setThemeMode} />
+        <SettingsGroup title={tu('settings.preferencesGroup')}>
+          <ThemeSelector theme={theme} themeMode={themeMode} setThemeMode={setThemeMode} t={t} />
           <SettingsRowDivider />
           <SettingsRow
             icon={soundEnabled ? '🔊' : '🔇'}
-            label="Ses Efektleri"
-            sublabel={soundEnabled ? 'Açık' : 'Kapalı'}
+            label={t('settings.soundLabel')}
+            sublabel={soundEnabled ? t('settings.on') : t('settings.off')}
             right={
               <Switch
                 value={soundEnabled}
@@ -105,8 +156,8 @@ export default function SettingsScreen() {
           <SettingsRowDivider />
           <SettingsRow
             icon={notificationsEnabled ? '🔔' : '🔕'}
-            label="Bildirimler"
-            sublabel={notificationsEnabled ? 'Açık' : 'Kapalı'}
+            label={t('settings.notificationsLabel')}
+            sublabel={notificationsEnabled ? t('settings.on') : t('settings.off')}
             right={
               <Switch
                 value={notificationsEnabled}
@@ -116,46 +167,54 @@ export default function SettingsScreen() {
               />
             }
           />
+          <SettingsRowDivider />
+          <SettingsRow
+            icon="🌐"
+            label={t('settings.languageLabel')}
+            sublabel={currentLanguageLabel}
+            right={<Text style={{ color: theme.colors.textMuted, fontSize: 18 }}>›</Text>}
+            onPress={() => setLanguagePickerVisible(true)}
+          />
         </SettingsGroup>
 
-        <SettingsGroup title="UYGULAMA">
+        <SettingsGroup title={tu('settings.appGroup')}>
           <SettingsRow
             icon="🎯"
-            label="Nasıl Oynanır?"
-            sublabel="Kısa rehber"
+            label={t('settings.howToPlay')}
+            sublabel={t('settings.howToPlaySub')}
             right={<Text style={{ color: theme.colors.textMuted, fontSize: 18 }}>›</Text>}
             onPress={() => {}}
           />
           <SettingsRowDivider />
           <SettingsRow
             icon="⭐"
-            label="Uygulamayı Oyla"
-            sublabel="App Store'da değerlendir"
+            label={t('settings.rateApp')}
+            sublabel={t('settings.rateAppSub')}
             right={<Text style={{ color: theme.colors.textMuted, fontSize: 18 }}>›</Text>}
             onPress={openReview}
           />
           <SettingsRowDivider />
           <SettingsRow
             icon="📣"
-            label="Arkadaşına Anlat"
-            sublabel="Paylaş ve kazan"
+            label={t('settings.tellFriend')}
+            sublabel={t('settings.tellFriendSub')}
             right={<Text style={{ color: theme.colors.textMuted, fontSize: 18 }}>›</Text>}
             onPress={() => {}}
           />
         </SettingsGroup>
 
-        <SettingsGroup title="DESTEK">
+        <SettingsGroup title={tu('settings.supportGroup')}>
           <SettingsRow
             icon="✉️"
-            label="Bize Ulaş"
-            sublabel="destek@cardwho.app"
+            label={t('settings.contact')}
+            sublabel={t('settings.contactSub')}
             right={<Text style={{ color: theme.colors.textMuted, fontSize: 18 }}>›</Text>}
             onPress={() => {}}
           />
           <SettingsRowDivider />
           <SettingsRow
             icon="📄"
-            label="Gizlilik Politikası"
+            label={t('settings.privacy')}
             right={<Text style={{ color: theme.colors.textMuted, fontSize: 18 }}>›</Text>}
             onPress={() => {}}
           />
@@ -163,18 +222,27 @@ export default function SettingsScreen() {
 
         {__DEV__ && fcmToken && (
           <View style={s.debugBox}>
-            <Text style={s.debugLabel}>FCM TOKEN (test push için)</Text>
+            <Text style={s.debugLabel}>{t('settings.fcmTokenLabel')}</Text>
             <Text selectable style={s.debugValue}>{fcmToken}</Text>
             <Text style={s.debugHint}>
-              Uzun bas → Kopyala → Firebase Console → Cloud Messaging → Send test message
+              {t('settings.fcmTokenHint')}
             </Text>
           </View>
         )}
 
-        <Text style={s.version}>CardWho v1.0.0</Text>
+        <Text style={s.version}>{t('settings.version', { version: '1.0.0' })}</Text>
 
         <View style={{ height: 120 }} />
       </ScrollView>
+
+      <LanguagePickerModal
+        visible={languagePickerVisible}
+        current={i18n.language}
+        onClose={() => setLanguagePickerVisible(false)}
+        onSelect={handleLanguageSelect}
+        t={t}
+        theme={theme}
+      />
     </SafeAreaView>
   );
 }
@@ -232,5 +300,50 @@ const makeStyles = (theme) => StyleSheet.create({
     fontSize: rf(11),
     color: theme.colors.textMuted,
     fontStyle: 'italic',
+  },
+});
+
+const makePickerStyles = (theme) => StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(7,7,26,0.78)',
+    justifyContent: 'flex-end',
+  },
+  sheet: {
+    backgroundColor: theme.colors.surface,
+    borderTopLeftRadius: rs(22),
+    borderTopRightRadius: rs(22),
+    paddingHorizontal: rs(20),
+    paddingTop: rs(8),
+    paddingBottom: rs(28),
+    borderTopWidth: 1,
+    borderColor: theme.colors.border,
+    maxHeight: '60%',
+  },
+  handle: {
+    alignSelf: 'center',
+    width: rs(40),
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: theme.colors.border,
+    marginBottom: rs(12),
+  },
+  title: {
+    fontSize: rf(17),
+    fontWeight: '700',
+    color: theme.colors.text,
+    marginBottom: rs(16),
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: rs(14),
+    paddingVertical: rs(14),
+    borderRadius: rs(10),
+    marginBottom: rs(2),
+  },
+  rowText: {
+    fontSize: rf(15),
   },
 });

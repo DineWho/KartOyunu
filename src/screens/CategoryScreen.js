@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import { mods } from '../data';
 import { useTheme } from '../ThemeContext';
 import { rs, rf } from '../utils/responsive';
@@ -14,6 +15,7 @@ export default function CategoryScreen() {
   const route = useRoute();
   const { category } = route.params;
   const { theme } = useTheme();
+  const { t } = useTranslation();
   const s = useMemo(() => makeStyles(theme), [theme]);
   const catColor = category.color;
   const categoryMods = mods.filter(d => d.categoryId === category.id);
@@ -40,12 +42,12 @@ export default function CategoryScreen() {
         style={s.header}
       >
         <TouchableOpacity style={s.backBtn} onPress={() => navigation.goBack()}>
-          <Text style={s.backBtnText}>← Geri</Text>
+          <Text style={s.backBtnText}>{t('category.back')}</Text>
         </TouchableOpacity>
         <Text style={s.headerIcon}>{category.icon}</Text>
         <Text style={s.headerTitle}>{category.name}</Text>
         <Text style={s.headerSub}>
-          {categoryMods.length} mod  ·  {freeCount} ücretsiz
+          {t('category.stats', { total: categoryMods.length, free: freeCount })}
         </Text>
       </LinearGradient>
 
@@ -76,7 +78,7 @@ export default function CategoryScreen() {
                   </View>
                   <Text style={s.deckItemDesc} numberOfLines={2}>{mod.description}</Text>
                   <View style={s.deckItemStats}>
-                    <Text style={s.deckItemStat}>{mod.cardCount} kart</Text>
+                    <Text style={s.deckItemStat}>{t('category.cardCount', { count: mod.cardCount })}</Text>
                     <Text style={s.deckItemStatDot}>·</Text>
                     <Text style={s.deckItemStat}>{mod.duration}</Text>
                     <Text style={s.deckItemStatDot}>·</Text>
