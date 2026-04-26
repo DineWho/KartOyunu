@@ -5,15 +5,22 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import tr from './locales/tr.json';
 import en from './locales/en.json';
+import es from './locales/es.json';
+import fr from './locales/fr.json';
+import de from './locales/de.json';
+import ru from './locales/ru.json';
 
 const STORAGE_KEY = '@cardwho_locale';
 
-// Aşama 1: tr + en. Aşama 2'de ['tr','en','es','fr','de','ru'] olacak.
-export const SUPPORTED_LANGUAGES = ['tr', 'en'];
+export const SUPPORTED_LANGUAGES = ['tr', 'en', 'es', 'fr', 'de', 'ru'];
 
 const RESOURCES = {
   tr: { translation: tr },
   en: { translation: en },
+  es: { translation: es },
+  fr: { translation: fr },
+  de: { translation: de },
+  ru: { translation: ru },
 };
 
 function detectDeviceLanguage() {
