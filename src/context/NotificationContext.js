@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState, useRef, useCallb
 import { Platform, PermissionsAndroid, AppState } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import messaging from '@react-native-firebase/messaging';
+import { safeNavigate } from '../lib/navigationRef';
 
 const TOKEN_KEY = '@cardwho_fcm_token';
 const ENABLED_KEY = '@cardwho_notifications_enabled';
@@ -235,12 +236,20 @@ export function NotificationProvider({ children }) {
 
     const unsubOpened = messaging().onNotificationOpenedApp((remoteMessage) => {
       addNotification(remoteMessage, 'opened');
+      // Bildirime arka plandan tıklayınca Bildirimler ekranını aç. Deeplink
+      // (ör. data.screen ile farklı ekrana yönlendirme) ileride buraya eklenir.
+      safeNavigate('Notifications');
     });
 
     messaging()
       .getInitialNotification()
       .then((remoteMessage) => {
-        if (remoteMessage) addNotification(remoteMessage, 'cold-open');
+        if (remoteMessage) {
+          addNotification(remoteMessage, 'cold-open');
+          // Cold-open: app push'tan açıldı, NavigationContainer ready olana
+          // kadar safeNavigate retry yapacak.
+          safeNavigate('Notifications');
+        }
       })
       .catch(() => {});
 
