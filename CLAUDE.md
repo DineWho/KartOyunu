@@ -1,32 +1,6 @@
 # CardWho — Claude Talimatları
 
-Çok dilli sohbet kartı oyunu. Mobil uygulama (iOS & Android), React Native / Expo. İlk partide TR/EN/ES/FR/DE/RU desteklenir, sonradan kolayca yeni dil eklenir.
-
----
-
-## 🚧 Aktif Plan: i18n Çok Dilli Geçiş (Aşamalı)
-
-**Plan dosyası:** `~/.claude/plans/i18n-asamali-cok-dil.md` — yeni session açtığında ilk bunu oku.
-
-**Aşama sırası (her biri AYRI session, üst üste yapma):**
-
-| Aşama | İçerik | Durum |
-|-------|--------|-------|
-| **1** | i18n iskelesi + UI string'leri TR + EN + Settings dil seçici | ⏳ Sonraki |
-| **2** | UI string'leri ES + FR + DE + RU | Bekliyor |
-| **3** | TR içerik (sorular) imla + anlam temizliği | Bekliyor |
-| **4** | İçerik 5 dile çeviri (mimari: çok dilli kart objesi) | Bekliyor |
-
-**Yeni session açma promptları (kopyala-yapıştır):**
-
-- **Aşama 1**: `~/.claude/plans/i18n-asamali-cok-dil.md dosyasını oku, sonra "Aşama 1 Detayları" bölümündeki işi yap. git log ile son claude: commit'ine bak. Plan'dan sapma, sapacaksan önce sor.`
-- **Aşama 2**: `~/.claude/plans/i18n-asamali-cok-dil.md dosyasını oku, "Aşama 2 Detayları" bölümünü uygula (ES + FR + DE + RU çeviri). Aşama 1'in commit'lerine git log'tan bak.`
-- **Aşama 3**: `~/.claude/plans/i18n-asamali-cok-dil.md dosyasındaki "Aşama 3 Detayları" — src/data altındaki TR sorularda imla + anlam + düşük cümle temizliği. Önce kaç paket/kart var keşfet, sonra çalışma yöntemini bana sor.`
-- **Aşama 4**: `~/.claude/plans/i18n-asamali-cok-dil.md "Aşama 4 Detayları" — temiz TR içerik 5 dile çevrilecek. İlk iş: çok dilli kart yapısı mimari kararı. Plan dosyasındaki Seçenek A/B'yi bana özetle, kararımı bekle.`
-
-**Tamamlanan önceki plan**: Profil > Hesap (Bildirimler + Hesap Bilgileri + Greeting + Firestore) — tüm fazları tamamlandı, F2 plan'dan farklı yapıldı (RNFB build sorunu nedeniyle Firebase JS SDK ile). Detay için `git log --grep="claude:"` 2026-04-26 commit'lerine bak.
-
-**İŞ BİTİNCE (Aşama 4 commit'inden sonra):** bu "Aktif Plan" bölümünü CLAUDE.md'den sil, Mutlak Kurallar listesine "8. Tüm UI ve içerik string'leri i18n üzerinden — hardcode metin yazma" satırını ekle.
+Çok dilli sohbet kartı oyunu. Mobil uygulama (iOS & Android), React Native / Expo. TR/EN/ES/FR/DE/RU desteklenir, sonradan kolayca yeni dil eklenir.
 
 ---
 
@@ -57,7 +31,7 @@ Uygulama **hem telefon hem tablet** için eş zamanlı geliştirilmektedir. Her 
 5. **Her paket tam olarak 12 soru içerir** — İstisna yok.
 6. **1 soru → yalnızca 1 paket** — Aynı veya çok benzer soru başka pakette tekrar edemez.
 7. **Yeni içerik sık gelecek** — Paket, kategori, mod, seviye ve sorular sürekli artacak. Kod buna dayanıklı olmalı.
-8. **Çok dilli (i18n) yapı** — Uygulama TR/EN/ES/FR/DE/RU dillerini destekleyecek (Aşama 4 sonrası). UI string'leri yeni eklenirken `t()` kullanılmalı, hardcode TR yazılmamalı. İçerik string'leri (kart soruları, mod adları) Aşama 4'te çok dilli yapıya geçecek.
+8. **Çok dilli (i18n) yapı** — Tüm UI ve içerik string'leri i18n ya da multilingual data structure üzerinden. Hardcode TR yazma. UI için `t()` kullan; içerik için `localize()` / `useLocalize()` helper'ları kullan (TR canonical kalır, EN/ES/FR/DE/RU paralel field'larda).
 
 ---
 
