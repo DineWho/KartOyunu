@@ -279,7 +279,80 @@
       "preferNot": "Prefiero no decirlo"
     }
   },
-  "badge": {
-    "newBadge": "Nueva insignia"
+  "badges": {
+    "newBadge": "Nueva insignia",
+    "groups": {
+      "progress": "Progreso",
+      "favorites": "Favoritos",
+      "share": "Compartir",
+      "explore": "Descubrimiento",
+      "games": "Partidas",
+      "variety": "Variedad",
+      "categories": "Categorías",
+      "levels": "Niveles"
+    },
+    "static": {
+      "progress_10":   { "title": "Primer toque",  "desc": "Viste 10 cartas" },
+      "progress_50":   { "title": "Curioso",       "desc": "Viste 50 cartas" },
+      "progress_150":  { "title": "Apasionado",    "desc": "Viste 150 cartas" },
+      "progress_300":  { "title": "Decidido",      "desc": "Viste 300 cartas" },
+      "progress_500":  { "title": "Imparable",     "desc": "Viste 500 cartas" },
+      "progress_1000": { "title": "Leyenda",       "desc": "Viste 1000 cartas" },
+      "fav_1":   { "title": "Primer favorito",  "desc": "Marcaste tu primera pregunta" },
+      "fav_15":  { "title": "Selectivo",        "desc": "Marcaste 15 preguntas" },
+      "fav_50":  { "title": "Coleccionista",    "desc": "Marcaste 50 preguntas" },
+      "fav_100": { "title": "Cazatesoros",      "desc": "Marcaste 100 preguntas" },
+      "share_1":  { "title": "Compartidor", "desc": "Compartiste tu primera pregunta" },
+      "share_10": { "title": "Social",      "desc": "Compartiste 10 preguntas" },
+      "share_50": { "title": "Embajador",   "desc": "Compartiste 50 preguntas" },
+      "cats_3":  { "title": "Explorador",          "desc": "Descubriste 3 categorías" },
+      "cats_8":  { "title": "Viajero",             "desc": "Descubriste 8 categorías" },
+      "cats_15": { "title": "Ciudadano del mundo", "desc": "Descubriste todas las categorías" },
+      "mods_5":  { "title": "Experimentador",       "desc": "Jugaste 5 modos" },
+      "mods_15": { "title": "Viajero profundo",     "desc": "Jugaste 15 modos" },
+      "mods_30": { "title": "Maestro de la charla", "desc": "Jugaste 30 modos" },
+      "mods_60": { "title": "Telón arriba",         "desc": "Jugaste 60 modos" },
+      "games_1":  { "title": "Jugador",  "desc": "Completaste tu primera partida" },
+      "games_10": { "title": "Habitual", "desc": "Completaste 10 partidas" },
+      "games_30": { "title": "Devoto",   "desc": "Completaste 30 partidas" },
+      "levels_5":      { "title": "Versátil",    "desc": "Probaste 5 niveles distintos" },
+      "premium_first": { "title": "Jugador Pro", "desc": "Jugaste tu primer modo premium" }
+    },
+    "categoryDesc": "Jugaste tu primer modo de {{category}}",
+    "categoryFallbackTitle": "Experto en {{category}}",
+    "categoryTitles": {
+      "arkadaslar": "Buen amigo",
+      "bulusma":    "Genio del flirteo",
+      "ciftler":    "Experto en relaciones",
+      "aile":       "Calor familiar",
+      "grup":       "Dinámica de grupo",
+      "burclar":    "Astro fan",
+      "yemek":      "Charla gourmet",
+      "seyahat":    "Alma viajera",
+      "evcil":      "Pet Parent",
+      "is":         "Ingenio de oficina",
+      "nostalji":   "Corazón nostálgico",
+      "psikoloji":  "Mundo interior",
+      "viral":      "Conexión viral",
+      "siyaset":    "Voz del foro",
+      "kaos":       "Dios del caos",
+      "ogretici":         "Buscador de saber",
+      "matematik":        "Amigo de los números",
+      "bilim":            "Mente curiosa",
+      "dogruluk_cesaret": "Ronda atrevida"
+    },
+    "levelDesc": "Jugaste tu primer modo en nivel “{{level}}”",
+    "levelTitles": {
+      "mahrem":     "Puerta secreta",
+      "yogun":      "Desde lo profundo",
+      "iddiali":    "Premio al coraje",
+      "filtresiz":  "Sin filtros",
+      "kiskirtici": "Chispa",
+      "kaotik":     "Teoría del caos",
+      "flortoz":    "Maestro del flirteo",
+      "katmanli":   "Profundidades",
+      "cesur":      "Prueba de coraje",
+      "dusunduren": "El pensador"
+    }
   }
 }

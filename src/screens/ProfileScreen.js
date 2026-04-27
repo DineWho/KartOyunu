@@ -19,9 +19,7 @@ import { useUserProfile } from '../context/UserProfileContext';
 import { useNotifications } from '../context/NotificationContext';
 import { useUpperT } from '../i18n/upper';
 import { rs, rf } from '../utils/responsive';
-
-// Badge.group field'ı data'dan TR string olarak geliyor (Aşama 4'te çevrilecek).
-const GROUP_ORDER = ['İlerleme', 'Favoriler', 'Paylaşım', 'Keşif', 'Oyunlar', 'Çeşitlilik', 'Kategoriler', 'Seviyeler'];
+import { GROUP_ORDER, useBadgeLabels } from '../data/badges';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -55,6 +53,7 @@ export default function ProfileScreen() {
   const s = useMemo(() => makeStyles(theme), [theme]);
   const { getTotalStats, clearStats } = useStats();
   const { earnedIds, allBadges, clearBadges } = useBadges();
+  const getBadgeLabels = useBadgeLabels();
   const { clearFavorites } = useFavorites();
   const { user, isAnonymous, signOut, deleteAccount } = useAuth();
   const { profile: userProfile } = useUserProfile();
@@ -78,11 +77,13 @@ export default function ProfileScreen() {
   const badgeGroups = useMemo(() => {
     const map = {};
     allBadges.forEach(badge => {
-      if (!map[badge.group]) map[badge.group] = [];
-      map[badge.group].push(badge);
+      const labels = getBadgeLabels(badge);
+      const entry = { ...badge, title: labels.title, desc: labels.desc };
+      if (!map[badge.groupKey]) map[badge.groupKey] = { name: labels.group, badges: [] };
+      map[badge.groupKey].badges.push(entry);
     });
-    return GROUP_ORDER.filter(g => map[g]).map(g => ({ name: g, badges: map[g] }));
-  }, [allBadges]);
+    return GROUP_ORDER.filter(g => map[g]).map(g => map[g]);
+  }, [allBadges, getBadgeLabels]);
 
   const statItems = [
     { value: stats.totalGames, label: t('profile.stats.games') },

@@ -6,6 +6,7 @@ import { useTheme } from '../ThemeContext';
 import { useBadges } from '../context/BadgesContext';
 import { useAudio } from '../context/AudioContext';
 import { useUpperT } from '../i18n/upper';
+import { useBadgeLabels } from '../data/badges';
 
 // 4 sparkle dots positioned N/E/S/W around the icon
 const SPARKLE_ANGLES = [0, 90, 180, 270];
@@ -33,7 +34,9 @@ export default function BadgePopup() {
   const { badgeQueue, dismissTopBadge } = useBadges();
   const { playSound } = useAudio();
   const tu = useUpperT();
+  const getBadgeLabels = useBadgeLabels();
   const badge = badgeQueue[0] ?? null;
+  const labels = badge ? getBadgeLabels(badge) : null;
 
   const scaleAnim = useRef(new Animated.Value(0)).current;
   const iconScaleAnim = useRef(new Animated.Value(0)).current;
@@ -140,9 +143,9 @@ export default function BadgePopup() {
             </View>
 
             <Animated.View style={{ transform: [{ translateY: textSlideAnim }], opacity: textOpacityAnim }}>
-              <Text style={[styles.label, { color: theme.colors.textMuted }]}>{tu('badge.newBadge')}</Text>
-              <Text style={[styles.title, { color: theme.colors.text }]}>{badge.title}</Text>
-              <Text style={[styles.desc, { color: theme.colors.textSecondary }]}>{badge.desc}</Text>
+              <Text style={[styles.label, { color: theme.colors.textMuted }]}>{tu('badges.newBadge')}</Text>
+              <Text style={[styles.title, { color: theme.colors.text }]}>{labels?.title}</Text>
+              <Text style={[styles.desc, { color: theme.colors.textSecondary }]}>{labels?.desc}</Text>
             </Animated.View>
           </View>
         </Animated.View>

@@ -279,7 +279,80 @@
       "preferNot": "Belirtmek istemiyorum"
     }
   },
-  "badge": {
-    "newBadge": "Yeni Rozet"
+  "badges": {
+    "newBadge": "Yeni Rozet",
+    "groups": {
+      "progress": "İlerleme",
+      "favorites": "Favoriler",
+      "share": "Paylaşım",
+      "explore": "Keşif",
+      "games": "Oyunlar",
+      "variety": "Çeşitlilik",
+      "categories": "Kategoriler",
+      "levels": "Seviyeler"
+    },
+    "static": {
+      "progress_10":   { "title": "İlk Dokunuş",    "desc": "10 kart gördün" },
+      "progress_50":   { "title": "Meraklı",        "desc": "50 kart gördün" },
+      "progress_150":  { "title": "Tutkulu",        "desc": "150 kart gördün" },
+      "progress_300":  { "title": "Kararlı",        "desc": "300 kart gördün" },
+      "progress_500":  { "title": "Vazgeçmez",      "desc": "500 kart gördün" },
+      "progress_1000": { "title": "Efsane",         "desc": "1000 kart gördün" },
+      "fav_1":   { "title": "İlk Favori",    "desc": "İlk soruyu favoriledin" },
+      "fav_15":  { "title": "Seçici",        "desc": "15 soruyu favoriledin" },
+      "fav_50":  { "title": "Koleksiyoncu",  "desc": "50 soruyu favoriledin" },
+      "fav_100": { "title": "Hazine Avcısı", "desc": "100 soruyu favoriledin" },
+      "share_1":  { "title": "Paylaşımcı", "desc": "İlk soruyu paylaştın" },
+      "share_10": { "title": "Sosyal",     "desc": "10 soru paylaştın" },
+      "share_50": { "title": "Büyükelçi",  "desc": "50 soru paylaştın" },
+      "cats_3":  { "title": "Kaşif",           "desc": "3 kategori keşfettin" },
+      "cats_8":  { "title": "Gezgin",          "desc": "8 kategori keşfettin" },
+      "cats_15": { "title": "Dünya Vatandaşı", "desc": "Tüm kategorileri keşfettin" },
+      "mods_5":  { "title": "Deneyimci",     "desc": "5 mod oynadın" },
+      "mods_15": { "title": "Derin Gezgin",  "desc": "15 mod oynadın" },
+      "mods_30": { "title": "Sohbet Ustası", "desc": "30 mod oynadın" },
+      "mods_60": { "title": "Perde Açık",    "desc": "60 mod oynadın" },
+      "games_1":  { "title": "Oyuncu",  "desc": "İlk oyunu tamamladın" },
+      "games_10": { "title": "Düzenli", "desc": "10 oyun tamamladın" },
+      "games_30": { "title": "Adanmış", "desc": "30 oyun tamamladın" },
+      "levels_5":      { "title": "Çok Yönlü",  "desc": "5 farklı seviyeyi denedin" },
+      "premium_first": { "title": "Pro Oyuncu", "desc": "İlk premium modu oynadın" }
+    },
+    "categoryDesc": "{{category}} kategorisinden ilk modunu oynadın",
+    "categoryFallbackTitle": "{{category}} Uzmanı",
+    "categoryTitles": {
+      "arkadaslar": "Dost Canlısı",
+      "bulusma":    "Flört Dehası",
+      "ciftler":    "İlişki Uzmanı",
+      "aile":       "Aile Sıcaklığı",
+      "grup":       "Grup Dinamiği",
+      "burclar":    "Astro Meraklı",
+      "yemek":      "Gurme Sohbetçi",
+      "seyahat":    "Gezgin Ruh",
+      "evcil":      "Pet Parent",
+      "is":         "İş Yorumu",
+      "nostalji":   "Nostalji Özlemi",
+      "psikoloji":  "İç Dünya",
+      "viral":      "Viral Bağlantı",
+      "siyaset":    "Forum Sesi",
+      "kaos":       "Kaos Tanrısı",
+      "ogretici":         "Bilgi Toplayıcı",
+      "matematik":        "Sayı Dostu",
+      "bilim":            "Meraklı Zihin",
+      "dogruluk_cesaret": "Cesur Tur"
+    },
+    "levelDesc": "“{{level}}” seviyesinde ilk modunu oynadın",
+    "levelTitles": {
+      "mahrem":     "Gizli Kapı",
+      "yogun":      "Derinden",
+      "iddiali":    "Cesaret Ödülü",
+      "filtresiz":  "Perde Yok",
+      "kiskirtici": "Ateşleyici",
+      "kaotik":     "Kaos Teorisi",
+      "flortoz":    "Flört Ustası",
+      "katmanli":   "Derinlikler",
+      "cesur":      "Cesaret Testi",
+      "dusunduren": "Düşünür"
+    }
   }
 }

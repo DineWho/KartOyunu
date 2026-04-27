@@ -279,7 +279,80 @@
       "preferNot": "Je préfère ne pas dire"
     }
   },
-  "badge": {
-    "newBadge": "Nouveau badge"
+  "badges": {
+    "newBadge": "Nouveau badge",
+    "groups": {
+      "progress": "Progression",
+      "favorites": "Favoris",
+      "share": "Partage",
+      "explore": "Découverte",
+      "games": "Parties",
+      "variety": "Variété",
+      "categories": "Catégories",
+      "levels": "Niveaux"
+    },
+    "static": {
+      "progress_10":   { "title": "Premier contact", "desc": "10 cartes vues" },
+      "progress_50":   { "title": "Curieux",         "desc": "50 cartes vues" },
+      "progress_150":  { "title": "Passionné",       "desc": "150 cartes vues" },
+      "progress_300":  { "title": "Déterminé",       "desc": "300 cartes vues" },
+      "progress_500":  { "title": "Inarrêtable",     "desc": "500 cartes vues" },
+      "progress_1000": { "title": "Légende",         "desc": "1000 cartes vues" },
+      "fav_1":   { "title": "Premier favori",      "desc": "Première question en favori" },
+      "fav_15":  { "title": "Sélectif",            "desc": "15 questions en favori" },
+      "fav_50":  { "title": "Collectionneur",      "desc": "50 questions en favori" },
+      "fav_100": { "title": "Chasseur de trésors", "desc": "100 questions en favori" },
+      "share_1":  { "title": "Partageur",   "desc": "Première question partagée" },
+      "share_10": { "title": "Sociable",    "desc": "10 questions partagées" },
+      "share_50": { "title": "Ambassadeur", "desc": "50 questions partagées" },
+      "cats_3":  { "title": "Explorateur",      "desc": "3 catégories découvertes" },
+      "cats_8":  { "title": "Voyageur",         "desc": "8 catégories découvertes" },
+      "cats_15": { "title": "Citoyen du monde", "desc": "Toutes les catégories découvertes" },
+      "mods_5":  { "title": "Expérimentateur",        "desc": "5 modes joués" },
+      "mods_15": { "title": "Voyageur profond",       "desc": "15 modes joués" },
+      "mods_30": { "title": "Maître de la conversation", "desc": "30 modes joués" },
+      "mods_60": { "title": "Rideau levé",            "desc": "60 modes joués" },
+      "games_1":  { "title": "Joueur",   "desc": "Première partie terminée" },
+      "games_10": { "title": "Régulier", "desc": "10 parties terminées" },
+      "games_30": { "title": "Dévoué",   "desc": "30 parties terminées" },
+      "levels_5":      { "title": "Polyvalent", "desc": "5 niveaux différents essayés" },
+      "premium_first": { "title": "Joueur Pro", "desc": "Premier mode premium joué" }
+    },
+    "categoryDesc": "Premier mode joué dans {{category}}",
+    "categoryFallbackTitle": "Expert·e en {{category}}",
+    "categoryTitles": {
+      "arkadaslar": "Bon copain",
+      "bulusma":    "Génie de la drague",
+      "ciftler":    "Expert·e en relations",
+      "aile":       "Chaleur familiale",
+      "grup":       "Dynamique de groupe",
+      "burclar":    "Mordu·e d’astro",
+      "yemek":      "Gourmet causeur",
+      "seyahat":    "Âme voyageuse",
+      "evcil":      "Pet Parent",
+      "is":         "Esprit de bureau",
+      "nostalji":   "Cœur nostalgique",
+      "psikoloji":  "Monde intérieur",
+      "viral":      "Lien viral",
+      "siyaset":    "Voix du forum",
+      "kaos":       "Dieu du chaos",
+      "ogretici":         "Chercheur de savoir",
+      "matematik":        "Ami des nombres",
+      "bilim":            "Esprit curieux",
+      "dogruluk_cesaret": "Tour audacieux"
+    },
+    "levelDesc": "Premier mode joué au niveau « {{level}} »",
+    "levelTitles": {
+      "mahrem":     "Porte secrète",
+      "yogun":      "Des profondeurs",
+      "iddiali":    "Prix du courage",
+      "filtresiz":  "Sans filtre",
+      "kiskirtici": "Étincelle",
+      "kaotik":     "Théorie du chaos",
+      "flortoz":    "Maître du flirt",
+      "katmanli":   "Profondeurs",
+      "cesur":      "Épreuve du courage",
+      "dusunduren": "Le penseur"
+    }
   }
 }

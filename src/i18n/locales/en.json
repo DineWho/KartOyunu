@@ -279,7 +279,80 @@
       "preferNot": "Prefer not to say"
     }
   },
-  "badge": {
-    "newBadge": "New Badge"
+  "badges": {
+    "newBadge": "New Badge",
+    "groups": {
+      "progress": "Progress",
+      "favorites": "Favorites",
+      "share": "Sharing",
+      "explore": "Discovery",
+      "games": "Games",
+      "variety": "Variety",
+      "categories": "Categories",
+      "levels": "Levels"
+    },
+    "static": {
+      "progress_10":   { "title": "First Touch",   "desc": "Saw 10 cards" },
+      "progress_50":   { "title": "Curious",       "desc": "Saw 50 cards" },
+      "progress_150":  { "title": "Hooked",        "desc": "Saw 150 cards" },
+      "progress_300":  { "title": "Determined",    "desc": "Saw 300 cards" },
+      "progress_500":  { "title": "Unstoppable",   "desc": "Saw 500 cards" },
+      "progress_1000": { "title": "Legend",        "desc": "Saw 1000 cards" },
+      "fav_1":   { "title": "First Favorite",   "desc": "Favorited your first question" },
+      "fav_15":  { "title": "Picky",            "desc": "Favorited 15 questions" },
+      "fav_50":  { "title": "Collector",        "desc": "Favorited 50 questions" },
+      "fav_100": { "title": "Treasure Hunter",  "desc": "Favorited 100 questions" },
+      "share_1":  { "title": "Sharer",     "desc": "Shared your first question" },
+      "share_10": { "title": "Social",     "desc": "Shared 10 questions" },
+      "share_50": { "title": "Ambassador", "desc": "Shared 50 questions" },
+      "cats_3":  { "title": "Explorer",      "desc": "Discovered 3 categories" },
+      "cats_8":  { "title": "Wanderer",      "desc": "Discovered 8 categories" },
+      "cats_15": { "title": "World Citizen", "desc": "Discovered every category" },
+      "mods_5":  { "title": "Experimenter",        "desc": "Played 5 mods" },
+      "mods_15": { "title": "Deep Voyager",        "desc": "Played 15 mods" },
+      "mods_30": { "title": "Conversation Master", "desc": "Played 30 mods" },
+      "mods_60": { "title": "Curtain Up",          "desc": "Played 60 mods" },
+      "games_1":  { "title": "Player",  "desc": "Completed your first game" },
+      "games_10": { "title": "Regular", "desc": "Completed 10 games" },
+      "games_30": { "title": "Devoted", "desc": "Completed 30 games" },
+      "levels_5":      { "title": "Versatile",  "desc": "Tried 5 different levels" },
+      "premium_first": { "title": "Pro Player", "desc": "Played your first premium mod" }
+    },
+    "categoryDesc": "Played your first mod from {{category}}",
+    "categoryFallbackTitle": "{{category}} Expert",
+    "categoryTitles": {
+      "arkadaslar": "Friendly",
+      "bulusma":    "Flirt Genius",
+      "ciftler":    "Relationship Expert",
+      "aile":       "Family Warmth",
+      "grup":       "Group Dynamic",
+      "burclar":    "Astro Buff",
+      "yemek":      "Gourmet Talker",
+      "seyahat":    "Wandering Soul",
+      "evcil":      "Pet Parent",
+      "is":         "Office Wit",
+      "nostalji":   "Nostalgic at Heart",
+      "psikoloji":  "Inner World",
+      "viral":      "Viral Connection",
+      "siyaset":    "Forum Voice",
+      "kaos":       "Chaos Bringer",
+      "ogretici":         "Knowledge Seeker",
+      "matematik":        "Number Friend",
+      "bilim":            "Curious Mind",
+      "dogruluk_cesaret": "Bold Round"
+    },
+    "levelDesc": "Played your first mod at the “{{level}}” level",
+    "levelTitles": {
+      "mahrem":     "Hidden Door",
+      "yogun":      "From the Depths",
+      "iddiali":    "Courage Award",
+      "filtresiz":  "No Filter",
+      "kiskirtici": "Spark Starter",
+      "kaotik":     "Chaos Theory",
+      "flortoz":    "Flirt Master",
+      "katmanli":   "Depths",
+      "cesur":      "Courage Test",
+      "dusunduren": "The Thinker"
+    }
   }
 }

@@ -279,7 +279,80 @@
       "preferNot": "Keine Angabe"
     }
   },
-  "badge": {
-    "newBadge": "Neues Abzeichen"
+  "badges": {
+    "newBadge": "Neues Abzeichen",
+    "groups": {
+      "progress": "Fortschritt",
+      "favorites": "Favoriten",
+      "share": "Teilen",
+      "explore": "Entdeckung",
+      "games": "Spiele",
+      "variety": "Vielfalt",
+      "categories": "Kategorien",
+      "levels": "Stufen"
+    },
+    "static": {
+      "progress_10":   { "title": "Erste Berührung", "desc": "10 Karten gesehen" },
+      "progress_50":   { "title": "Neugierig",       "desc": "50 Karten gesehen" },
+      "progress_150":  { "title": "Leidenschaftlich","desc": "150 Karten gesehen" },
+      "progress_300":  { "title": "Entschlossen",    "desc": "300 Karten gesehen" },
+      "progress_500":  { "title": "Unaufhaltsam",    "desc": "500 Karten gesehen" },
+      "progress_1000": { "title": "Legende",         "desc": "1000 Karten gesehen" },
+      "fav_1":   { "title": "Erster Favorit",  "desc": "Erste Frage favorisiert" },
+      "fav_15":  { "title": "Wählerisch",      "desc": "15 Fragen favorisiert" },
+      "fav_50":  { "title": "Sammler:in",      "desc": "50 Fragen favorisiert" },
+      "fav_100": { "title": "Schatzjäger:in",  "desc": "100 Fragen favorisiert" },
+      "share_1":  { "title": "Teiler:in",      "desc": "Erste Frage geteilt" },
+      "share_10": { "title": "Gesellig",       "desc": "10 Fragen geteilt" },
+      "share_50": { "title": "Botschafter:in", "desc": "50 Fragen geteilt" },
+      "cats_3":  { "title": "Entdecker:in",  "desc": "3 Kategorien entdeckt" },
+      "cats_8":  { "title": "Reisende:r",    "desc": "8 Kategorien entdeckt" },
+      "cats_15": { "title": "Weltbürger:in", "desc": "Alle Kategorien entdeckt" },
+      "mods_5":  { "title": "Ausprobierer:in",     "desc": "5 Modi gespielt" },
+      "mods_15": { "title": "Tiefenreisende:r",    "desc": "15 Modi gespielt" },
+      "mods_30": { "title": "Gesprächsmeister:in", "desc": "30 Modi gespielt" },
+      "mods_60": { "title": "Vorhang auf",         "desc": "60 Modi gespielt" },
+      "games_1":  { "title": "Spieler:in", "desc": "Erstes Spiel beendet" },
+      "games_10": { "title": "Stammgast",  "desc": "10 Spiele beendet" },
+      "games_30": { "title": "Hingabe",    "desc": "30 Spiele beendet" },
+      "levels_5":      { "title": "Vielseitig",     "desc": "5 verschiedene Stufen probiert" },
+      "premium_first": { "title": "Pro-Spieler:in", "desc": "Erster Premium-Modus gespielt" }
+    },
+    "categoryDesc": "Ersten Modus aus {{category}} gespielt",
+    "categoryFallbackTitle": "{{category}}-Profi",
+    "categoryTitles": {
+      "arkadaslar": "Kumpelhaft",
+      "bulusma":    "Flirtgenie",
+      "ciftler":    "Beziehungsprofi",
+      "aile":       "Familienwärme",
+      "grup":       "Gruppendynamik",
+      "burclar":    "Astro-Fan",
+      "yemek":      "Genießer:in",
+      "seyahat":    "Reisende Seele",
+      "evcil":      "Pet Parent",
+      "is":         "Bürowitz",
+      "nostalji":   "Nostalgisches Herz",
+      "psikoloji":  "Innenwelt",
+      "viral":      "Virale Verbindung",
+      "siyaset":    "Stimme im Forum",
+      "kaos":       "Chaosgott",
+      "ogretici":         "Wissensdurst",
+      "matematik":        "Zahlenfreund:in",
+      "bilim":            "Neugieriger Geist",
+      "dogruluk_cesaret": "Mutige Runde"
+    },
+    "levelDesc": "Ersten Modus auf Stufe „{{level}}“ gespielt",
+    "levelTitles": {
+      "mahrem":     "Geheime Tür",
+      "yogun":      "Aus der Tiefe",
+      "iddiali":    "Mutpreis",
+      "filtresiz":  "Ohne Filter",
+      "kiskirtici": "Funkenwerfer",
+      "kaotik":     "Chaostheorie",
+      "flortoz":    "Flirtmeister:in",
+      "katmanli":   "Tiefenschichten",
+      "cesur":      "Mutprobe",
+      "dusunduren": "Denker:in"
+    }
   }
 }
