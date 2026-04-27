@@ -84,9 +84,14 @@ fontSize: 16,
 ```
 
 Türkçe büyük harf: `textTransform: 'uppercase'` KULLANMA — `i→I` yapar, `İ` yapmaz.
-`upperTR(str)` helper'ı kullan (CardScreen'de tanımlı):
+`src/i18n/upper.js`'deki helper'ları kullan:
+
 ```javascript
-const upperTR = (str) => str.replace(/i/g, 'İ').toUpperCase();
+import { upperTR, useUpperT } from '../i18n/upper';
+
+upperTR('iyi günler')          // Saf fonksiyon: 'İYİ GÜNLER'
+const T = useUpperT();          // Hook: locale-aware
+T('hello')                      // dil EN ise 'HELLO', TR ise 'HELLO' ama 'i→İ'
 ```
 
 ---
@@ -272,6 +277,62 @@ const makeStyles = (theme) => StyleSheet.create({
   // ...
 });
 ```
+
+---
+
+## Theme Switch
+
+Tema modu üç seçenekli: `'system' | 'dark' | 'light'`. Varsayılan `'system'` — cihazın `useColorScheme()` değerine bağlı çalışır.
+
+```javascript
+const { themeMode, setThemeMode } = useTheme();
+
+setThemeMode('dark');    // zorla dark
+setThemeMode('light');   // zorla light
+setThemeMode('system');  // cihaz ayarına dön (varsayılan)
+```
+
+`setThemeMode` AsyncStorage `@cardwho_theme`'a yazar; uygulama yeniden açıldığında seçim korunur. SettingsScreen'de tema seçici bunu kullanır.
+
+> Not: Eski `toggleTheme()` API'si artık yok — yerine `setThemeMode(mode)` kullan.
+
+---
+
+## Kategori Renkleri (catColor)
+
+Her kategorinin sabit bir vurgu rengi vardır — `src/data/categories.js`'de `color` field'ı:
+
+```javascript
+{ id: 'arkadaslar', name: {...}, icon: '🎉', color: '#2ECC71' }
+```
+
+Bu renk theme token'ı **değildir** — dark/light modda aynı kalır. UI'da bileşene `catColor` prop'u olarak geçer (ör. `ModScreen` → `CardScreen`). Deck Item'larda sol kenar accent'i, kart üstündeki şerit ve ikon arkaplanı bu rengi kullanır.
+
+```javascript
+const category = categories.find(c => c.id === mod.categoryId);
+const catColor = category.color;  // '#2ECC71'
+```
+
+---
+
+## Premium Mod Görünümü
+
+Premium modlar (`mod.isPremium === true`) ModScreen / HomeScreen kart listesinde kilit overlay'iyle gösterilir:
+
+```javascript
+// Üst sağ köşede PRO badge (#D4A843 zemin, #1A1000 metin)
+// Kartın üzerinde yarı şeffaf overlay + lock icon (Feather "lock")
+// Kart tıklanınca paywall ekranı veya CTA tetiklenir
+{
+  position: 'absolute',
+  top: 0, right: 0, bottom: 0, left: 0,
+  backgroundColor: 'rgba(0,0,0,0.5)',
+  alignItems: 'center',
+  justifyContent: 'center',
+}
+```
+
+Paywall durumu `RemoteConfigContext.paywall_enabled` flag'iyle kontrol edilir — flag kapalıyken premium modlar serbest açılabilir (geliştirme/test için).
 
 ---
 

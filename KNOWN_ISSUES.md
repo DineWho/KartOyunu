@@ -1,5 +1,7 @@
 # Bilinen Sorunlar ve Kritik Pattern'lar
 
+> **Not:** i18n Aşama 4 (2026-04-27) tamamlandı. Tüm içerik çok dilli A-shape'te — okuma için `useLocalize()` kullan, detay → [DATA_MODEL.md](DATA_MODEL.md#multilingual-a-shape).
+
 ---
 
 ## Offline Modu & İstatistik Takibi
@@ -85,7 +87,7 @@ addFavorite(modCards[idx], mod, catColor);
 const upperTR = (str) => str.replace(/i/g, 'İ').toUpperCase();
 ```
 
-CardScreen'de tanımlı. Section label'lar hardcode yazılmış: `KART`, `SÜRE`, `KİŞİ`, `SEVİYE`, `HAKKINDA`, `NE BEKLEMELİ?`
+`src/i18n/upper.js`'de tanımlı (`upperTR`, `useUpperT`). Section label'lar i18n'den geçer (`KART`, `SÜRE`, `KİŞİ`, `SEVİYE`, `HAKKINDA`, `NE BEKLEMELİ?`).
 
 ---
 
@@ -122,18 +124,6 @@ AsyncStorage.setItem('@cardwho_favorites', JSON.stringify(favorites));
 
 ---
 
-## HomeScreen Animasyon Pool Limiti
-
-`HomeScreen` içinde `POOL_SIZE = 30` sabit olarak tanımlı. 30'dan fazla mod olduğunda pool dışındaki modlar animasyon almaz (fade/slide çalışmaz).
-
-```javascript
-const fadeAnims = useRef(Array.from({ length: POOL_SIZE }, () => new Animated.Value(0))).current;
-```
-
-Şu an 20 mod var, sınırın altında. Mod sayısı 30'u geçince bu sabiti güncelle veya `displayedMods.length` ile dinamik hale getir.
-
----
-
 ## İçerik Doğrulama
 
 Yeni içerik ekledikten sonra çalıştır:
@@ -142,7 +132,7 @@ Yeni içerik ekledikten sonra çalıştır:
 npm run validate:content
 ```
 
-Kontrol ettikleri: 12 soru zorunluluğu, boş/çok kısa/çok uzun soru, mod içi tekrar, paketler arası çapraz tekrar, geçersiz categoryId, `isPremium` tipi, orphan kart dizisi.
+Kontrol ettikleri: 12 soru zorunluluğu, boş/çok kısa/çok uzun soru, mod içi tekrar, paketler arası çapraz tekrar, geçersiz categoryId, `isPremium` tipi, orphan kart dizisi, **6 dil completeness** (her metin için tr/en/es/fr/de/ru eksiksiz).
 
 Script: [scripts/validate-content.mjs](scripts/validate-content.mjs)
 
