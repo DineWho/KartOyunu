@@ -13,7 +13,7 @@ import { rs, rf } from '../utils/responsive';
 import { openReview } from '../utils/reviewManager';
 import SettingsRow, { SettingsRowDivider } from '../components/SettingsRow';
 import SettingsGroup from '../components/SettingsGroup';
-import { setLanguage, SUPPORTED_LANGUAGES } from '../i18n';
+import { setLanguage, SUPPORTED_LANGUAGES, LANGUAGE_META } from '../i18n';
 import { useUpperT } from '../i18n/upper';
 
 function ThemeSelector({ theme, themeMode, setThemeMode, t }) {
@@ -70,21 +70,30 @@ function LanguagePickerModal({ visible, current, onClose, onSelect, t, theme }) 
         <TouchableOpacity style={StyleSheet.absoluteFill} onPress={onClose} activeOpacity={1} />
         <View style={s.sheet}>
           <View style={s.handle} />
-          <Text style={s.title}>{t('settings.languagePickerTitle')}</Text>
+          <View style={s.titleRow}>
+            <Text style={s.title}>{t('settings.languagePickerTitle')}</Text>
+            <TouchableOpacity style={s.closeBtn} onPress={onClose} activeOpacity={0.7}>
+              <Feather name="x" size={18} color={theme.colors.textSecondary} />
+            </TouchableOpacity>
+          </View>
           <FlatList
             data={SUPPORTED_LANGUAGES}
             keyExtractor={(code) => code}
             renderItem={({ item }) => {
               const sel = item === current;
+              const meta = LANGUAGE_META[item] || { native: item, flags: [] };
               return (
                 <TouchableOpacity
                   onPress={() => onSelect(item)}
                   activeOpacity={0.72}
                   style={[s.row, sel && { backgroundColor: theme.colors.primary + '14' }]}
                 >
-                  <Text style={[s.rowText, { color: theme.colors.text }, sel && { fontWeight: '700' }]}>
-                    {t(`languages.${item}`)}
-                  </Text>
+                  <View style={s.rowLabel}>
+                    <Text style={[s.rowText, { color: theme.colors.text }, sel && { fontWeight: '700' }]}>
+                      {meta.native}
+                    </Text>
+                    <Text style={s.flag}>{meta.flags.join(' ')}</Text>
+                  </View>
                   {sel ? <Feather name="check" size={18} color={theme.colors.primary} /> : null}
                 </TouchableOpacity>
               );
@@ -328,11 +337,27 @@ const makePickerStyles = (theme) => StyleSheet.create({
     backgroundColor: theme.colors.border,
     marginBottom: rs(12),
   },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: rs(16),
+  },
   title: {
     fontSize: rf(17),
     fontWeight: '700',
     color: theme.colors.text,
-    marginBottom: rs(16),
+    flex: 1,
+  },
+  closeBtn: {
+    width: rs(36),
+    height: rs(36),
+    borderRadius: rs(18),
+    backgroundColor: theme.colors.surfaceElevated || theme.colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: theme.colors.border,
   },
   row: {
     flexDirection: 'row',
@@ -342,6 +367,14 @@ const makePickerStyles = (theme) => StyleSheet.create({
     paddingVertical: rs(14),
     borderRadius: rs(10),
     marginBottom: rs(2),
+  },
+  rowLabel: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: rs(8),
+  },
+  flag: {
+    fontSize: rf(20),
   },
   rowText: {
     fontSize: rf(15),

@@ -14,6 +14,15 @@ const STORAGE_KEY = '@cardwho_locale';
 
 export const SUPPORTED_LANGUAGES = ['tr', 'en', 'es', 'fr', 'de', 'ru'];
 
+export const LANGUAGE_META = {
+  tr: { native: 'Türkçe', flags: ['🇹🇷'] },
+  en: { native: 'English', flags: ['🇬🇧', '🇺🇸'] },
+  es: { native: 'Español', flags: ['🇪🇸'] },
+  fr: { native: 'Français', flags: ['🇫🇷'] },
+  de: { native: 'Deutsch', flags: ['🇩🇪'] },
+  ru: { native: 'Русский', flags: ['🇷🇺'] },
+};
+
 const RESOURCES = {
   tr: { translation: tr },
   en: { translation: en },
