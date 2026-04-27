@@ -7,7 +7,13 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "validate:content": "node scripts/validate-content.mjs"
+    "validate:content": "node scripts/validate-content.mjs",
+    "sync:docs": "node scripts/sync-docs.mjs",
+    "sync:docs:check": "node scripts/sync-docs.mjs --check",
+    "prepare": "simple-git-hooks || true"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "npm run sync:docs && git add ARCHITECTURE.md DATA_MODEL.md && npm run validate:content"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
@@ -45,5 +51,8 @@
     "react-native-share": "^12.2.6",
     "react-native-view-shot": "4.0.3"
   },
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "simple-git-hooks": "^2.13.1"
+  }
 }
