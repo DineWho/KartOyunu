@@ -1385,8 +1385,8 @@ export const mods = [
       en: 'Indecision Plus',
       es: 'Indecisión Plus',
       fr: 'Indécision Plus',
-      de: 'Zögern Plus',
-      ru: 'Сомнения Plus',
+      de: 'Unentschlossen Plus',
+      ru: 'Нерешительность Плюс',
     },
     description: {
       tr: 'Kararlar, belirsizlik ve grubun ortak dönüm noktaları.',

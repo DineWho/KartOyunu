@@ -17,6 +17,7 @@ import { Feather } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { useTranslation } from "react-i18next";
 import { cards, categories, mods, useLocalize } from "../data";
+import { useUpperT } from "../i18n/upper";
 import { useTheme } from "../ThemeContext";
 import { useStats } from "../context/StatsContext";
 import QuestionShareCard from "../components/QuestionShareCard";
@@ -143,6 +144,7 @@ export default function HomeScreen() {
   const navigation = useNavigation();
   const { theme, isDark } = useTheme();
   const { t } = useTranslation();
+  const tu = useUpperT();
   const {
     addStat,
     getCompletedModsCount,
@@ -327,7 +329,7 @@ export default function HomeScreen() {
           <QuestionShareCard
             ref={dailyQuestionCardRef}
             question={localize(dailyQuestion.question)}
-            label="GÜNÜN SORUSU"
+            label={tu("home.dailyQuestionBadge")}
             color={theme.colors.primary}
             minHeight={230}
           />

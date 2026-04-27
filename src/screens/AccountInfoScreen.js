@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { useTheme } from '../ThemeContext';
 import { useUserProfile } from '../context/UserProfileContext';
 import { COUNTRIES, findCountry } from '../data/countries';
+import { useLocalize } from '../data/localize';
 import ScreenHeader from '../components/ScreenHeader';
 import SettingsRow, { SettingsRowDivider } from '../components/SettingsRow';
 import SettingsGroup from '../components/SettingsGroup';
@@ -64,6 +65,7 @@ export default function AccountInfoScreen() {
   const { t, i18n } = useTranslation();
   const tu = useUpperT();
   const { profile, loading, updateProfile } = useUserProfile();
+  const localize = useLocalize();
   const s = useMemo(() => makeStyles(theme), [theme]);
 
   // Local edit state — Save'e basana kadar profile güncellenmez
@@ -129,8 +131,8 @@ export default function AccountInfoScreen() {
 
   const countryLabel = useMemo(() => {
     const c = findCountry(countryCode);
-    return c ? c.name : null;
-  }, [countryCode]);
+    return c ? localize(c.name) : null;
+  }, [countryCode, localize]);
 
   const birthLabel = useMemo(() => formatDateDisplay(birthDate, i18n.language), [birthDate, i18n.language]);
 
@@ -469,6 +471,7 @@ function OptionPickerModal({ visible, title, options, selected, onClose, onSelec
 function CountryPickerModal({ visible, selected, onClose, onSelect, onClear }) {
   const { theme } = useTheme();
   const { t, i18n } = useTranslation();
+  const localize = useLocalize();
   const s = useMemo(() => makeStyles(theme), [theme]);
   const [query, setQuery] = useState('');
 
@@ -476,12 +479,18 @@ function CountryPickerModal({ visible, selected, onClose, onSelect, onClear }) {
     if (!visible) setQuery('');
   }, [visible]);
 
+  const localizedCountries = useMemo(
+    () => COUNTRIES.map((c) => ({ ...c, label: localize(c.name) }))
+      .sort((a, b) => a.label.localeCompare(b.label, i18n.language || 'tr')),
+    [i18n.language, localize],
+  );
+
   const filtered = useMemo(() => {
     const lang = i18n.language || 'tr';
     const q = query.trim().toLocaleLowerCase(lang);
-    if (!q) return COUNTRIES;
-    return COUNTRIES.filter((c) => c.name.toLocaleLowerCase(lang).includes(q));
-  }, [query, i18n.language]);
+    if (!q) return localizedCountries;
+    return localizedCountries.filter((c) => c.label.toLocaleLowerCase(lang).includes(q));
+  }, [query, i18n.language, localizedCountries]);
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
@@ -515,7 +524,7 @@ function CountryPickerModal({ visible, selected, onClose, onSelect, onClear }) {
                   style={[s.optRow, sel && { backgroundColor: theme.colors.primary + '14' }]}
                 >
                   <Text style={[s.optText, { color: theme.colors.text }, sel && { fontWeight: '700' }]}>
-                    {item.name}
+                    {item.label}
                   </Text>
                   {sel ? <Feather name="check" size={18} color={theme.colors.primary} /> : null}
                 </TouchableOpacity>

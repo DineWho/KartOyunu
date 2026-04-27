@@ -31,7 +31,8 @@ export const STATIC_BADGES = [
 
   { id: 'cats_3',  groupKey: 'explore', icon: 'compass', color: '#EA580C', check: s => s.categoriesPlayed >= 3  },
   { id: 'cats_8',  groupKey: 'explore', icon: 'map',     color: '#0284C7', check: s => s.categoriesPlayed >= 8  },
-  { id: 'cats_15', groupKey: 'explore', icon: 'globe',   color: '#D4A843', check: s => s.categoriesPlayed >= 15 },
+  // cats_15 (id korunuyor, mevcut kazanımlar düşmesin diye) — eşik dinamik: tüm kategoriler keşfedildiğinde verilir.
+  { id: 'cats_15', groupKey: 'explore', icon: 'globe',   color: '#D4A843', check: s => s.categoriesPlayed >= categories.length },
 
   { id: 'mods_5',  groupKey: 'explore', icon: 'shuffle',     color: '#7C3AED', check: s => s.modsPlayed >= 5  },
   { id: 'mods_15', groupKey: 'explore', icon: 'target',      color: '#2563EB', check: s => s.modsPlayed >= 15 },
