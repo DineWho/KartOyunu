@@ -143,7 +143,8 @@ const pillStyles = StyleSheet.create({
 export default function HomeScreen() {
   const navigation = useNavigation();
   const { theme, isDark } = useTheme();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language;
   const tu = useUpperT();
   const {
     addStat,
@@ -176,20 +177,20 @@ export default function HomeScreen() {
 
   const displayedMods = useMemo(() => {
     if (isSearchActive) {
-      const q = searchQuery.toLowerCase();
+      const q = searchQuery.toLocaleLowerCase(lang);
       return mods.filter((d) => {
         const cat = getCategory(d.categoryId);
         return (
-          localize(d.title).toLowerCase().includes(q) ||
-          localize(d.description).toLowerCase().includes(q) ||
-          localize(cat?.name).toLowerCase().includes(q)
+          localize(d.title).toLocaleLowerCase(lang).includes(q) ||
+          localize(d.description).toLocaleLowerCase(lang).includes(q) ||
+          localize(cat?.name).toLocaleLowerCase(lang).includes(q)
         );
       });
     }
     return selectedCategory
       ? mods.filter((d) => d.categoryId === selectedCategory)
       : mods;
-  }, [searchQuery, selectedCategory]);
+  }, [searchQuery, selectedCategory, lang]);
 
   const featuredMods = mods.filter((d) => !d.isPremium);
 

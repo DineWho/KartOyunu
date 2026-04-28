@@ -148,6 +148,13 @@ i18n Aşama 4 sonrası tüm sorular **6 dilde paralel** tutulur. TR canonical (y
 - **Argo / küfür:** TR'de "lan", "ya" gibi pekiştiriciler hedef dile çevrilmez — onun yerine ton equivalent'i seçilir.
 - **Sabitlenmiş seviye çevirileri:** Aşama 4'te belirlendi (`Mahrem`, `Yoğun`, `İddialı` vb. için 6 dilde sabit karşılıklar). Yeni mod eklerken mevcut seviyelerden birini kullan, yenilerini eklerken çeviri tutarlılığı için listeyi genişlet.
 - **Soru uzunluğu:** Hedef dilde okunabilirlik korunmalı — diğer dillerde aynı soru çok uzar/kısalırsa yeniden yapılandır. (Validation max 200 karakter uyarır.)
+- **Loanword (alıntı kelime) politikası:** Bazı mod adları **bilinçli olarak** her dilde İngilizce/loanword korunur — Z kuşağı ve modern jargonun bir parçası olduğu için yerelleştirme markanın tonunu zayıflatır. Sabitlenen örnekler:
+  - `Pet Parent` (Evcil Hayvanlar/`evcil_pet_parent`) — 6 dilde aynen.
+  - `Overthinker` (Psikoloji/`psikoloji_overthinker_31`) — 6 dilde aynen.
+  - `Feedback` (Öğretici/`ogretici_geri_bildirim`) — TR canonical "Geri Bildirim", EN/ES/FR/DE "Feedback" loanword, RU "Обратная связь" (Kiril alfabesi nedeniyle).
+  - `Plus` eki (Kaos/`Kararsızlık Plus`), `red flag`, `delulu`, `Burnout`, `corporate` gibi kart-içi terimler de doğal kullanım için her dilde korunabilir.
+
+  Bu istisnalar **sadece daha önce stil rehberinde sabitlenmiş kalemler için** geçerlidir. Yeni bir mod eklerken default davranış: hedef dilin doğal karşılığına çevirmek. Loanword'e karar veriyorsan PR açıklamasında gerekçeyle birlikte belirt.
 
 ### Yeni Paket Üretim Formatı (multilingual)
 
