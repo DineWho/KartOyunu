@@ -1,10 +1,11 @@
 import React, { useMemo, useState } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
-  SafeAreaView, Switch, Modal, FlatList,
+  SafeAreaView, Switch, Modal, FlatList, Animated,
 } from 'react-native';
 import { Linking, Alert } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../ThemeContext';
 import { useAudio } from '../context/AudioContext';
@@ -13,6 +14,7 @@ import { rs, rf } from '../utils/responsive';
 import { openReview } from '../utils/reviewManager';
 import SettingsRow, { SettingsRowDivider } from '../components/SettingsRow';
 import SettingsGroup from '../components/SettingsGroup';
+import SheetHandle, { useDismissibleSheet } from '../components/SheetHandle';
 import { setLanguage, SUPPORTED_LANGUAGES, LANGUAGE_META } from '../i18n';
 import { useUpperT } from '../i18n/upper';
 
@@ -63,16 +65,20 @@ function ThemeSelector({ theme, themeMode, setThemeMode, t }) {
 
 function LanguagePickerModal({ visible, current, onClose, onSelect, t, theme }) {
   const s = useMemo(() => makePickerStyles(theme), [theme]);
+  const { mounted, panHandlers, animatedStyle, overlayStyle, requestClose } = useDismissibleSheet(visible, onClose);
+  const insets = useSafeAreaInsets();
+
+  if (!mounted) return null;
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-      <View style={s.overlay}>
-        <TouchableOpacity style={StyleSheet.absoluteFill} onPress={onClose} activeOpacity={1} />
-        <View style={s.sheet}>
-          <View style={s.handle} />
+    <Modal visible transparent animationType="none" onRequestClose={requestClose} statusBarTranslucent>
+      <Animated.View style={[s.overlay, overlayStyle]}>
+        <TouchableOpacity style={StyleSheet.absoluteFill} onPress={requestClose} activeOpacity={1} />
+        <Animated.View style={[s.sheet, { paddingBottom: rs(20) + insets.bottom }, animatedStyle]}>
+          <SheetHandle panHandlers={panHandlers} />
           <View style={s.titleRow}>
             <Text style={s.title}>{t('settings.languagePickerTitle')}</Text>
-            <TouchableOpacity style={s.closeBtn} onPress={onClose} activeOpacity={0.7}>
+            <TouchableOpacity style={s.closeBtn} onPress={requestClose} activeOpacity={0.7}>
               <Feather name="x" size={18} color={theme.colors.textSecondary} />
             </TouchableOpacity>
           </View>
@@ -99,8 +105,8 @@ function LanguagePickerModal({ visible, current, onClose, onSelect, t, theme }) 
               );
             }}
           />
-        </View>
-      </View>
+        </Animated.View>
+      </Animated.View>
     </Modal>
   );
 }
@@ -323,19 +329,10 @@ const makePickerStyles = (theme) => StyleSheet.create({
     borderTopLeftRadius: rs(22),
     borderTopRightRadius: rs(22),
     paddingHorizontal: rs(20),
-    paddingTop: rs(8),
-    paddingBottom: rs(28),
+    paddingTop: 0,
     borderTopWidth: 1,
     borderColor: theme.colors.border,
     maxHeight: '60%',
-  },
-  handle: {
-    alignSelf: 'center',
-    width: rs(40),
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: theme.colors.border,
-    marginBottom: rs(12),
   },
   titleRow: {
     flexDirection: 'row',

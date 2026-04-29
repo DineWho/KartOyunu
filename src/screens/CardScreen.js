@@ -18,6 +18,7 @@ import { useAudio } from '../context/AudioContext';
 import QuestionShareCard from '../components/QuestionShareCard';
 import { shareQuestionCard } from '../utils/shareQuestionCard';
 import Confetti from '../components/Confetti';
+import ConfirmPanel from '../components/ConfirmPanel';
 import { upperLocale, useUpperT } from '../i18n/upper';
 import { rs, rf, isTablet, CARD_MAX_WIDTH } from '../utils/responsive';
 
@@ -41,6 +42,9 @@ export default function CardScreen() {
   const [sessionFavorites, setSessionFavorites] = useState([]);
   const [finished, setFinished] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [exitConfirmVisible, setExitConfirmVisible] = useState(false);
+  const exitConfirmedRef = useRef(false);
+  const pendingExitActionRef = useRef(null);
   const position = useRef(new Animated.ValueXY()).current;
 
   // Back card animated scale — reacts to drag progress
@@ -86,6 +90,35 @@ export default function CardScreen() {
       useNativeDriver: true,
     }).start();
   }, []);
+
+  // Oyun sürerken çıkış onayı — X butonu veya donanım Geri tuşunu yakala
+  useEffect(() => {
+    if (finished) return;
+    const unsubscribe = navigation.addListener('beforeRemove', (e) => {
+      if (exitConfirmedRef.current) return;
+      e.preventDefault();
+      pendingExitActionRef.current = e.data.action;
+      setExitConfirmVisible(true);
+    });
+    return unsubscribe;
+  }, [navigation, finished]);
+
+  const confirmExit = () => {
+    exitConfirmedRef.current = true;
+    setExitConfirmVisible(false);
+    const action = pendingExitActionRef.current;
+    pendingExitActionRef.current = null;
+    if (action) {
+      navigation.dispatch(action);
+    } else {
+      navigation.goBack();
+    }
+  };
+
+  const cancelExit = () => {
+    pendingExitActionRef.current = null;
+    setExitConfirmVisible(false);
+  };
 
   // Review prompt — 2sn sonra, kullanıcı yeterince oynadıysa
   useEffect(() => {
@@ -374,7 +407,7 @@ export default function CardScreen() {
         </TouchableOpacity>
         <View style={s.headerCenter}>
           <Text style={s.categoryName}>{category?.icon} {localize(category?.name)}</Text>
-          <Text style={s.deckSubtitle}>{localize(mod.level)} · {currentIndex + 1}/{totalCards}</Text>
+          <Text style={s.deckSubtitle}>{t('mod.section.level')}: {localize(mod.level)}</Text>
         </View>
         <View style={{ width: 44 }} />
       </View>
@@ -497,6 +530,19 @@ export default function CardScreen() {
           </LinearGradient>
         </TouchableOpacity>
       </View>
+
+      <ConfirmPanel
+        visible={exitConfirmVisible}
+        onClose={cancelExit}
+        iconName="log-out"
+        iconColor={catColor}
+        stripColor={catColor}
+        title={t('card.exit.title')}
+        description={t('card.exit.desc')}
+        confirmLabel={t('card.exit.confirm')}
+        cancelLabel={t('card.exit.cancel')}
+        onConfirm={confirmExit}
+      />
     </SafeAreaView>
   );
 }

@@ -1,17 +1,20 @@
 import React, { useMemo, useState, useEffect, useRef } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView,
-  ScrollView, Modal, FlatList, ActivityIndicator, KeyboardAvoidingView, Platform,
+  ScrollView, Modal, FlatList, ActivityIndicator, KeyboardAvoidingView, Platform, Animated,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../ThemeContext';
 import { useUserProfile } from '../context/UserProfileContext';
+import { useAuth } from '../context/AuthContext';
 import { COUNTRIES, findCountry } from '../data/countries';
 import { useLocalize } from '../data/localize';
 import ScreenHeader from '../components/ScreenHeader';
 import SettingsRow, { SettingsRowDivider } from '../components/SettingsRow';
 import SettingsGroup from '../components/SettingsGroup';
+import SheetHandle, { useDismissibleSheet } from '../components/SheetHandle';
 import Toast from '../components/Toast';
 import { useUpperT } from '../i18n/upper';
 import { rs, rf } from '../utils/responsive';
@@ -65,6 +68,7 @@ export default function AccountInfoScreen() {
   const { t, i18n } = useTranslation();
   const tu = useUpperT();
   const { profile, loading, updateProfile } = useUserProfile();
+  const { user, isAnonymous } = useAuth();
   const localize = useLocalize();
   const s = useMemo(() => makeStyles(theme), [theme]);
 
@@ -154,19 +158,17 @@ export default function AccountInfoScreen() {
           </Text>
 
           <SettingsGroup title={tu('accountInfo.personalGroup')}>
-            <View style={s.fieldRow}>
-              <Text style={s.fieldLabel}>{t('accountInfo.firstName')}</Text>
-              <TextInput
-                style={s.input}
-                value={firstName}
-                onChangeText={setFirstName}
-                placeholder={t('accountInfo.firstNamePlaceholder')}
-                placeholderTextColor={theme.colors.textMuted}
-                maxLength={40}
-                autoCapitalize="words"
-                returnKeyType="done"
-              />
-            </View>
+            <InputRow
+              icon="✏️"
+              label={t('accountInfo.firstName')}
+              value={firstName}
+              onChangeText={setFirstName}
+              placeholder={t('accountInfo.firstNamePlaceholder')}
+              maxLength={40}
+              autoCapitalize="words"
+              theme={theme}
+              s={s}
+            />
             <SettingsRowDivider />
             <SettingsRow
               icon="🎂"
@@ -177,7 +179,7 @@ export default function AccountInfoScreen() {
             />
             <SettingsRowDivider />
             <SettingsRow
-              icon="👤"
+              icon="⚥"
               label={t('accountInfo.gender')}
               sublabel={genderLabel || t('common.notSpecified')}
               right={<Feather name="chevron-right" size={18} color={theme.colors.textMuted} />}
@@ -185,20 +187,34 @@ export default function AccountInfoScreen() {
             />
           </SettingsGroup>
 
-          <SettingsGroup title={tu('accountInfo.locationGroup')}>
-            <View style={s.fieldRow}>
-              <Text style={s.fieldLabel}>{t('accountInfo.city')}</Text>
-              <TextInput
-                style={s.input}
-                value={city}
-                onChangeText={setCity}
-                placeholder={t('accountInfo.cityPlaceholder')}
-                placeholderTextColor={theme.colors.textMuted}
-                maxLength={60}
-                autoCapitalize="words"
-                returnKeyType="done"
+          {!isAnonymous && (
+            <SettingsGroup title={tu('accountInfo.membershipGroup')}>
+              <SettingsRow
+                icon="✉️"
+                label={t('accountInfo.email')}
+                sublabel={user?.email || t('common.notSpecified')}
               />
-            </View>
+              <SettingsRowDivider />
+              <SettingsRow
+                icon="💎"
+                label={t('accountInfo.plan')}
+                sublabel={t('accountInfo.planFree')}
+              />
+            </SettingsGroup>
+          )}
+
+          <SettingsGroup title={tu('accountInfo.locationGroup')}>
+            <InputRow
+              icon="🏙️"
+              label={t('accountInfo.city')}
+              value={city}
+              onChangeText={setCity}
+              placeholder={t('accountInfo.cityPlaceholder')}
+              maxLength={60}
+              autoCapitalize="words"
+              theme={theme}
+              s={s}
+            />
             <SettingsRowDivider />
             <SettingsRow
               icon="🌍"
@@ -280,6 +296,32 @@ export default function AccountInfoScreen() {
 }
 
 // ─────────────────────────────────────────────
+// Input row — title üstte, TextInput altta, sol ikonla
+// ─────────────────────────────────────────────
+function InputRow({ icon, label, value, onChangeText, placeholder, maxLength, autoCapitalize, theme, s }) {
+  return (
+    <View style={s.inputRow}>
+      <View style={[s.inputIconWrap, { backgroundColor: theme.colors.surfaceElevated }]}>
+        <Text style={s.inputIcon}>{icon}</Text>
+      </View>
+      <View style={s.inputRowContent}>
+        <Text style={s.inputRowLabel}>{label}</Text>
+        <TextInput
+          style={s.inputRowInput}
+          value={value}
+          onChangeText={onChangeText}
+          placeholder={placeholder}
+          placeholderTextColor={theme.colors.textMuted}
+          maxLength={maxLength}
+          autoCapitalize={autoCapitalize}
+          returnKeyType="done"
+        />
+      </View>
+    </View>
+  );
+}
+
+// ─────────────────────────────────────────────
 // Date picker (3 sütun: gün / ay / yıl)
 // ─────────────────────────────────────────────
 function DatePickerModal({ visible, initial, onClose, onSelect }) {
@@ -327,13 +369,17 @@ function DatePickerModal({ visible, initial, onClose, onSelect }) {
   }, [y, m]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleConfirm = () => onSelect(formatDate(y, m, d));
+  const { mounted, panHandlers, animatedStyle, overlayStyle, requestClose } = useDismissibleSheet(visible, onClose);
+  const insets = useSafeAreaInsets();
+
+  if (!mounted) return null;
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-      <View style={s.pickerOverlay}>
-        <TouchableOpacity style={StyleSheet.absoluteFill} onPress={onClose} activeOpacity={1} />
-        <View style={s.pickerSheet}>
-          <View style={s.pickerHandle} />
+    <Modal visible transparent animationType="none" onRequestClose={requestClose} statusBarTranslucent>
+      <Animated.View style={[s.pickerOverlay, overlayStyle]}>
+        <TouchableOpacity style={StyleSheet.absoluteFill} onPress={requestClose} activeOpacity={1} />
+        <Animated.View style={[s.pickerSheet, { paddingBottom: rs(20) + insets.bottom }, animatedStyle]}>
+          <SheetHandle panHandlers={panHandlers} />
           <Text style={s.pickerTitle}>{t('accountInfo.birthDate')}</Text>
 
           <View style={s.wheelRow}>
@@ -355,8 +401,8 @@ function DatePickerModal({ visible, initial, onClose, onSelect }) {
               <Text style={s.pickerBtnPrimaryText}>{t('common.ok')}</Text>
             </TouchableOpacity>
           </View>
-        </View>
-      </View>
+        </Animated.View>
+      </Animated.View>
     </Modal>
   );
 }
@@ -422,13 +468,17 @@ function OptionPickerModal({ visible, title, options, selected, onClose, onSelec
   const { theme } = useTheme();
   const { t } = useTranslation();
   const s = useMemo(() => makeStyles(theme), [theme]);
+  const { mounted, panHandlers, animatedStyle, overlayStyle, requestClose } = useDismissibleSheet(visible, onClose);
+  const insets = useSafeAreaInsets();
+
+  if (!mounted) return null;
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-      <View style={s.pickerOverlay}>
-        <TouchableOpacity style={StyleSheet.absoluteFill} onPress={onClose} activeOpacity={1} />
-        <View style={s.pickerSheet}>
-          <View style={s.pickerHandle} />
+    <Modal visible transparent animationType="none" onRequestClose={requestClose} statusBarTranslucent>
+      <Animated.View style={[s.pickerOverlay, overlayStyle]}>
+        <TouchableOpacity style={StyleSheet.absoluteFill} onPress={requestClose} activeOpacity={1} />
+        <Animated.View style={[s.pickerSheet, { paddingBottom: rs(20) + insets.bottom }, animatedStyle]}>
+          <SheetHandle panHandlers={panHandlers} />
           <Text style={s.pickerTitle}>{title}</Text>
 
           <View>
@@ -459,8 +509,8 @@ function OptionPickerModal({ visible, title, options, selected, onClose, onSelec
               <Text style={[s.pickerBtnGhostText, { color: theme.colors.textSecondary }]}>{t('common.clearSelection')}</Text>
             </TouchableOpacity>
           ) : null}
-        </View>
-      </View>
+        </Animated.View>
+      </Animated.View>
     </Modal>
   );
 }
@@ -474,80 +524,123 @@ function CountryPickerModal({ visible, selected, onClose, onSelect, onClear }) {
   const localize = useLocalize();
   const s = useMemo(() => makeStyles(theme), [theme]);
   const [query, setQuery] = useState('');
+  const { mounted, panHandlers, animatedStyle, overlayStyle, requestClose } = useDismissibleSheet(visible, onClose);
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     if (!visible) setQuery('');
   }, [visible]);
 
-  const localizedCountries = useMemo(
-    () => COUNTRIES.map((c) => ({ ...c, label: localize(c.name) }))
-      .sort((a, b) => a.label.localeCompare(b.label, i18n.language || 'tr')),
-    [i18n.language, localize],
-  );
+  const lang = i18n.language || 'tr';
+
+  const localizedCountries = useMemo(() => {
+    const collator = new Intl.Collator(lang, { sensitivity: 'base' });
+    return COUNTRIES
+      .map((c) => ({ ...c, label: localize(c.name) }))
+      .sort((a, b) => collator.compare(a.label, b.label));
+  }, [lang, localize]);
 
   const filtered = useMemo(() => {
-    const lang = i18n.language || 'tr';
     const q = query.trim().toLocaleLowerCase(lang);
     if (!q) return localizedCountries;
     return localizedCountries.filter((c) => c.label.toLocaleLowerCase(lang).includes(q));
-  }, [query, i18n.language, localizedCountries]);
+  }, [query, lang, localizedCountries]);
+
+  if (!mounted) return null;
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-      <View style={s.pickerOverlay}>
-        <TouchableOpacity style={StyleSheet.absoluteFill} onPress={onClose} activeOpacity={1} />
-        <View style={[s.pickerSheet, { maxHeight: '78%' }]}>
-          <View style={s.pickerHandle} />
-          <Text style={s.pickerTitle}>{t('accountInfo.country')}</Text>
+    <Modal visible transparent animationType="none" onRequestClose={requestClose} statusBarTranslucent>
+      <Animated.View style={[s.pickerOverlay, overlayStyle]}>
+        <TouchableOpacity style={StyleSheet.absoluteFill} onPress={requestClose} activeOpacity={1} />
+        <Animated.View style={[s.pickerSheet, s.countrySheet, animatedStyle]}>
+          <SheetHandle panHandlers={panHandlers} />
 
-          <TextInput
-            style={[s.input, { marginHorizontal: 0, marginBottom: rs(8) }]}
-            value={query}
-            onChangeText={setQuery}
-            placeholder={t('accountInfo.countrySearch')}
-            placeholderTextColor={theme.colors.textMuted}
-            autoCorrect={false}
-            autoCapitalize="none"
-          />
-
-          <FlatList
-            data={filtered}
-            keyExtractor={(item) => item.code}
-            keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
-            renderItem={({ item }) => {
-              const sel = item.code === selected;
-              return (
-                <TouchableOpacity
-                  onPress={() => onSelect(item.code)}
-                  activeOpacity={0.72}
-                  style={[s.optRow, sel && { backgroundColor: theme.colors.primary + '14' }]}
-                >
-                  <Text style={[s.optText, { color: theme.colors.text }, sel && { fontWeight: '700' }]}>
-                    {item.label}
-                  </Text>
-                  {sel ? <Feather name="check" size={18} color={theme.colors.primary} /> : null}
-                </TouchableOpacity>
-              );
-            }}
-            ListEmptyComponent={
-              <Text style={[s.optText, { textAlign: 'center', color: theme.colors.textMuted, marginTop: rs(20) }]}>
-                {t('common.noResults')}
-              </Text>
-            }
-          />
-
-          {selected ? (
-            <TouchableOpacity
-              onPress={onClear}
-              style={[s.pickerBtn, s.pickerBtnGhost, { borderColor: theme.colors.borderLight, marginTop: rs(12) }]}
-              activeOpacity={0.72}
-            >
-              <Text style={[s.pickerBtnGhostText, { color: theme.colors.textSecondary }]}>{t('common.clearSelection')}</Text>
+          <View style={s.titleRow}>
+            <Text style={[s.pickerTitle, { marginBottom: 0, flex: 1 }]}>{t('accountInfo.country')}</Text>
+            <TouchableOpacity style={s.closeBtn} onPress={requestClose} activeOpacity={0.7} hitSlop={8}>
+              <Feather name="x" size={18} color={theme.colors.textSecondary} />
             </TouchableOpacity>
-          ) : null}
-        </View>
-      </View>
+          </View>
+
+          <View style={s.searchWrap}>
+            <Feather name="search" size={16} color={theme.colors.textMuted} style={s.searchIcon} />
+            <TextInput
+              style={s.searchInput}
+              value={query}
+              onChangeText={setQuery}
+              placeholder={t('accountInfo.countrySearch')}
+              placeholderTextColor={theme.colors.textMuted}
+              autoCorrect={false}
+              autoCapitalize="none"
+              returnKeyType="search"
+            />
+            {query.length > 0 ? (
+              <TouchableOpacity
+                onPress={() => setQuery('')}
+                hitSlop={10}
+                style={s.searchClear}
+                activeOpacity={0.6}
+              >
+                <Feather name="x-circle" size={16} color={theme.colors.textMuted} />
+              </TouchableOpacity>
+            ) : null}
+          </View>
+
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+            style={s.countryListWrap}
+            keyboardVerticalOffset={0}
+          >
+            <FlatList
+              data={filtered}
+              keyExtractor={(item) => item.code}
+              keyboardShouldPersistTaps="handled"
+              keyboardDismissMode="on-drag"
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={filtered.length === 0 ? s.emptyContent : null}
+              renderItem={({ item }) => {
+                const sel = item.code === selected;
+                return (
+                  <TouchableOpacity
+                    onPress={() => onSelect(item.code)}
+                    activeOpacity={0.72}
+                    style={[s.optRow, sel && { backgroundColor: theme.colors.primary + '14' }]}
+                  >
+                    <View style={s.optLeft}>
+                      <Text style={s.flagText}>{item.flag}</Text>
+                      <Text style={[s.optText, { color: theme.colors.text }, sel && { fontWeight: '700' }]}>
+                        {item.label}
+                      </Text>
+                    </View>
+                    {sel ? <Feather name="check" size={18} color={theme.colors.primary} /> : null}
+                  </TouchableOpacity>
+                );
+              }}
+              ListEmptyComponent={
+                <Text style={[s.optText, { textAlign: 'center', color: theme.colors.textMuted }]}>
+                  {t('common.noResults')}
+                </Text>
+              }
+            />
+
+            {selected ? (
+              <TouchableOpacity
+                onPress={onClear}
+                style={[
+                  s.pickerBtn,
+                  s.pickerBtnGhost,
+                  { borderColor: theme.colors.borderLight, marginTop: rs(12), marginBottom: insets.bottom > 0 ? insets.bottom - rs(8) : rs(4) },
+                ]}
+                activeOpacity={0.72}
+              >
+                <Text style={[s.pickerBtnGhostText, { color: theme.colors.textSecondary }]}>{t('common.clearSelection')}</Text>
+              </TouchableOpacity>
+            ) : (
+              <View style={{ height: insets.bottom }} />
+            )}
+          </KeyboardAvoidingView>
+        </Animated.View>
+      </Animated.View>
     </Modal>
   );
 }
@@ -568,23 +661,38 @@ const makeStyles = (theme) =>
       marginBottom: rs(20),
       lineHeight: rf(20),
     },
-    fieldRow: {
+    inputRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
       paddingHorizontal: rs(16),
       paddingVertical: rs(13),
-      gap: rs(4),
+      gap: rs(12),
     },
-    fieldLabel: {
-      fontSize: rf(12),
-      fontWeight: '600',
-      color: theme.colors.textMuted,
-      letterSpacing: 0.4,
+    inputIconWrap: {
+      width: rs(38),
+      height: rs(38),
+      borderRadius: rs(11),
+      alignItems: 'center',
+      justifyContent: 'center',
     },
-    input: {
+    inputIcon: {
+      fontSize: rf(18),
+    },
+    inputRowContent: {
+      flex: 1,
+    },
+    inputRowLabel: {
       fontSize: rf(15),
+      fontWeight: '600',
+      color: theme.colors.text,
+    },
+    inputRowInput: {
+      fontSize: rf(13),
       fontWeight: '500',
       color: theme.colors.text,
-      paddingVertical: rs(6),
+      paddingVertical: 0,
       paddingHorizontal: 0,
+      marginTop: rs(1),
       backgroundColor: 'transparent',
     },
     saveBtn: {
@@ -611,24 +719,68 @@ const makeStyles = (theme) =>
       borderTopLeftRadius: rs(22),
       borderTopRightRadius: rs(22),
       paddingHorizontal: rs(20),
-      paddingTop: rs(8),
-      paddingBottom: rs(28),
+      paddingTop: 0,
       borderTopWidth: 1,
       borderColor: theme.colors.border,
     },
-    pickerHandle: {
-      alignSelf: 'center',
-      width: rs(40),
-      height: 4,
-      borderRadius: 2,
-      backgroundColor: theme.colors.border,
-      marginBottom: rs(12),
+    countrySheet: {
+      height: '88%',
+    },
+    countryListWrap: {
+      flex: 1,
+    },
+    emptyContent: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
     },
     pickerTitle: {
       fontSize: rf(17),
       fontWeight: '700',
       color: theme.colors.text,
       marginBottom: rs(16),
+    },
+    titleRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: rs(14),
+      gap: rs(12),
+    },
+    closeBtn: {
+      width: rs(32),
+      height: rs(32),
+      borderRadius: rs(16),
+      backgroundColor: theme.colors.surfaceElevated || theme.colors.surface,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+    },
+    searchWrap: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      borderRadius: rs(12),
+      paddingHorizontal: rs(12),
+      marginBottom: rs(10),
+      backgroundColor: theme.colors.background,
+    },
+    searchIcon: {
+      marginRight: rs(8),
+    },
+    searchInput: {
+      flex: 1,
+      fontSize: rf(15),
+      fontWeight: '500',
+      color: theme.colors.text,
+      paddingVertical: rs(10),
+      backgroundColor: 'transparent',
+    },
+    searchClear: {
+      paddingLeft: rs(6),
+      paddingVertical: rs(4),
     },
     pickerActions: {
       flexDirection: 'row',
@@ -693,6 +845,15 @@ const makeStyles = (theme) =>
       paddingVertical: rs(12),
       borderRadius: rs(10),
       marginBottom: rs(2),
+    },
+    optLeft: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: rs(10),
+      flex: 1,
+    },
+    flagText: {
+      fontSize: rf(20),
     },
     optText: {
       fontSize: rf(15),

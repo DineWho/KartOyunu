@@ -14,7 +14,6 @@ import { useFavorites } from '../context/FavoritesContext';
 import { useAuth } from '../context/AuthContext';
 import Toast from '../components/Toast';
 import ConfirmPanel from '../components/ConfirmPanel';
-import Greeting from '../components/Greeting';
 import { useUserProfile } from '../context/UserProfileContext';
 import { useNotifications } from '../context/NotificationContext';
 import { useUpperT } from '../i18n/upper';
@@ -33,6 +32,13 @@ function providerInfo(user, t) {
     case 'password':   return { label: t('profile.providerEmail'), icon: '@', color: null };
     default:           return null;
   }
+}
+
+function timeOfDayKey(hour) {
+  if (hour < 6) return 'greeting.night';
+  if (hour < 12) return 'greeting.morning';
+  if (hour < 18) return 'greeting.day';
+  return 'greeting.evening';
 }
 
 function formatJoinDate(creationTime, language) {
@@ -57,7 +63,7 @@ export default function ProfileScreen() {
   const { clearFavorites } = useFavorites();
   const { user, isAnonymous, signOut, deleteAccount } = useAuth();
   const { profile: userProfile } = useUserProfile();
-  const { unreadCount } = useNotifications();
+  const { unreadCount, clearForLogout } = useNotifications();
   const navigation = useNavigation();
 
   const [clearStatsVisible, setClearStatsVisible] = useState(false);
@@ -72,7 +78,14 @@ export default function ProfileScreen() {
 
   const provider = !isAnonymous ? providerInfo(user, t) : null;
   const joinDate = !isAnonymous ? formatJoinDate(user?.metadata?.creationTime, i18n.language) : null;
-  const displayName = user?.displayName || user?.email || t('profile.fallbackName');
+  const memberHeading = useMemo(() => {
+    const name = userProfile?.firstName?.trim();
+    if (name) {
+      const phrase = t(timeOfDayKey(new Date().getHours()));
+      return t('greeting.withName', { phrase, name });
+    }
+    return user?.displayName || t('profile.fallbackName');
+  }, [userProfile?.firstName, user?.displayName, t, i18n.language]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const badgeGroups = useMemo(() => {
     const map = {};
@@ -108,18 +121,26 @@ export default function ProfileScreen() {
 
   const handleSignOut = async () => {
     setSignOutVisible(false);
+    // Lokal kullanıcı verilerini auth state değişmeden ÖNCE temizle: aksi
+    // halde signOut sonrası onIdTokenChanged → signInAnonymously tetiklenir
+    // ve yeni anonim user önceki kullanıcının favorilerini/istatistiklerini
+    // miras alır (AsyncStorage anahtarları device-scoped).
+    clearFavorites();
+    clearStats();
+    clearBadges();
+    try { await clearForLogout(); } catch {}
     try { await signOut(); } catch {}
   };
 
   const handleDeleteAccount = async () => {
     setDeleteAccountVisible(false);
     try {
-      await deleteAccount();
-      // Kullanıcıya ait tüm lokal verileri temizle — onIdTokenChanged sonrası
-      // anonim sign-in tetiklenir ve ProfileScreen yeni state ile render olur.
+      // Aynı sebep: auth state değişmeden lokal verileri temizle.
       clearFavorites();
       clearStats();
       clearBadges();
+      try { await clearForLogout(); } catch {}
+      await deleteAccount();
     } catch (e) {
       if (e?.code === 'auth/requires-recent-login') {
         Alert.alert(
@@ -192,7 +213,6 @@ export default function ProfileScreen() {
 
         {/* Avatar & Name */}
         <View style={s.profileTop}>
-          {!isAnonymous && <Greeting name={userProfile?.firstName} />}
           <View style={s.avatarWrap}>
             <LinearGradient
               colors={isAnonymous ? guestAvatarColors : memberAvatarColors}
@@ -211,7 +231,7 @@ export default function ProfileScreen() {
             )}
           </View>
           <Text style={s.guestName}>
-            {isAnonymous ? t('profile.guest') : displayName}
+            {isAnonymous ? t('profile.guest') : memberHeading}
           </Text>
 
           {isAnonymous ? (
@@ -256,15 +276,6 @@ export default function ProfileScreen() {
                   </View>
                 ))}
               </View>
-              {hasStats && !isAnonymous && (
-                <TouchableOpacity
-                  style={s.clearStatsBtn}
-                  onPress={() => setClearStatsVisible(true)}
-                  activeOpacity={0.72}
-                >
-                  <Text style={s.clearStatsText}>{t('profile.clearStats')}</Text>
-                </TouchableOpacity>
-              )}
             </View>
 
             {/* Badges (collapsible w/ peek) */}
@@ -716,23 +727,6 @@ const makeStyles = (theme) => StyleSheet.create({
   statCellTopBorder: {
     borderTopWidth: 1,
     borderTopColor: theme.colors.border,
-  },
-  clearStatsBtn: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: rs(44),
-    paddingHorizontal: rs(16),
-    paddingVertical: rs(12),
-    marginTop: rs(12),
-    backgroundColor: theme.colors.surface,
-    borderRadius: rs(14),
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-  },
-  clearStatsText: {
-    fontSize: rf(13),
-    fontWeight: '600',
-    color: theme.colors.danger,
   },
   authCard: {
     borderRadius: rs(22),
