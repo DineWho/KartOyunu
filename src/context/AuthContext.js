@@ -6,9 +6,7 @@ import * as WebBrowser from 'expo-web-browser';
 import {
   createUserWithEmailAndPassword,
   deleteUser,
-  EmailAuthProvider,
   GoogleAuthProvider,
-  linkWithCredential,
   OAuthProvider,
   onIdTokenChanged,
   sendPasswordResetEmail,
@@ -18,7 +16,7 @@ import {
   signOut as jsSignOut,
 } from 'firebase/auth';
 import { jsAuth } from '../lib/firebase';
-import { deleteUserProfile, writeUserProfile } from '../lib/firestore';
+import { deleteProfile } from '../lib/profileApi';
 
 const PROFILE_CACHE_PREFIX = '@cardwho_user_profile_';
 
@@ -67,33 +65,20 @@ const snapshotUser = (firebaseUser) =>
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [authReady, setAuthReady] = useState(false);
-  // ID token her saat refresh olur; aynı email/displayName için tekrar
-  // Firestore'a yazmamak için son senkronlanan key'i tutuyoruz.
-  const lastSyncRef = useRef(null);
+  // Manuel auth akışı (Apple/Google/email register) önce anon'u silip ardından
+  // signInWithCredential çağırıyor; arada onIdTokenChanged(null) tetikleniyor.
+  // Bu pencerede otomatik signInAnonymously başlatılırsa Apple sign-in ile
+  // yarışıp ekranı misafir bırakıyor. Bayrak ile yarışı önle.
+  const manualAuthRef = useRef(false);
 
   useEffect(() => {
     const unsubscribe = onIdTokenChanged(jsAuth, async (firebaseUser) => {
       if (firebaseUser) {
         setUser(snapshotUser(firebaseUser));
         setAuthReady(true);
-
-        // Anonim olmayan ve email'i olan kullanıcılar için Firestore'da
-        // email + displayName'i senkronize tut. Fire-and-forget.
-        if (!firebaseUser.isAnonymous && firebaseUser.email) {
-          const key = `${firebaseUser.uid}|${firebaseUser.email}|${firebaseUser.displayName || ''}`;
-          if (lastSyncRef.current !== key) {
-            lastSyncRef.current = key;
-            writeUserProfile(firebaseUser.uid, {
-              email: firebaseUser.email,
-              displayName: firebaseUser.displayName || null,
-            }).catch(() => {});
-          }
-        } else {
-          lastSyncRef.current = null;
-        }
       } else {
         setAuthReady(true);
-        lastSyncRef.current = null;
+        if (manualAuthRef.current) return;
         try {
           await signInAnonymously(jsAuth);
         } catch {
@@ -108,6 +93,26 @@ export function AuthProvider({ children }) {
     if (jsAuth.currentUser) setUser(snapshotUser(jsAuth.currentUser));
   };
 
+  // Anon kullanıcı varsa, provider hesabına geçmeden önce anon'u sil.
+  // linkWithCredential Apple için Firebase JS SDK'da nonce iletim bug'ıyla
+  // patlıyor (auth/missing-or-invalid-nonce); ayrıca Yol 2 (anon profil
+  // taşıma) backend ile gelene kadar ertelendiği için link kaybedilen bir
+  // şey değil — kullanıcının anon'da yaptığı henüz hiçbir şey provider
+  // hesabına taşınmıyordu. manualAuthRef flag'i deleteUser ile
+  // signInWithCredential arasında otomatik anon login'i bloklar.
+  const linkOrSignIn = async (credential) => {
+    manualAuthRef.current = true;
+    try {
+      const current = jsAuth.currentUser;
+      if (current?.isAnonymous) {
+        try { await deleteUser(current); } catch {}
+      }
+      return await signInWithCredential(jsAuth, credential);
+    } finally {
+      manualAuthRef.current = false;
+    }
+  };
+
   const signInWithEmail = async (email, password) => {
     const result = await signInWithEmailAndPassword(jsAuth, email, password);
     refreshUser();
@@ -115,30 +120,33 @@ export function AuthProvider({ children }) {
   };
 
   const registerWithEmail = async (email, password) => {
-    const credential = EmailAuthProvider.credential(email, password);
-    const current = jsAuth.currentUser;
-    const result = current?.isAnonymous
-      ? await linkWithCredential(current, credential)
-      : await createUserWithEmailAndPassword(jsAuth, email, password);
-    refreshUser();
-    return result;
+    manualAuthRef.current = true;
+    try {
+      const current = jsAuth.currentUser;
+      if (current?.isAnonymous) {
+        try { await deleteUser(current); } catch {}
+      }
+      const result = await createUserWithEmailAndPassword(jsAuth, email, password);
+      refreshUser();
+      return result;
+    } finally {
+      manualAuthRef.current = false;
+    }
   };
 
   const signInWithGoogleIdToken = async (idToken) => {
     const credential = GoogleAuthProvider.credential(idToken);
-    const current = jsAuth.currentUser;
-    const result = current?.isAnonymous
-      ? await linkWithCredential(current, credential)
-      : await signInWithCredential(jsAuth, credential);
+    const result = await linkOrSignIn(credential);
     refreshUser();
     return result;
   };
 
   const signInWithApple = async () => {
-    const rawNonce = Math.random().toString(36).substring(2, 18);
+    const rawNonce = Crypto.randomUUID();
     const hashedNonce = await Crypto.digestStringAsync(
       Crypto.CryptoDigestAlgorithm.SHA256,
-      rawNonce
+      rawNonce,
+      { encoding: Crypto.CryptoEncoding.HEX }
     );
 
     const appleResult = await AppleAuthentication.signInAsync({
@@ -158,10 +166,7 @@ export function AuthProvider({ children }) {
       rawNonce,
     });
 
-    const current = jsAuth.currentUser;
-    const result = current?.isAnonymous
-      ? await linkWithCredential(current, credential)
-      : await signInWithCredential(jsAuth, credential);
+    const result = await linkOrSignIn(credential);
     refreshUser();
     return result;
   };
@@ -178,17 +183,11 @@ export function AuthProvider({ children }) {
   const deleteAccount = async () => {
     const current = jsAuth.currentUser;
     if (!current) throw new Error('No current user');
-    const uid = current.uid;
-    const wasAnonymous = current.isAnonymous;
-    // Önce Firestore doc'u sil; auth user silinince request.auth.uid null
-    // olacak ve security rules yazımı reddedecek. Anonim user'ın doc'u
-    // zaten yok (rules engelliyor), o yüzden anonim için atla.
-    if (!wasAnonymous) {
-      try {
-        await deleteUserProfile(uid);
-      } catch {
-        // Doc yoksa veya offline'sa sessizce geç; auth silme işlemi devam etsin.
-      }
+    // Backend kaydını önce sil — token hâlâ geçerli. 204 idempotent, anon dahil.
+    try {
+      await deleteProfile();
+    } catch {
+      // Sunucu kaydı yoksa veya offline'sa Firebase silmeye devam et.
     }
     await clearAllProfileCaches();
     await deleteUser(current);

@@ -1,13 +1,10 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from './AuthContext';
-import { subscribeUserProfile, writeUserProfile, PROFILE_FIELDS } from '../lib/firestore';
+import { getProfile, patchProfile, PROFILE_FIELDS } from '../lib/profileApi';
 
 const STORAGE_PREFIX = '@cardwho_user_profile_';
 
-// Firestore tarafında da aynı şema:
-//   { firstName, birthDate ('YYYY-MM-DD'), gender, city, countryCode,
-//     locale, createdAt, updatedAt, schemaVersion }
 const EMPTY_PROFILE = {
   firstName: null,
   birthDate: null,
@@ -15,6 +12,8 @@ const EMPTY_PROFILE = {
   city: null,
   countryCode: null,
   locale: null,
+  displayName: null,
+  email: null,
 };
 
 const UserProfileContext = createContext({
@@ -26,18 +25,24 @@ const UserProfileContext = createContext({
 
 const storageKey = (uid) => `${STORAGE_PREFIX}${uid}`;
 
-// Sadece beyaz listedeki alanları client'tan Firestore'a yaz; security rules
-// de aynı listeyi enforce ediyor.
-function pickWhitelist(partial) {
+const PATCHABLE_FIELDS = [
+  'firstName',
+  'displayName',
+  'birthDate',
+  'gender',
+  'city',
+  'countryCode',
+  'locale',
+];
+
+function pickPatchable(partial) {
   const out = {};
-  for (const k of PROFILE_FIELDS) {
+  for (const k of PATCHABLE_FIELDS) {
     if (k in partial) out[k] = partial[k];
   }
   return out;
 }
 
-// AsyncStorage cache'ine yazılan plain JSON; Firestore Timestamp'leri
-// epoch millis'e indirgenir (cache yalnızca offline-first hızlı render için).
 function toCacheable(data) {
   if (!data) return null;
   const out = {};
@@ -48,11 +53,14 @@ function toCacheable(data) {
 }
 
 export function UserProfileProvider({ children }) {
-  const { user, isAnonymous } = useAuth();
+  const { user } = useAuth();
   const [profile, setProfile] = useState(EMPTY_PROFILE);
   const [loading, setLoading] = useState(true);
 
-  const uid = !isAnonymous && user?.uid ? user.uid : null;
+  const uid = user?.uid ?? null;
+  // Anon→Apple gibi link akışlarında uid sabit kalır ama provider değişir;
+  // backend'in provider'ı upgrade etmesi için yeniden GET tetiklemek lazım.
+  const providerId = user?.providerData?.[0]?.providerId ?? null;
 
   useEffect(() => {
     let cancelled = false;
@@ -67,7 +75,6 @@ export function UserProfileProvider({ children }) {
 
     setLoading(true);
 
-    // 1) Cache'ten hızlı render — offline-first.
     AsyncStorage.getItem(storageKey(uid)).then((raw) => {
       if (cancelled || !raw) return;
       try {
@@ -78,41 +85,36 @@ export function UserProfileProvider({ children }) {
       }
     });
 
-    // 2) Firestore listener — source of truth.
-    const unsubscribe = subscribeUserProfile(
-      uid,
-      (data) => {
+    getProfile()
+      .then((data) => {
         if (cancelled) return;
         const next = data ? { ...EMPTY_PROFILE, ...toCacheable(data) } : EMPTY_PROFILE;
         setProfile(next);
         setLoading(false);
         AsyncStorage.setItem(storageKey(uid), JSON.stringify(next)).catch(() => {});
-      },
-      () => {
+      })
+      .catch(() => {
         if (cancelled) return;
-        // Hata durumunda cache'le devam et, loading'i bitir.
         setLoading(false);
-      }
-    );
+      });
 
     return () => {
       cancelled = true;
-      try {
-        unsubscribe();
-      } catch {}
     };
-  }, [uid]);
+  }, [uid, providerId]);
 
   const updateProfile = useCallback(
     async (partial) => {
       if (!uid) return;
-      const whitelisted = pickWhitelist(partial);
-      // Optimistic update: UI hemen güncel hissetsin.
-      setProfile((prev) => ({ ...prev, ...whitelisted }));
-      // writeUserProfile içinde getDoc + setDoc/merge ile createdAt'ı bir kez
-      // yazıyor. Hata Firestore offline mutation queue dışındaki gerçek
-      // ihlallerde (rules vb.) çağırana fırlar.
-      await writeUserProfile(uid, whitelisted);
+      const patchable = pickPatchable(partial);
+      if (Object.keys(patchable).length === 0) return;
+      setProfile((prev) => ({ ...prev, ...patchable }));
+      const updated = await patchProfile(patchable);
+      if (updated) {
+        const reconciled = { ...EMPTY_PROFILE, ...toCacheable(updated) };
+        setProfile(reconciled);
+        AsyncStorage.setItem(storageKey(uid), JSON.stringify(reconciled)).catch(() => {});
+      }
     },
     [uid]
   );

@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/react-native';
 import React, { useEffect, useState } from 'react';
-import { StatusBar } from 'react-native';
+import { Alert, StatusBar } from 'react-native';
 import messaging from '@react-native-firebase/messaging';
 import { NavigationContainer } from '@react-navigation/native';
 import { navigationRef, flushPendingNavigation } from './src/lib/navigationRef';

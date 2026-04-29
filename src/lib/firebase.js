@@ -1,11 +1,11 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { initializeApp, getApp, getApps } from 'firebase/app';
 import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
 
 // Firebase Console > Project Settings > General'dan alınan native config.
-// JS SDK platform-agnostic; aynı projeye bağlanır, RNFB Auth ile uid'leri
-// paylaşır (aynı credential ile login olduğunda).
+// JS SDK platform-agnostic. Auth JS SDK üzerinden, Messaging + Remote Config
+// + Analytics @react-native-firebase üzerinden çalışıyor; aynı Firebase
+// projesine bağlanırlar. Profil/oyun verisi backend'de (api.cardwho.com).
 const firebaseConfig = {
   apiKey: 'AIzaSyCOVYPxo5UUL_-tiheR3ZZcBB2gLwmmmAw',
   authDomain: 'cardwho.firebaseapp.com',
@@ -23,5 +23,4 @@ export const jsAuth = initializeAuth(app, {
   persistence: getReactNativePersistence(AsyncStorage),
 });
 
-export const db = getFirestore(app);
 export default app;
