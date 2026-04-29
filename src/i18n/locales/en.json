@@ -77,13 +77,19 @@
     "share": "Share",
     "shareMessage": "\"{{question}}\"\n\n— Playing CardWho 🎴",
     "shareFilename": "cardwho-question",
-    "finishedTitle": "Mode Complete",
+    "finishedTitle": "Game Complete",
     "finishedSubFavorited_one": "You favorited {{count}} question",
     "finishedSubFavorited_other": "You favorited {{count}} questions",
     "finishedSubAll": "You completed all the cards",
     "favoritedQuestions": "Favorited Questions",
     "playAgain": "Play Again",
-    "home": "Home"
+    "home": "Home",
+    "exit": {
+      "title": "Quit the game?",
+      "desc": "Your progress in this round will be lost.",
+      "confirm": "Quit",
+      "cancel": "Keep playing"
+    }
   },
   "favorites": {
     "title": "Favorites",
@@ -260,11 +266,16 @@
     "title": "Account Info",
     "intro": "All fields are optional. Only fill in what you want.",
     "personalGroup": "Personal",
+    "membershipGroup": "Membership",
     "locationGroup": "Location",
     "firstName": "First Name",
     "firstNamePlaceholder": "Your first name",
     "birthDate": "Date of Birth",
     "gender": "Gender",
+    "email": "Email",
+    "plan": "Plan",
+    "planFree": "FREE",
+    "planPro": "PRO",
     "city": "City",
     "cityPlaceholder": "Your city",
     "country": "Country",

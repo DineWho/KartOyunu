@@ -83,7 +83,7 @@
     "share": "Поделиться",
     "shareMessage": "\"{{question}}\"\n\n— Играем в CardWho 🎴",
     "shareFilename": "cardwho-vopros",
-    "finishedTitle": "Режим пройден",
+    "finishedTitle": "Игра пройдена",
     "finishedSubFavorited_one": "Ты добавил(а) {{count}} вопрос в избранное",
     "finishedSubFavorited_few": "Ты добавил(а) {{count}} вопроса в избранное",
     "finishedSubFavorited_many": "Ты добавил(а) {{count}} вопросов в избранное",
@@ -91,7 +91,13 @@
     "finishedSubAll": "Ты прошёл(ла) все карты",
     "favoritedQuestions": "Избранные вопросы",
     "playAgain": "Играть снова",
-    "home": "Главная"
+    "home": "Главная",
+    "exit": {
+      "title": "Выйти из игры?",
+      "desc": "Прогресс этого раунда будет потерян.",
+      "confirm": "Выйти",
+      "cancel": "Продолжить"
+    }
   },
   "favorites": {
     "title": "Избранное",
@@ -274,11 +280,16 @@
     "title": "Информация об аккаунте",
     "intro": "Все поля необязательны. Заполняй только то, что хочешь.",
     "personalGroup": "Личное",
+    "membershipGroup": "Подписка",
     "locationGroup": "Местоположение",
     "firstName": "Имя",
     "firstNamePlaceholder": "Твоё имя",
     "birthDate": "Дата рождения",
     "gender": "Пол",
+    "email": "Эл. почта",
+    "plan": "План",
+    "planFree": "FREE",
+    "planPro": "PRO",
     "city": "Город",
     "cityPlaceholder": "Твой город",
     "country": "Страна",

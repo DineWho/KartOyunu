@@ -77,13 +77,19 @@
     "share": "Paylaş",
     "shareMessage": "\"{{question}}\"\n\n— CardWho ile oynuyoruz 🎴",
     "shareFilename": "cardwho-soru",
-    "finishedTitle": "Mod Tamamlandı",
+    "finishedTitle": "Oyun Tamamlandı",
     "finishedSubFavorited_one": "{{count}} soruyu favorilediniz",
     "finishedSubFavorited_other": "{{count}} soruyu favorilediniz",
     "finishedSubAll": "Tüm kartları tamamladınız",
     "favoritedQuestions": "Favorilenen Sorular",
     "playAgain": "Tekrar Oyna",
-    "home": "Ana Sayfa"
+    "home": "Ana Sayfa",
+    "exit": {
+      "title": "Oyundan çık?",
+      "desc": "Bu turdaki ilerlemen kaybolacak.",
+      "confirm": "Çık",
+      "cancel": "Devam et"
+    }
   },
   "favorites": {
     "title": "Favoriler",
@@ -260,11 +266,16 @@
     "title": "Hesap Bilgileri",
     "intro": "Bilgiler opsiyonel. Sadece girmek istediklerini doldur.",
     "personalGroup": "Kişisel",
+    "membershipGroup": "Üyelik",
     "locationGroup": "Konum",
     "firstName": "İsim",
     "firstNamePlaceholder": "İsmin",
     "birthDate": "Doğum Tarihi",
     "gender": "Cinsiyet",
+    "email": "E-posta",
+    "plan": "Plan",
+    "planFree": "FREE",
+    "planPro": "PRO",
     "city": "Şehir",
     "cityPlaceholder": "Şehrin",
     "country": "Ülke",

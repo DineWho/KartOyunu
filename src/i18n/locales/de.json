@@ -77,13 +77,19 @@
     "share": "Teilen",
     "shareMessage": "\"{{question}}\"\n\n— Wir spielen CardWho 🎴",
     "shareFilename": "cardwho-frage",
-    "finishedTitle": "Modus abgeschlossen",
+    "finishedTitle": "Spiel beendet",
     "finishedSubFavorited_one": "Du hast {{count}} Frage favorisiert",
     "finishedSubFavorited_other": "Du hast {{count}} Fragen favorisiert",
     "finishedSubAll": "Du hast alle Karten geschafft",
     "favoritedQuestions": "Favorisierte Fragen",
     "playAgain": "Nochmal spielen",
-    "home": "Start"
+    "home": "Start",
+    "exit": {
+      "title": "Spiel verlassen?",
+      "desc": "Dein Fortschritt dieser Runde geht verloren.",
+      "confirm": "Verlassen",
+      "cancel": "Weiterspielen"
+    }
   },
   "favorites": {
     "title": "Favoriten",
@@ -260,11 +266,16 @@
     "title": "Kontoinformationen",
     "intro": "Alle Felder sind freiwillig. Fülle nur aus, was du möchtest.",
     "personalGroup": "Persönlich",
+    "membershipGroup": "Mitgliedschaft",
     "locationGroup": "Ort",
     "firstName": "Vorname",
     "firstNamePlaceholder": "Dein Vorname",
     "birthDate": "Geburtsdatum",
     "gender": "Geschlecht",
+    "email": "E-Mail",
+    "plan": "Plan",
+    "planFree": "FREE",
+    "planPro": "PRO",
     "city": "Stadt",
     "cityPlaceholder": "Deine Stadt",
     "country": "Land",
