@@ -2,6 +2,8 @@
 
 Çok dilli sohbet kartı oyunu. Mobil uygulama (iOS & Android), React Native / Expo. TR/EN/ES/FR/DE/RU desteklenir; yeni dil sonradan eklenebilir.
 
+**Çalışma modeli:** Claude maximizer — git/terminal/SSH/MCP işleri Claude'a aittir, kullanıcıdan elle iş istemek yalnızca cihaz/web UI/2FA gerektiren durumlarda. Detay: memory `feedback_claude_maximizer.md`.
+
 ---
 
 ## Çalışmadan Önce Oku
