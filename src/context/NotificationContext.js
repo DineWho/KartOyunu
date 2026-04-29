@@ -27,6 +27,7 @@ const NotificationContext = createContext({
   refreshNotifications: async () => {},
   removeNotification: async () => {},
   clearNotifications: async () => {},
+  clearForLogout: async () => {},
   markAllRead: async () => {},
 });
 
@@ -106,6 +107,26 @@ export function NotificationProvider({ children }) {
   }, []);
 
   const clearNotifications = useCallback(async () => {
+    setNotifications([]);
+    try {
+      await AsyncStorage.removeItem(HISTORY_KEY);
+    } catch {}
+  }, []);
+
+  // Hesap değişimlerinde (signOut/deleteAccount) çağrılır: FCM token'ı
+  // FCM tarafında geçersiz kıl ve cihazdaki bildirim geçmişini temizle ki
+  // bir sonraki kullanıcı önceki kullanıcının pushlarını miras almasın.
+  // Permission ve "açık/kapalı" tercihi cihaz-bağımlı, dokunulmuyor.
+  const clearForLogout = useCallback(async () => {
+    try {
+      await messaging().deleteToken();
+    } catch {
+      // Sessizce geç — token zaten yoksa veya offline'sa engel olmasın.
+    }
+    setFcmToken(null);
+    try {
+      await AsyncStorage.removeItem(TOKEN_KEY);
+    } catch {}
     setNotifications([]);
     try {
       await AsyncStorage.removeItem(HISTORY_KEY);
@@ -282,6 +303,7 @@ export function NotificationProvider({ children }) {
         addNotification,
         removeNotification,
         clearNotifications,
+        clearForLogout,
         markAllRead,
       }}
     >
